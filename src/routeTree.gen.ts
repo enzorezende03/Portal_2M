@@ -9,50 +9,278 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AdminRouteImport } from './routes/_admin'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
+import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
+import { Route as AppFerramentasRouteImport } from './routes/_app/ferramentas'
+import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
+import { Route as AppTreinamentosIndexRouteImport } from './routes/_app/treinamentos/index'
+import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
+import { Route as AppTreinamentosIdRouteImport } from './routes/_app/treinamentos/$id'
 
-const IndexRoute = IndexRouteImport.update({
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPerfilRoute = AppPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOnboardingRoute = AppOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFerramentasRoute = AppFerramentasRouteImport.update({
+  id: '/ferramentas',
+  path: '/ferramentas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AdminAdminRoute = AdminAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AppTreinamentosIndexRoute = AppTreinamentosIndexRouteImport.update({
+  id: '/treinamentos/',
+  path: '/treinamentos/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AppTreinamentosIdRoute = AppTreinamentosIdRouteImport.update({
+  id: '/treinamentos/$id',
+  path: '/treinamentos/$id',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
+  '/login': typeof LoginRoute
+  '/admin': typeof AdminAdminRouteWithChildren
+  '/ferramentas': typeof AppFerramentasRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/perfil': typeof AppPerfilRoute
+  '/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/admin/': typeof AdminAdminIndexRoute
+  '/treinamentos/': typeof AppTreinamentosIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
+  '/login': typeof LoginRoute
+  '/ferramentas': typeof AppFerramentasRoute
+  '/onboarding': typeof AppOnboardingRoute
+  '/perfil': typeof AppPerfilRoute
+  '/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/admin': typeof AdminAdminIndexRoute
+  '/treinamentos': typeof AppTreinamentosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_admin': typeof AdminRouteWithChildren
+  '/_app': typeof AppRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_admin/admin': typeof AdminAdminRouteWithChildren
+  '/_app/ferramentas': typeof AppFerramentasRoute
+  '/_app/onboarding': typeof AppOnboardingRoute
+  '/_app/perfil': typeof AppPerfilRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/_admin/admin/': typeof AdminAdminIndexRoute
+  '/_app/treinamentos/': typeof AppTreinamentosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/admin'
+    | '/ferramentas'
+    | '/onboarding'
+    | '/perfil'
+    | '/treinamentos/$id'
+    | '/admin/'
+    | '/treinamentos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/ferramentas'
+    | '/onboarding'
+    | '/perfil'
+    | '/treinamentos/$id'
+    | '/admin'
+    | '/treinamentos'
+  id:
+    | '__root__'
+    | '/_admin'
+    | '/_app'
+    | '/login'
+    | '/_admin/admin'
+    | '/_app/ferramentas'
+    | '/_app/onboarding'
+    | '/_app/perfil'
+    | '/_app/'
+    | '/_app/treinamentos/$id'
+    | '/_admin/admin/'
+    | '/_app/treinamentos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  AppRoute: typeof AppRouteWithChildren
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/perfil': {
+      id: '/_app/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/onboarding': {
+      id: '/_app/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AppOnboardingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/ferramentas': {
+      id: '/_app/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/ferramentas'
+      preLoaderRoute: typeof AppFerramentasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_admin/admin': {
+      id: '/_admin/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAdminRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/_app/treinamentos/': {
+      id: '/_app/treinamentos/'
+      path: '/treinamentos'
+      fullPath: '/treinamentos/'
+      preLoaderRoute: typeof AppTreinamentosIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_admin/admin/': {
+      id: '/_admin/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAdminIndexRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_app/treinamentos/$id': {
+      id: '/_app/treinamentos/$id'
+      path: '/treinamentos/$id'
+      fullPath: '/treinamentos/$id'
+      preLoaderRoute: typeof AppTreinamentosIdRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AdminAdminRouteChildren {
+  AdminAdminIndexRoute: typeof AdminAdminIndexRoute
+}
+
+const AdminAdminRouteChildren: AdminAdminRouteChildren = {
+  AdminAdminIndexRoute: AdminAdminIndexRoute,
+}
+
+const AdminAdminRouteWithChildren = AdminAdminRoute._addFileChildren(
+  AdminAdminRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminAdminRoute: typeof AdminAdminRouteWithChildren
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdminRoute: AdminAdminRouteWithChildren,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface AppRouteChildren {
+  AppFerramentasRoute: typeof AppFerramentasRoute
+  AppOnboardingRoute: typeof AppOnboardingRoute
+  AppPerfilRoute: typeof AppPerfilRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppTreinamentosIdRoute: typeof AppTreinamentosIdRoute
+  AppTreinamentosIndexRoute: typeof AppTreinamentosIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppFerramentasRoute: AppFerramentasRoute,
+  AppOnboardingRoute: AppOnboardingRoute,
+  AppPerfilRoute: AppPerfilRoute,
+  AppIndexRoute: AppIndexRoute,
+  AppTreinamentosIdRoute: AppTreinamentosIdRoute,
+  AppTreinamentosIndexRoute: AppTreinamentosIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  AppRoute: AppRouteWithChildren,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
