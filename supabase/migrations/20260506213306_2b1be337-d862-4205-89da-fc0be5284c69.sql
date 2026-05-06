@@ -1,0 +1,1 @@
+ALTER TABLE public.onboarding_progresso ADD COLUMN IF NOT EXISTS respostas jsonb;

@@ -287,6 +287,7 @@ export type Database = {
           concluido_em: string | null
           etapa_id: string
           id: string
+          respostas: Json | null
           user_id: string
         }
         Insert: {
@@ -294,6 +295,7 @@ export type Database = {
           concluido_em?: string | null
           etapa_id: string
           id?: string
+          respostas?: Json | null
           user_id: string
         }
         Update: {
@@ -301,6 +303,7 @@ export type Database = {
           concluido_em?: string | null
           etapa_id?: string
           id?: string
+          respostas?: Json | null
           user_id?: string
         }
         Relationships: [
