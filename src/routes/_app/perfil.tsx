@@ -1,0 +1,106 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
+import { Upload } from "lucide-react";
+
+export const Route = createFileRoute("/_app/perfil")({
+  component: PerfilPage,
+});
+
+function PerfilPage() {
+  const { user, profile, refresh } = useAuth();
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [cargo, setCargo] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setNome(profile?.nome ?? "");
+    setTelefone(profile?.telefone ?? "");
+    setCargo(profile?.cargo ?? "");
+  }, [profile]);
+
+  const salvar = async () => {
+    if (!user) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ nome, telefone, cargo })
+      .eq("id", user.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Perfil atualizado");
+    refresh();
+  };
+
+  const upload = async (file: File) => {
+    if (!user) return;
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (error) return toast.error(error.message);
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    await supabase.from("profiles").update({ avatar_url: data.publicUrl }).eq("id", user.id);
+    refresh();
+    toast.success("Avatar atualizado");
+  };
+
+  return (
+    <div className="mx-auto max-w-2xl p-6 md:p-10">
+      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Meu perfil</h1>
+
+      <div className="mt-8 flex items-center gap-5">
+        <div className="h-20 w-20 overflow-hidden rounded-full bg-muted">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-2xl font-titulo" style={{ color: "var(--brand-primary)" }}>
+              {(nome || profile?.email || "U")[0].toUpperCase()}
+            </div>
+          )}
+        </div>
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-accent">
+          <Upload className="h-4 w-4" /> Trocar foto
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+          />
+        </label>
+      </div>
+
+      <div className="mt-8 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+        <Field label="Nome" value={nome} onChange={setNome} />
+        <Field label="Email" value={profile?.email ?? ""} onChange={() => {}} disabled />
+        <Field label="Telefone" value={telefone} onChange={setTelefone} />
+        <Field label="Cargo" value={cargo} onChange={setCargo} />
+        <button
+          onClick={salvar}
+          disabled={saving}
+          className="rounded-lg px-5 py-2.5 font-medium text-white disabled:opacity-60"
+          style={{ background: "var(--brand-primary)" }}
+        >
+          {saving ? "Salvando…" : "Salvar"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  return (
+    <div>
+      <label className="text-sm font-medium">{label}</label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2.5 outline-none focus:ring-2 disabled:opacity-60"
+        style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+      />
+    </div>
+  );
+}
