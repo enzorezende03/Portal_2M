@@ -162,6 +162,7 @@ export type Database = {
           id: string
           nome: string
           ordem: number
+          requer_sso: boolean
           url_acesso: string
         }
         Insert: {
@@ -173,6 +174,7 @@ export type Database = {
           id?: string
           nome: string
           ordem?: number
+          requer_sso?: boolean
           url_acesso: string
         }
         Update: {
@@ -184,6 +186,7 @@ export type Database = {
           id?: string
           nome?: string
           ordem?: number
+          requer_sso?: boolean
           url_acesso?: string
         }
         Relationships: []
