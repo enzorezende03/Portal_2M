@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AdminRouteImport } from './routes/_admin'
@@ -20,7 +21,18 @@ import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AppTreinamentosIndexRouteImport } from './routes/_app/treinamentos/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
 import { Route as AppTreinamentosIdRouteImport } from './routes/_app/treinamentos/$id'
+import { Route as AdminAdminTreinamentosRouteImport } from './routes/_admin/admin/treinamentos'
+import { Route as AdminAdminOnboardingRouteImport } from './routes/_admin/admin/onboarding'
+import { Route as AdminAdminFerramentasRouteImport } from './routes/_admin/admin/ferramentas'
+import { Route as AdminAdminEmpresasRouteImport } from './routes/_admin/admin/empresas'
+import { Route as AdminAdminClientesRouteImport } from './routes/_admin/admin/clientes'
+import { Route as AdminAdminAvisosRouteImport } from './routes/_admin/admin/avisos'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -74,14 +86,51 @@ const AppTreinamentosIdRoute = AppTreinamentosIdRouteImport.update({
   path: '/treinamentos/$id',
   getParentRoute: () => AppRoute,
 } as any)
+const AdminAdminTreinamentosRoute = AdminAdminTreinamentosRouteImport.update({
+  id: '/treinamentos',
+  path: '/treinamentos',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminOnboardingRoute = AdminAdminOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminFerramentasRoute = AdminAdminFerramentasRouteImport.update({
+  id: '/ferramentas',
+  path: '/ferramentas',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminEmpresasRoute = AdminAdminEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminClientesRoute = AdminAdminClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
+const AdminAdminAvisosRoute = AdminAdminAvisosRouteImport.update({
+  id: '/avisos',
+  path: '/avisos',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AdminAdminRouteWithChildren
   '/ferramentas': typeof AppFerramentasRoute
   '/onboarding': typeof AppOnboardingRoute
   '/perfil': typeof AppPerfilRoute
+  '/admin/avisos': typeof AdminAdminAvisosRoute
+  '/admin/clientes': typeof AdminAdminClientesRoute
+  '/admin/empresas': typeof AdminAdminEmpresasRoute
+  '/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/admin/onboarding': typeof AdminAdminOnboardingRoute
+  '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/treinamentos/': typeof AppTreinamentosIndexRoute
@@ -89,9 +138,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/ferramentas': typeof AppFerramentasRoute
   '/onboarding': typeof AppOnboardingRoute
   '/perfil': typeof AppPerfilRoute
+  '/admin/avisos': typeof AdminAdminAvisosRoute
+  '/admin/clientes': typeof AdminAdminClientesRoute
+  '/admin/empresas': typeof AdminAdminEmpresasRoute
+  '/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/admin/onboarding': typeof AdminAdminOnboardingRoute
+  '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/admin': typeof AdminAdminIndexRoute
   '/treinamentos': typeof AppTreinamentosIndexRoute
@@ -101,11 +157,18 @@ export interface FileRoutesById {
   '/_admin': typeof AdminRouteWithChildren
   '/_app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_admin/admin': typeof AdminAdminRouteWithChildren
   '/_app/ferramentas': typeof AppFerramentasRoute
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
+  '/_admin/admin/avisos': typeof AdminAdminAvisosRoute
+  '/_admin/admin/clientes': typeof AdminAdminClientesRoute
+  '/_admin/admin/empresas': typeof AdminAdminEmpresasRoute
+  '/_admin/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/_admin/admin/onboarding': typeof AdminAdminOnboardingRoute
+  '/_admin/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/_app/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_app/treinamentos/': typeof AppTreinamentosIndexRoute
@@ -115,10 +178,17 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/reset-password'
     | '/admin'
     | '/ferramentas'
     | '/onboarding'
     | '/perfil'
+    | '/admin/avisos'
+    | '/admin/clientes'
+    | '/admin/empresas'
+    | '/admin/ferramentas'
+    | '/admin/onboarding'
+    | '/admin/treinamentos'
     | '/treinamentos/$id'
     | '/admin/'
     | '/treinamentos/'
@@ -126,9 +196,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/reset-password'
     | '/ferramentas'
     | '/onboarding'
     | '/perfil'
+    | '/admin/avisos'
+    | '/admin/clientes'
+    | '/admin/empresas'
+    | '/admin/ferramentas'
+    | '/admin/onboarding'
+    | '/admin/treinamentos'
     | '/treinamentos/$id'
     | '/admin'
     | '/treinamentos'
@@ -137,11 +214,18 @@ export interface FileRouteTypes {
     | '/_admin'
     | '/_app'
     | '/login'
+    | '/reset-password'
     | '/_admin/admin'
     | '/_app/ferramentas'
     | '/_app/onboarding'
     | '/_app/perfil'
     | '/_app/'
+    | '/_admin/admin/avisos'
+    | '/_admin/admin/clientes'
+    | '/_admin/admin/empresas'
+    | '/_admin/admin/ferramentas'
+    | '/_admin/admin/onboarding'
+    | '/_admin/admin/treinamentos'
     | '/_app/treinamentos/$id'
     | '/_admin/admin/'
     | '/_app/treinamentos/'
@@ -151,10 +235,18 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -232,14 +324,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTreinamentosIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_admin/admin/treinamentos': {
+      id: '/_admin/admin/treinamentos'
+      path: '/treinamentos'
+      fullPath: '/admin/treinamentos'
+      preLoaderRoute: typeof AdminAdminTreinamentosRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/onboarding': {
+      id: '/_admin/admin/onboarding'
+      path: '/onboarding'
+      fullPath: '/admin/onboarding'
+      preLoaderRoute: typeof AdminAdminOnboardingRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/ferramentas': {
+      id: '/_admin/admin/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/admin/ferramentas'
+      preLoaderRoute: typeof AdminAdminFerramentasRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/empresas': {
+      id: '/_admin/admin/empresas'
+      path: '/empresas'
+      fullPath: '/admin/empresas'
+      preLoaderRoute: typeof AdminAdminEmpresasRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/clientes': {
+      id: '/_admin/admin/clientes'
+      path: '/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AdminAdminClientesRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
+    '/_admin/admin/avisos': {
+      id: '/_admin/admin/avisos'
+      path: '/avisos'
+      fullPath: '/admin/avisos'
+      preLoaderRoute: typeof AdminAdminAvisosRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
   }
 }
 
 interface AdminAdminRouteChildren {
+  AdminAdminAvisosRoute: typeof AdminAdminAvisosRoute
+  AdminAdminClientesRoute: typeof AdminAdminClientesRoute
+  AdminAdminEmpresasRoute: typeof AdminAdminEmpresasRoute
+  AdminAdminFerramentasRoute: typeof AdminAdminFerramentasRoute
+  AdminAdminOnboardingRoute: typeof AdminAdminOnboardingRoute
+  AdminAdminTreinamentosRoute: typeof AdminAdminTreinamentosRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
+  AdminAdminAvisosRoute: AdminAdminAvisosRoute,
+  AdminAdminClientesRoute: AdminAdminClientesRoute,
+  AdminAdminEmpresasRoute: AdminAdminEmpresasRoute,
+  AdminAdminFerramentasRoute: AdminAdminFerramentasRoute,
+  AdminAdminOnboardingRoute: AdminAdminOnboardingRoute,
+  AdminAdminTreinamentosRoute: AdminAdminTreinamentosRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
@@ -281,6 +427,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
