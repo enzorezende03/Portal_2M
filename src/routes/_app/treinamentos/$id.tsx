@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
@@ -9,15 +9,24 @@ export const Route = createFileRoute("/_app/treinamentos/$id")({
   component: TreinamentoPlayer,
 });
 
-function getEmbedUrl(url: string) {
-  if (!url) return url;
-  // YouTube
-  const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{11})/);
-  if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
-  // Vimeo
-  const vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
-  return url;
+type VideoKind = "youtube" | "vimeo" | "bunny" | "other";
+
+function detectVideo(url: string): { kind: VideoKind; embed: string } {
+  if (!url) return { kind: "other", embed: url };
+  if (/youtube\.com|youtu\.be/i.test(url)) {
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+    const id = m?.[1];
+    return { kind: "youtube", embed: id ? `https://www.youtube.com/embed/${id}?enablejsapi=1` : url };
+  }
+  if (/vimeo\.com/i.test(url)) {
+    const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    const id = m?.[1];
+    return { kind: "vimeo", embed: id ? `https://player.vimeo.com/video/${id}` : url };
+  }
+  if (/iframe\.mediadelivery\.net/i.test(url)) {
+    return { kind: "bunny", embed: url };
+  }
+  return { kind: "other", embed: url };
 }
 
 function TreinamentoPlayer() {
@@ -25,6 +34,8 @@ function TreinamentoPlayer() {
   const { user } = useAuth();
   const [t, setT] = useState<any>(null);
   const [done, setDone] = useState(false);
+  const segundosRef = useRef(0);
+  const lastSavedRef = useRef(0);
 
   useEffect(() => {
     (async () => {
@@ -33,19 +44,69 @@ function TreinamentoPlayer() {
       if (user) {
         const { data: p } = await supabase
           .from("treinamento_progresso")
-          .select("concluido")
+          .select("concluido, segundos_assistidos")
           .eq("treinamento_id", id)
           .eq("user_id", user.id)
           .maybeSingle();
         setDone(!!p?.concluido);
+        segundosRef.current = p?.segundos_assistidos ?? 0;
+        lastSavedRef.current = segundosRef.current;
       }
     })();
   }, [id, user]);
 
+  // Salva segundos a cada 10s (incrementa enquanto a aba está visível)
+  useEffect(() => {
+    if (!user || !t) return;
+
+    const tick = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        segundosRef.current += 1;
+      }
+    }, 1000);
+
+    const save = setInterval(async () => {
+      if (segundosRef.current === lastSavedRef.current) return;
+      const value = segundosRef.current;
+      const { error } = await supabase.from("treinamento_progresso").upsert(
+        { user_id: user.id, treinamento_id: id, segundos_assistidos: value },
+        { onConflict: "user_id,treinamento_id" }
+      );
+      if (!error) lastSavedRef.current = value;
+    }, 10_000);
+
+    const flush = () => {
+      const value = segundosRef.current;
+      if (value === lastSavedRef.current) return;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/treinamento_progresso?on_conflict=user_id,treinamento_id`;
+      const blob = new Blob(
+        [JSON.stringify({ user_id: user.id, treinamento_id: id, segundos_assistidos: value })],
+        { type: "application/json" }
+      );
+      try {
+        navigator.sendBeacon?.(url, blob);
+      } catch {}
+    };
+    window.addEventListener("beforeunload", flush);
+
+    return () => {
+      clearInterval(tick);
+      clearInterval(save);
+      window.removeEventListener("beforeunload", flush);
+      flush();
+    };
+  }, [user, t, id]);
+
   const marcar = async () => {
     if (!user) return;
     const { error } = await supabase.from("treinamento_progresso").upsert(
-      { user_id: user.id, treinamento_id: id, concluido: true, concluido_em: new Date().toISOString() },
+      {
+        user_id: user.id,
+        treinamento_id: id,
+        concluido: true,
+        concluido_em: new Date().toISOString(),
+        segundos_assistidos: segundosRef.current,
+      },
       { onConflict: "user_id,treinamento_id" }
     );
     if (error) return toast.error(error.message);
@@ -54,6 +115,12 @@ function TreinamentoPlayer() {
   };
 
   if (!t) return <div className="p-10 text-muted-foreground">Carregando…</div>;
+
+  const { kind, embed } = detectVideo(t.video_url);
+  const allow =
+    kind === "bunny"
+      ? "accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+      : "autoplay; encrypted-media; picture-in-picture";
 
   return (
     <div className="mx-auto max-w-4xl p-6 md:p-10">
@@ -64,8 +131,8 @@ function TreinamentoPlayer() {
       <div className="mt-4 overflow-hidden rounded-lg border border-border bg-black shadow-sm">
         <div className="aspect-video">
           <iframe
-            src={getEmbedUrl(t.video_url)}
-            allow="autoplay; encrypted-media; picture-in-picture"
+            src={embed}
+            allow={allow}
             allowFullScreen
             className="h-full w-full"
           />
