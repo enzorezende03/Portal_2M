@@ -63,11 +63,13 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <BrandProvider>
-      <AuthProvider>
-        <Outlet />
-        <Toaster />
-      </AuthProvider>
-    </BrandProvider>
+    <QueryClientProvider client={queryClient}>
+      <BrandProvider>
+        <AuthProvider>
+          <Outlet />
+          <Toaster />
+        </AuthProvider>
+      </BrandProvider>
+    </QueryClientProvider>
   );
 }
