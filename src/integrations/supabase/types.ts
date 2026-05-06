@@ -362,6 +362,7 @@ export type Database = {
           concluido: boolean
           concluido_em: string | null
           id: string
+          segundos_assistidos: number
           treinamento_id: string
           user_id: string
         }
@@ -369,6 +370,7 @@ export type Database = {
           concluido?: boolean
           concluido_em?: string | null
           id?: string
+          segundos_assistidos?: number
           treinamento_id: string
           user_id: string
         }
@@ -376,6 +378,7 @@ export type Database = {
           concluido?: boolean
           concluido_em?: string | null
           id?: string
+          segundos_assistidos?: number
           treinamento_id?: string
           user_id?: string
         }
