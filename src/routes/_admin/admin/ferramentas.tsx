@@ -297,7 +297,7 @@ function FerramentaDialog({
               <Input type="number" value={form.ordem} onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })} />
             </div>
           </div>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 text-sm">
               <Switch checked={form.ativo} onCheckedChange={(v) => setForm({ ...form, ativo: v })} />
               Ativo
@@ -306,7 +306,12 @@ function FerramentaDialog({
               <Switch checked={form.abre_em_nova_aba} onCheckedChange={(v) => setForm({ ...form, abre_em_nova_aba: v })} />
               Abrir em nova aba
             </label>
+            <label className="flex items-center gap-2 text-sm" title="Passa a sessão do usuário no fragment da URL para login automático no projeto Lovable">
+              <Switch checked={form.requer_sso} onCheckedChange={(v) => setForm({ ...form, requer_sso: v })} />
+              Login automático (SSO)
+            </label>
           </div>
+
 
           <div className="grid gap-2">
             <Label>Empresas com acesso</Label>
