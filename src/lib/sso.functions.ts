@@ -16,17 +16,21 @@ export const createSsoToken = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: profile } = await supabase
       .from("profiles")
-      .select("email, nome")
+      .select("email, nome, empresa_id, empresas(cnpj)")
       .eq("id", userId)
       .maybeSingle();
 
     const email = profile?.email ?? context.claims?.email;
     if (!email) throw new Error("Usuário sem email");
 
+    const rawCnpj = (profile as any)?.empresas?.cnpj as string | null | undefined;
+    const cnpj = rawCnpj ? rawCnpj.replace(/\D/g, "") : null;
+
     const now = Math.floor(Date.now() / 1000);
     const payload = {
       email,
       name: profile?.nome ?? null,
+      cnpj,
       iat: now,
       exp: now + 60,
     };

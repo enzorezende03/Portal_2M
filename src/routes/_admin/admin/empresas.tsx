@@ -54,14 +54,28 @@ function EmpresasAdmin() {
               </label>
             ))}
           </div>
-          <label className="mt-4 flex flex-col gap-1 text-xs">
-            <span className="font-medium">Logo URL</span>
-            <input
-              defaultValue={e.logo_url ?? ""}
-              onBlur={(ev) => (ev.target.value || null) !== e.logo_url && update(e.id, { logo_url: ev.target.value || null })}
-              className="rounded border border-border bg-card px-3 py-2 text-sm"
-            />
-          </label>
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="font-medium">Logo URL</span>
+              <input
+                defaultValue={e.logo_url ?? ""}
+                onBlur={(ev) => (ev.target.value || null) !== e.logo_url && update(e.id, { logo_url: ev.target.value || null })}
+                className="rounded border border-border bg-card px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="font-medium">CNPJ (para SSO Reforma)</span>
+              <input
+                defaultValue={e.cnpj ?? ""}
+                placeholder="Apenas dígitos"
+                onBlur={(ev) => {
+                  const v = ev.target.value.replace(/\D/g, "") || null;
+                  if (v !== e.cnpj) update(e.id, { cnpj: v });
+                }}
+                className="rounded border border-border bg-card px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
         </div>
       ))}
     </div>
