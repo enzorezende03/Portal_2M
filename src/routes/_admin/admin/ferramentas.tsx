@@ -82,7 +82,7 @@ function FerramentasAdmin() {
   function openNew() {
     setEditing({
       id: "", nome: "", descricao: "", url_acesso: "", icone: "",
-      ordem: 0, ativo: true, abre_em_nova_aba: true,
+      ordem: 0, ativo: true, abre_em_nova_aba: true, requer_sso: false,
     });
     setOpen(true);
   }
