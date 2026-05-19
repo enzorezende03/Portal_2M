@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { openWithSso } from "@/lib/sso";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, ExternalLink, PlayCircle, Megaphone } from "lucide-react";
 
@@ -112,6 +113,12 @@ function Dashboard() {
   const onb = onbQ.data ?? { total: 0, done: 0 };
   const onbPct = onb.total ? Math.round((onb.done / onb.total) * 100) : 0;
 
+  async function handleFerramentaClick(e: React.MouseEvent, f: any) {
+    if (!f.requer_sso) return;
+    e.preventDefault();
+    await openWithSso(f.url_acesso, f.abre_em_nova_aba);
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-10">
       {/* Avisos */}
@@ -194,6 +201,7 @@ function Dashboard() {
                 href={f.url_acesso}
                 target={f.abre_em_nova_aba ? "_blank" : "_self"}
                 rel="noreferrer"
+                onClick={(e) => handleFerramentaClick(e, f)}
                 className="group rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div
