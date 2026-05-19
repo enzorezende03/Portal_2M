@@ -34,6 +34,7 @@ type Ferramenta = {
   ordem: number;
   ativo: boolean;
   abre_em_nova_aba: boolean;
+  requer_sso: boolean;
 };
 type Empresa = { id: string; nome: string; slug: string };
 
