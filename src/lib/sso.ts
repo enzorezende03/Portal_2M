@@ -8,9 +8,15 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
   try {
     const { token } = await createSsoToken();
     const url = new URL(baseUrl);
-    const callback = `${url.origin}/api/public/sso`;
     const redirect = url.pathname + url.search + url.hash;
-    return `${callback}?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirect || "/")}`;
+    // Mapeia host do app -> URL da edge function SSO correspondente
+    const ssoEndpoints: Record<string, string> = {
+      "ref-tributaria.lovable.app":
+        "https://uhhsvijsoyqkgimeokau.supabase.co/functions/v1/sso",
+    };
+    const endpoint = ssoEndpoints[url.host];
+    if (!endpoint) return baseUrl; // app sem SSO configurado
+    return `${endpoint}?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirect || "/")}`;
   } catch (error) {
     console.warn("Falha ao gerar token SSO; abrindo URL original.", error);
     return baseUrl;
