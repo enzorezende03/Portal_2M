@@ -39,7 +39,8 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
 
 /** Abre a URL externa com token de SSO em nova aba. */
 export async function openWithSso(baseUrl: string, newTab = true): Promise<void> {
-  const pendingWindow = newTab ? window.open("about:blank", "_blank", "noopener,noreferrer") : null;
+  const pendingWindow = newTab ? window.open("about:blank", "_blank") : null;
+  if (pendingWindow) pendingWindow.opener = null;
   const url = await buildSsoUrl(baseUrl);
   if (newTab) {
     if (pendingWindow) {
