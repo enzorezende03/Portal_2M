@@ -17,12 +17,7 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
 
   const { token } = await createSsoToken();
   if (!token) throw new Error("Token SSO não foi gerado");
-  const targetRedirect =
-    url.host === "ref-tributaria.lovable.app"
-      ? `/auth/callback?redirect=${encodeURIComponent(redirect || "/")}`
-      : redirect || "/";
-
-  return `${endpoint}?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(targetRedirect)}`;
+  return `${endpoint}?token=${encodeURIComponent(token)}&redirect=${encodeURIComponent(redirect || "/")}`;
 }
 
 /** Abre a URL externa com token de SSO em nova aba. */
