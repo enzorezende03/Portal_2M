@@ -24,7 +24,6 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
 export async function openWithSso(baseUrl: string, newTab = true): Promise<void> {
   const win = newTab ? window.open("about:blank", "_blank") : null;
   if (win) {
-    win.opener = null;
     win.document.title = "Entrando...";
     win.document.body.innerHTML = "<p style='font-family: system-ui; padding: 24px'>Entrando automaticamente...</p>";
   }
@@ -32,8 +31,16 @@ export async function openWithSso(baseUrl: string, newTab = true): Promise<void>
   try {
     const url = await buildSsoUrl(baseUrl);
     if (newTab) {
-      if (win) win.location.href = url;
-      else window.location.href = url;
+      if (win) {
+        try {
+          win.location.replace(url);
+        } catch {
+          win.close();
+          window.open(url, "_blank", "noopener,noreferrer") ?? (window.location.href = url);
+        }
+      } else {
+        window.open(url, "_blank", "noopener,noreferrer") ?? (window.location.href = url);
+      }
     } else {
       window.location.href = url;
     }
