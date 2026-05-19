@@ -236,6 +236,7 @@ function FerramentaDialog({
         ordem: form.ordem,
         ativo: form.ativo,
         abre_em_nova_aba: form.abre_em_nova_aba,
+        requer_sso: form.requer_sso,
       };
       let id = form.id;
       if (id) {
