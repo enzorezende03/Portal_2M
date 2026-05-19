@@ -44,17 +44,15 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
 
 /** Abre a URL externa com token de SSO em nova aba. */
 export async function openWithSso(baseUrl: string, newTab = true): Promise<void> {
-  const pendingWindow = newTab ? window.open("about:blank", "_blank") : null;
-  if (pendingWindow) pendingWindow.opener = null;
   const url = await buildSsoUrl(baseUrl).catch((error) => {
     console.warn("Não foi possível gerar URL com SSO; abrindo link original.", error);
     return baseUrl;
   });
   if (newTab) {
-    if (pendingWindow) {
-      pendingWindow.location.href = url;
-    } else {
-      window.open(url, "_blank", "noopener,noreferrer");
+    const win = window.open(url, "_blank", "noopener,noreferrer");
+    if (!win) {
+      // popup bloqueado — fallback navegando na aba atual
+      window.location.href = url;
     }
   } else {
     window.location.href = url;
