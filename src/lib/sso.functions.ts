@@ -1,17 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-function b64url(input: ArrayBuffer | Uint8Array | string) {
-  const bytes =
-    typeof input === "string"
-      ? new TextEncoder().encode(input)
-      : input instanceof Uint8Array
-        ? input
-        : new Uint8Array(input);
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
+import { b64url } from "@/lib/sso.server";
 
 /**
  * Gera um token SSO assinado (HMAC-SHA256) com o segredo compartilhado.
