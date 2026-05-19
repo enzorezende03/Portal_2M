@@ -97,6 +97,7 @@ export type Database = {
       }
       empresas: {
         Row: {
+          cnpj: string | null
           cor_bg: string
           cor_navy: string
           cor_primary: string
@@ -115,6 +116,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          cnpj?: string | null
           cor_bg?: string
           cor_navy?: string
           cor_primary?: string
@@ -133,6 +135,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          cnpj?: string | null
           cor_bg?: string
           cor_navy?: string
           cor_primary?: string
