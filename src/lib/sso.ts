@@ -7,6 +7,8 @@ import { createSsoToken } from "@/lib/sso.functions";
 export async function buildSsoUrl(baseUrl: string): Promise<string> {
   try {
     const { token } = await createSsoToken();
+    if (!token) throw new Error("Token SSO não foi gerado");
+
     const url = new URL(baseUrl);
     const redirect = url.pathname + url.search + url.hash;
     // Mapeia host do app -> URL da edge function SSO correspondente
