@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ExternalLink, KeyRound } from "lucide-react";
 import { openWithSso } from "@/lib/sso";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/ferramentas")({
   component: FerramentasPage,
@@ -33,12 +32,7 @@ function FerramentasPage() {
   async function handleClick(e: React.MouseEvent, f: Ferramenta) {
     if (!f.requer_sso) return; // link normal
     e.preventDefault();
-    try {
-      await openWithSso(f.url_acesso, f.abre_em_nova_aba);
-    } catch (err: any) {
-      toast.error("Não foi possível abrir com login automático");
-      window.open(f.url_acesso, f.abre_em_nova_aba ? "_blank" : "_self");
-    }
+    await openWithSso(f.url_acesso, f.abre_em_nova_aba);
   }
 
   return (

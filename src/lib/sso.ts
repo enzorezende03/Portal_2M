@@ -8,12 +8,17 @@ import { supabase } from "@/integrations/supabase/client";
  * Pré-requisito: projeto-filho usa o mesmo VITE_SUPABASE_URL/KEY que o portal.
  */
 export async function buildSsoUrl(baseUrl: string): Promise<string> {
-  let { data: { session } } = await supabase.auth.getSession();
+  const { data: { session: initialSession } } = await supabase.auth.getSession();
+  let session = initialSession;
 
   // Se expirado ou perto de expirar, tenta renovar
   if (session?.expires_at && session.expires_at * 1000 - Date.now() < 60_000) {
-    const { data } = await supabase.auth.refreshSession();
-    if (data.session) session = data.session;
+    try {
+      const { data } = await supabase.auth.refreshSession();
+      if (data.session) session = data.session;
+    } catch (error) {
+      console.warn("Não foi possível renovar a sessão antes do SSO; usando a sessão atual.", error);
+    }
   }
 
   if (!session?.access_token || !session?.refresh_token) {
@@ -41,7 +46,10 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
 export async function openWithSso(baseUrl: string, newTab = true): Promise<void> {
   const pendingWindow = newTab ? window.open("about:blank", "_blank") : null;
   if (pendingWindow) pendingWindow.opener = null;
-  const url = await buildSsoUrl(baseUrl);
+  const url = await buildSsoUrl(baseUrl).catch((error) => {
+    console.warn("Não foi possível gerar URL com SSO; abrindo link original.", error);
+    return baseUrl;
+  });
   if (newTab) {
     if (pendingWindow) {
       pendingWindow.location.href = url;
