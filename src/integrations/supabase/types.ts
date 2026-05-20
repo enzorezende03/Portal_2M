@@ -95,6 +95,41 @@ export type Database = {
         }
         Relationships: []
       }
+      clientes: {
+        Row: {
+          cnpj: string | null
+          created_at: string
+          empresa_id: string | null
+          id: string
+          nome: string
+          origem: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string
+          empresa_id?: string | null
+          id?: string
+          nome: string
+          origem?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string
+          empresa_id?: string | null
+          id?: string
+          nome?: string
+          origem?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clientes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       empresas: {
         Row: {
           cnpj: string | null
