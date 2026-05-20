@@ -54,9 +54,15 @@ export const createClienteUser = createServerFn({ method: "POST" })
   .inputValidator((data) => schema.parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const user = await createOne(data.email, data.nome, data.empresa_id ?? null);
+    const user = await createOne(
+      data.email,
+      data.nome,
+      data.empresa_id ?? null,
+      data.cnpj ?? null,
+    );
     return { id: user.id, email: user.email };
   });
+
 
 const bulkSchema = z.object({
   items: z
