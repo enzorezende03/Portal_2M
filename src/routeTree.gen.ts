@@ -23,6 +23,7 @@ import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index
 import { Route as AppTreinamentosIdRouteImport } from './routes/_app/treinamentos/$id'
 import { Route as AdminAdminTreinamentosRouteImport } from './routes/_admin/admin/treinamentos'
 import { Route as AdminAdminOnboardingRouteImport } from './routes/_admin/admin/onboarding'
+import { Route as AdminAdminImportClientesRouteImport } from './routes/_admin/admin/import-clientes'
 import { Route as AdminAdminFerramentasRouteImport } from './routes/_admin/admin/ferramentas'
 import { Route as AdminAdminEmpresasRouteImport } from './routes/_admin/admin/empresas'
 import { Route as AdminAdminClientesRouteImport } from './routes/_admin/admin/clientes'
@@ -96,6 +97,12 @@ const AdminAdminOnboardingRoute = AdminAdminOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminImportClientesRoute =
+  AdminAdminImportClientesRouteImport.update({
+    id: '/import-clientes',
+    path: '/import-clientes',
+    getParentRoute: () => AdminAdminRoute,
+  } as any)
 const AdminAdminFerramentasRoute = AdminAdminFerramentasRouteImport.update({
   id: '/ferramentas',
   path: '/ferramentas',
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/admin/clientes': typeof AdminAdminClientesRoute
   '/admin/empresas': typeof AdminAdminEmpresasRoute
   '/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
@@ -146,6 +154,7 @@ export interface FileRoutesByTo {
   '/admin/clientes': typeof AdminAdminClientesRoute
   '/admin/empresas': typeof AdminAdminEmpresasRoute
   '/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
@@ -167,6 +176,7 @@ export interface FileRoutesById {
   '/_admin/admin/clientes': typeof AdminAdminClientesRoute
   '/_admin/admin/empresas': typeof AdminAdminEmpresasRoute
   '/_admin/admin/ferramentas': typeof AdminAdminFerramentasRoute
+  '/_admin/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/_admin/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/_admin/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/_app/treinamentos/$id': typeof AppTreinamentosIdRoute
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/empresas'
     | '/admin/ferramentas'
+    | '/admin/import-clientes'
     | '/admin/onboarding'
     | '/admin/treinamentos'
     | '/treinamentos/$id'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin/clientes'
     | '/admin/empresas'
     | '/admin/ferramentas'
+    | '/admin/import-clientes'
     | '/admin/onboarding'
     | '/admin/treinamentos'
     | '/treinamentos/$id'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/_admin/admin/clientes'
     | '/_admin/admin/empresas'
     | '/_admin/admin/ferramentas'
+    | '/_admin/admin/import-clientes'
     | '/_admin/admin/onboarding'
     | '/_admin/admin/treinamentos'
     | '/_app/treinamentos/$id'
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminOnboardingRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/import-clientes': {
+      id: '/_admin/admin/import-clientes'
+      path: '/import-clientes'
+      fullPath: '/admin/import-clientes'
+      preLoaderRoute: typeof AdminAdminImportClientesRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/ferramentas': {
       id: '/_admin/admin/ferramentas'
       path: '/ferramentas'
@@ -374,6 +394,7 @@ interface AdminAdminRouteChildren {
   AdminAdminClientesRoute: typeof AdminAdminClientesRoute
   AdminAdminEmpresasRoute: typeof AdminAdminEmpresasRoute
   AdminAdminFerramentasRoute: typeof AdminAdminFerramentasRoute
+  AdminAdminImportClientesRoute: typeof AdminAdminImportClientesRoute
   AdminAdminOnboardingRoute: typeof AdminAdminOnboardingRoute
   AdminAdminTreinamentosRoute: typeof AdminAdminTreinamentosRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
@@ -384,6 +405,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminClientesRoute: AdminAdminClientesRoute,
   AdminAdminEmpresasRoute: AdminAdminEmpresasRoute,
   AdminAdminFerramentasRoute: AdminAdminFerramentasRoute,
+  AdminAdminImportClientesRoute: AdminAdminImportClientesRoute,
   AdminAdminOnboardingRoute: AdminAdminOnboardingRoute,
   AdminAdminTreinamentosRoute: AdminAdminTreinamentosRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
