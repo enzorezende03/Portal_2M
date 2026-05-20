@@ -9,6 +9,7 @@ const schema = z.object({
   email: z.string().email().max(255),
   nome: z.string().min(1).max(255),
   empresa_id: z.string().uuid().nullable().optional(),
+  cnpj: z.string().max(32).nullable().optional(),
 });
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -21,7 +22,12 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   }
 }
 
-async function createOne(email: string, nome: string, empresa_id?: string | null) {
+async function createOne(
+  email: string,
+  nome: string,
+  empresa_id?: string | null,
+  cnpj?: string | null,
+) {
   const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password: DEFAULT_CLIENTE_PASSWORD,
@@ -36,19 +42,27 @@ async function createOne(email: string, nome: string, empresa_id?: string | null
     .update({
       must_reset_password: true,
       ...(empresa_id ? { empresa_id } : {}),
+      ...(cnpj ? { cnpj } : {}),
     })
     .eq("id", created.user.id);
   return created.user;
 }
+
 
 export const createClienteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => schema.parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const user = await createOne(data.email, data.nome, data.empresa_id ?? null);
+    const user = await createOne(
+      data.email,
+      data.nome,
+      data.empresa_id ?? null,
+      data.cnpj ?? null,
+    );
     return { id: user.id, email: user.email };
   });
+
 
 const bulkSchema = z.object({
   items: z

@@ -16,9 +16,17 @@ type Profile = {
   email: string | null;
   telefone: string | null;
   cargo: string | null;
+  cnpj: string | null;
   empresa_id: string | null;
 };
 type Empresa = { id: string; nome: string };
+
+function formatCnpj(v: string | null) {
+  if (!v) return "—";
+  const d = v.replace(/\D/g, "");
+  if (d.length !== 14) return v;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+}
 
 function ClientesPage() {
   const [rows, setRows] = useState<Profile[]>([]);
@@ -29,10 +37,11 @@ function ClientesPage() {
   const load = () =>
     supabase
       .from("profiles")
-      .select("id,nome,email,telefone,cargo,empresa_id")
+      .select("id,nome,email,telefone,cargo,cnpj,empresa_id")
       .order("created_at", { ascending: false })
       .limit(500)
       .then(({ data }) => setRows((data as Profile[]) ?? []));
+
 
   useEffect(() => {
     load();
@@ -46,10 +55,11 @@ function ClientesPage() {
   const filtered = rows.filter((r) =>
     !q
       ? true
-      : [r.nome, r.email, r.telefone, r.cargo].some((v) =>
+      : [r.nome, r.email, r.telefone, r.cargo, r.cnpj].some((v) =>
           String(v ?? "").toLowerCase().includes(q.toLowerCase()),
         ),
   );
+
 
   const empresaNome = (id: string | null) =>
     id ? empresas.find((e) => e.id === id)?.nome ?? "—" : "—";
@@ -84,6 +94,7 @@ function ClientesPage() {
             <tr>
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">Email</th>
+              <th className="px-4 py-3 font-medium">CNPJ</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
               <th className="px-4 py-3 font-medium">Telefone</th>
               <th className="px-4 py-3 font-medium">Cargo</th>
@@ -94,6 +105,7 @@ function ClientesPage() {
               <tr key={r.id} className="border-t border-border">
                 <td className="px-4 py-3">{r.nome ?? "—"}</td>
                 <td className="px-4 py-3">{r.email ?? "—"}</td>
+                <td className="px-4 py-3 font-mono text-xs">{formatCnpj(r.cnpj)}</td>
                 <td className="px-4 py-3">{empresaNome(r.empresa_id)}</td>
                 <td className="px-4 py-3">{r.telefone ?? "—"}</td>
                 <td className="px-4 py-3">{r.cargo ?? "—"}</td>
@@ -101,11 +113,12 @@ function ClientesPage() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum registro.
                 </td>
               </tr>
             )}
+
           </tbody>
         </table>
       </div>
@@ -136,6 +149,7 @@ function NovoClienteDialog({
   const create = useServerFn(createClienteUser);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [empresaId, setEmpresaId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -147,11 +161,13 @@ function NovoClienteDialog({
         data: {
           nome,
           email,
+          cnpj: cnpj.replace(/\D/g, "") || null,
           empresa_id: empresaId || null,
         },
       });
       toast.success("Usuário criado. Senha inicial: 2m_Brand");
       onCreated();
+
     } catch (err: any) {
       toast.error(err?.message ?? "Erro ao criar usuário");
     } finally {
@@ -196,6 +212,15 @@ function NovoClienteDialog({
               className="w-full rounded-lg border border-border bg-card px-3 py-2"
             />
           </Field>
+          <Field label="CNPJ">
+            <input
+              value={cnpj}
+              onChange={(e) => setCnpj(e.target.value)}
+              placeholder="00.000.000/0000-00"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2"
+            />
+          </Field>
+
           <Field label="Senha inicial (fixa, o usuário troca no 1º acesso)">
             <input
               value="2m_Brand"
