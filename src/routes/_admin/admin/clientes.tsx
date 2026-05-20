@@ -60,7 +60,14 @@ function ClientesPage() {
       .select("id,nome")
       .order("nome")
       .then(({ data }) => setEmpresas((data as Empresa[]) ?? []));
+    supabase
+      .from("clientes")
+      .select("id,nome,cnpj,empresa_id")
+      .order("nome")
+      .limit(5000)
+      .then(({ data }) => setClientes((data as ClienteImportado[]) ?? []));
   }, []);
+
 
   const filtered = rows.filter((r) =>
     !q
