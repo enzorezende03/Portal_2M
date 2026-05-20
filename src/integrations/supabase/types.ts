@@ -330,6 +330,7 @@ export type Database = {
           email: string | null
           empresa_id: string | null
           id: string
+          must_reset_password: boolean
           nome: string | null
           telefone: string | null
           updated_at: string
@@ -341,6 +342,7 @@ export type Database = {
           email?: string | null
           empresa_id?: string | null
           id: string
+          must_reset_password?: boolean
           nome?: string | null
           telefone?: string | null
           updated_at?: string
@@ -352,6 +354,7 @@ export type Database = {
           email?: string | null
           empresa_id?: string | null
           id?: string
+          must_reset_password?: boolean
           nome?: string | null
           telefone?: string | null
           updated_at?: string

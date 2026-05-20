@@ -3,9 +3,10 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
+export const DEFAULT_CLIENTE_PASSWORD = "2m_Brand";
+
 const schema = z.object({
   email: z.string().email().max(255),
-  password: z.string().min(6).max(128),
   nome: z.string().min(1).max(255),
   empresa_id: z.string().uuid().nullable().optional(),
 });
@@ -24,10 +25,10 @@ export const createClienteUser = createServerFn({ method: "POST" })
       throw new Error("Apenas administradores podem criar usuários");
     }
 
-    // Cria o usuário no Auth com email já confirmado
+    // Cria o usuário no Auth com senha padrão e email já confirmado
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
-      password: data.password,
+      password: DEFAULT_CLIENTE_PASSWORD,
       email_confirm: true,
       user_metadata: { nome: data.nome },
     });
@@ -36,13 +37,14 @@ export const createClienteUser = createServerFn({ method: "POST" })
       throw new Error(error?.message ?? "Falha ao criar usuário");
     }
 
-    // Vincula empresa se informada (o trigger handle_new_user já criou o profile)
-    if (data.empresa_id) {
-      await supabaseAdmin
-        .from("profiles")
-        .update({ empresa_id: data.empresa_id })
-        .eq("id", created.user.id);
-    }
+    // Marca para troca obrigatória de senha + vincula empresa
+    await supabaseAdmin
+      .from("profiles")
+      .update({
+        must_reset_password: true,
+        ...(data.empresa_id ? { empresa_id: data.empresa_id } : {}),
+      })
+      .eq("id", created.user.id);
 
     return { id: created.user.id, email: created.user.email };
   });

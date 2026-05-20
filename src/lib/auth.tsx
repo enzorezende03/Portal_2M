@@ -10,7 +10,9 @@ type Profile = {
   telefone: string | null;
   cargo: string | null;
   avatar_url: string | null;
+  must_reset_password: boolean | null;
 };
+
 
 type Ctx = {
   user: User | null;

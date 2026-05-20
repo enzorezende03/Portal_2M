@@ -136,7 +136,6 @@ function NovoClienteDialog({
   const create = useServerFn(createClienteUser);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [empresaId, setEmpresaId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -148,11 +147,10 @@ function NovoClienteDialog({
         data: {
           nome,
           email,
-          password,
           empresa_id: empresaId || null,
         },
       });
-      toast.success("Usuário criado com sucesso");
+      toast.success("Usuário criado. Senha inicial: 2m_Brand");
       onCreated();
     } catch (err: any) {
       toast.error(err?.message ?? "Erro ao criar usuário");
@@ -160,6 +158,7 @@ function NovoClienteDialog({
       setSaving(false);
     }
   };
+
 
   return (
     <div
@@ -197,16 +196,15 @@ function NovoClienteDialog({
               className="w-full rounded-lg border border-border bg-card px-3 py-2"
             />
           </Field>
-          <Field label="Senha (mínimo 6 caracteres)">
+          <Field label="Senha inicial (fixa, o usuário troca no 1º acesso)">
             <input
-              required
-              type="text"
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-border bg-card px-3 py-2"
+              value="2m_Brand"
+              readOnly
+              disabled
+              className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
             />
           </Field>
+
           <Field label="Empresa (opcional)">
             <select
               value={empresaId}
