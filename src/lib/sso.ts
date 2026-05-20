@@ -11,6 +11,8 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
   const ssoEndpoints: Record<string, string> = {
     "ref-tributaria.lovable.app":
       "https://uhhsvijsoyqkgimeokau.supabase.co/functions/v1/sso",
+    "distribuilucros.lovable.app":
+      "https://cjgkckhnghqzrmypnuni.supabase.co/functions/v1/sso",
   };
   const endpoint = ssoEndpoints[url.host];
   if (!endpoint) return baseUrl; // app sem SSO configurado
