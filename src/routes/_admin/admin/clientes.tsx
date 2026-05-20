@@ -94,6 +94,7 @@ function ClientesPage() {
             <tr>
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">Email</th>
+              <th className="px-4 py-3 font-medium">CNPJ</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
               <th className="px-4 py-3 font-medium">Telefone</th>
               <th className="px-4 py-3 font-medium">Cargo</th>
@@ -104,6 +105,7 @@ function ClientesPage() {
               <tr key={r.id} className="border-t border-border">
                 <td className="px-4 py-3">{r.nome ?? "—"}</td>
                 <td className="px-4 py-3">{r.email ?? "—"}</td>
+                <td className="px-4 py-3 font-mono text-xs">{formatCnpj(r.cnpj)}</td>
                 <td className="px-4 py-3">{empresaNome(r.empresa_id)}</td>
                 <td className="px-4 py-3">{r.telefone ?? "—"}</td>
                 <td className="px-4 py-3">{r.cargo ?? "—"}</td>
@@ -111,11 +113,12 @@ function ClientesPage() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum registro.
                 </td>
               </tr>
             )}
+
           </tbody>
         </table>
       </div>
