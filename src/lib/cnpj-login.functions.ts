@@ -12,21 +12,32 @@ function onlyDigits(s: string) {
 
 /**
  * Resolve um email de login a partir do CNPJ.
- * - Procura a empresa pelo CNPJ (comparando apenas dígitos).
- * - Acha o profile vinculado àquela empresa.
- * - Se houver mais de um profile, retorna erro pedindo email.
- *
- * Sem auth: é o passo anterior ao signIn.
+ * 1) Procura um profile cujo CNPJ casa (clientes importados do DistribuiLucros).
+ * 2) Senão, casa pelo CNPJ da empresa (2M Saúde / 2M Contabilidade).
  */
 export const resolveEmailByCnpj = createServerFn({ method: "POST" })
   .inputValidator((data) => schema.parse(data))
   .handler(async ({ data }) => {
     const digits = onlyDigits(data.cnpj);
-    if (digits.length !== 14) {
-      throw new Error("CNPJ inválido");
+    if (digits.length !== 14) throw new Error("CNPJ inválido");
+
+    // 1) Match direto pelo CNPJ do profile (clientes importados)
+    const { data: profilesByCnpj, error: pErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email, cnpj")
+      .not("email", "is", null)
+      .not("cnpj", "is", null);
+    if (pErr) throw new Error(pErr.message);
+
+    const direct = (profilesByCnpj ?? []).filter(
+      (p) => p.cnpj && onlyDigits(p.cnpj) === digits && p.email,
+    );
+    if (direct.length === 1) return { email: direct[0].email as string };
+    if (direct.length > 1) {
+      throw new Error("Mais de um usuário com este CNPJ. Entre com seu email.");
     }
 
-    // Busca todas empresas e compara por dígitos (formatação pode variar no banco)
+    // 2) Fallback: CNPJ da empresa
     const { data: empresas, error: empErr } = await supabaseAdmin
       .from("empresas")
       .select("id, cnpj");
@@ -35,9 +46,7 @@ export const resolveEmailByCnpj = createServerFn({ method: "POST" })
     const empresa = (empresas ?? []).find(
       (e) => e.cnpj && onlyDigits(e.cnpj) === digits,
     );
-    if (!empresa) {
-      throw new Error("CNPJ não encontrado");
-    }
+    if (!empresa) throw new Error("CNPJ não encontrado");
 
     const { data: profiles, error: profErr } = await supabaseAdmin
       .from("profiles")
@@ -47,14 +56,9 @@ export const resolveEmailByCnpj = createServerFn({ method: "POST" })
     if (profErr) throw new Error(profErr.message);
 
     const valid = (profiles ?? []).filter((p) => !!p.email);
-    if (valid.length === 0) {
-      throw new Error("Nenhum usuário vinculado a este CNPJ");
-    }
+    if (valid.length === 0) throw new Error("Nenhum usuário vinculado a este CNPJ");
     if (valid.length > 1) {
-      throw new Error(
-        "Mais de um usuário vinculado a este CNPJ. Entre com seu email.",
-      );
+      throw new Error("Mais de um usuário vinculado a este CNPJ. Entre com seu email.");
     }
-
     return { email: valid[0].email as string };
   });
