@@ -20,6 +20,13 @@ type Profile = {
   empresa_id: string | null;
 };
 type Empresa = { id: string; nome: string };
+type ClienteImportado = {
+  id: string;
+  nome: string;
+  cnpj: string | null;
+  empresa_id: string | null;
+};
+
 
 function formatCnpj(v: string | null) {
   if (!v) return "—";
