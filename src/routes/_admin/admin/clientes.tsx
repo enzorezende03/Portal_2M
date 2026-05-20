@@ -38,8 +38,11 @@ function formatCnpj(v: string | null) {
 function ClientesPage() {
   const [rows, setRows] = useState<Profile[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [clientes, setClientes] = useState<ClienteImportado[]>([]);
   const [q, setQ] = useState("");
+  const [qImp, setQImp] = useState("");
   const [open, setOpen] = useState(false);
+
 
   const load = () =>
     supabase
