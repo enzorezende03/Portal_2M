@@ -16,9 +16,17 @@ type Profile = {
   email: string | null;
   telefone: string | null;
   cargo: string | null;
+  cnpj: string | null;
   empresa_id: string | null;
 };
 type Empresa = { id: string; nome: string };
+
+function formatCnpj(v: string | null) {
+  if (!v) return "—";
+  const d = v.replace(/\D/g, "");
+  if (d.length !== 14) return v;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+}
 
 function ClientesPage() {
   const [rows, setRows] = useState<Profile[]>([]);
@@ -29,10 +37,11 @@ function ClientesPage() {
   const load = () =>
     supabase
       .from("profiles")
-      .select("id,nome,email,telefone,cargo,empresa_id")
+      .select("id,nome,email,telefone,cargo,cnpj,empresa_id")
       .order("created_at", { ascending: false })
       .limit(500)
       .then(({ data }) => setRows((data as Profile[]) ?? []));
+
 
   useEffect(() => {
     load();
