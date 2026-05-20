@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2 } from "lucide-react";
+import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { to: "/admin", label: "Visão geral", icon: Building2, exact: true },
   { to: "/admin/clientes", label: "Clientes", icon: Users },
+  { to: "/admin/import-clientes", label: "Importar CSV", icon: Upload },
   { to: "/admin/ferramentas", label: "Ferramentas", icon: Wrench },
   { to: "/admin/treinamentos", label: "Treinamentos", icon: GraduationCap },
   { to: "/admin/onboarding", label: "Onboarding", icon: ListChecks },
