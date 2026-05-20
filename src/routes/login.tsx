@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useEmpresa } from "@/lib/brand";
+import { resolveEmailByCnpj } from "@/lib/cnpj-login.functions";
 import { toast } from "sonner";
 import { Mail, MessageCircle } from "lucide-react";
 
@@ -9,26 +11,54 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+type LoginMode = "email" | "cnpj";
+
+function formatCnpj(value: string) {
+  const d = value.replace(/\D/g, "").slice(0, 14);
+  if (d.length <= 2) return d;
+  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  if (d.length <= 12)
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+}
+
 function LoginPage() {
   const { empresa } = useEmpresa();
   const nav = useNavigate();
+  const resolveCnpj = useServerFn(resolveEmailByCnpj);
+  const [mode, setMode] = useState<LoginMode>("email");
   const [email, setEmail] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
-    setLoading(false);
-    if (error) {
-      const msg = /invalid login credentials/i.test(error.message)
-        ? "Email ou senha incorretos"
-        : error.message;
-      toast.error(msg);
-      return;
+    try {
+      let loginEmail = email;
+      if (mode === "cnpj") {
+        const { email: resolved } = await resolveCnpj({ data: { cnpj } });
+        loginEmail = resolved;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: senha,
+      });
+      if (error) {
+        const msg = /invalid login credentials/i.test(error.message)
+          ? "Credenciais incorretas"
+          : error.message;
+        toast.error(msg);
+        return;
+      }
+      nav({ to: "/" });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Erro ao entrar");
+    } finally {
+      setLoading(false);
     }
-    nav({ to: "/" });
   };
 
   const onForgot = async () => {
