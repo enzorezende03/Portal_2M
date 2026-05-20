@@ -212,6 +212,15 @@ function NovoClienteDialog({
               className="w-full rounded-lg border border-border bg-card px-3 py-2"
             />
           </Field>
+          <Field label="CNPJ">
+            <input
+              value={cnpj}
+              onChange={(e) => setCnpj(e.target.value)}
+              placeholder="00.000.000/0000-00"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2"
+            />
+          </Field>
+
           <Field label="Senha inicial (fixa, o usuário troca no 1º acesso)">
             <input
               value="2m_Brand"
