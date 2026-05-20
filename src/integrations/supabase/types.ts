@@ -97,28 +97,37 @@ export type Database = {
       }
       clientes: {
         Row: {
+          cargo: string | null
           cnpj: string | null
           created_at: string
+          email: string | null
           empresa_id: string | null
           id: string
           nome: string
           origem: string | null
+          telefone: string | null
         }
         Insert: {
+          cargo?: string | null
           cnpj?: string | null
           created_at?: string
+          email?: string | null
           empresa_id?: string | null
           id?: string
           nome: string
           origem?: string | null
+          telefone?: string | null
         }
         Update: {
+          cargo?: string | null
           cnpj?: string | null
           created_at?: string
+          email?: string | null
           empresa_id?: string | null
           id?: string
           nome?: string
           origem?: string | null
+          telefone?: string | null
         }
         Relationships: [
           {
