@@ -55,10 +55,11 @@ function ClientesPage() {
   const filtered = rows.filter((r) =>
     !q
       ? true
-      : [r.nome, r.email, r.telefone, r.cargo].some((v) =>
+      : [r.nome, r.email, r.telefone, r.cargo, r.cnpj].some((v) =>
           String(v ?? "").toLowerCase().includes(q.toLowerCase()),
         ),
   );
+
 
   const empresaNome = (id: string | null) =>
     id ? empresas.find((e) => e.id === id)?.nome ?? "—" : "—";
