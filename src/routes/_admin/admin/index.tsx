@@ -10,14 +10,15 @@ function AdminHome() {
   const [stats, setStats] = useState({ clientes: 0, ferramentas: 0, treinamentos: 0, avisos: 0 });
   useEffect(() => {
     (async () => {
-      const [c, f, t, a] = await Promise.all([
+      const [p, cl, f, t, a] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
+        supabase.from("clientes").select("id", { count: "exact", head: true }),
         supabase.from("ferramentas").select("id", { count: "exact", head: true }),
         supabase.from("treinamentos").select("id", { count: "exact", head: true }),
         supabase.from("avisos").select("id", { count: "exact", head: true }).eq("ativo", true),
       ]);
       setStats({
-        clientes: c.count ?? 0,
+        clientes: (p.count ?? 0) + (cl.count ?? 0),
         ferramentas: f.count ?? 0,
         treinamentos: t.count ?? 0,
         avisos: a.count ?? 0,
