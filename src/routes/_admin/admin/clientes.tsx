@@ -148,6 +148,59 @@ function ClientesPage() {
         </table>
       </div>
 
+      <div className="mt-10 mb-4 flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
+            Clientes da carteira
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Importados do DistribuiLucros · {clientes.length} registros (somente listagem)
+          </p>
+        </div>
+        <input
+          placeholder="Buscar nome ou CNPJ…"
+          value={qImp}
+          onChange={(e) => setQImp(e.target.value)}
+          className="w-full max-w-xs rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:ring-2"
+          style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+        />
+      </div>
+
+      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-left">
+            <tr>
+              <th className="px-4 py-3 font-medium">Nome</th>
+              <th className="px-4 py-3 font-medium">CNPJ</th>
+              <th className="px-4 py-3 font-medium">Empresa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredImp.slice(0, 500).map((c) => (
+              <tr key={c.id} className="border-t border-border">
+                <td className="px-4 py-3">{c.nome}</td>
+                <td className="px-4 py-3 font-mono text-xs">{formatCnpj(c.cnpj)}</td>
+                <td className="px-4 py-3">{empresaNome(c.empresa_id)}</td>
+              </tr>
+            ))}
+            {filteredImp.length === 0 && (
+              <tr>
+                <td colSpan={3} className="px-4 py-10 text-center text-muted-foreground">
+                  Nenhum registro.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        {filteredImp.length > 500 && (
+          <div className="border-t border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+            Exibindo 500 de {filteredImp.length}. Refine a busca para ver mais.
+          </div>
+        )}
+      </div>
+
+
+
       {open && (
         <NovoClienteDialog
           empresas={empresas}
