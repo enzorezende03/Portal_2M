@@ -12,12 +12,16 @@ export const Route = createFileRoute("/_app/perfil")({
 function PerfilPage() {
   const { user, profile, refresh } = useAuth();
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setNome(profile?.nome ?? "");
+    setEmail(profile?.email ?? "");
+    setCnpj((profile as any)?.cnpj ?? "");
     setTelefone(profile?.telefone ?? "");
     setCargo(profile?.cargo ?? "");
   }, [profile]);
@@ -25,12 +29,26 @@ function PerfilPage() {
   const salvar = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ nome, telefone, cargo })
-      .eq("id", user.id);
+    const patch = { nome, email, cnpj, telefone, cargo };
+    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
+    if (error) {
+      setSaving(false);
+      return toast.error(error.message);
+    }
+
+    // Sincroniza com a tabela Clientes (por email ou CNPJ)
+    const filters: string[] = [];
+    const origEmail = profile?.email?.trim();
+    const origCnpj = (profile as any)?.cnpj?.trim();
+    if (origEmail) filters.push(`email.eq.${origEmail}`);
+    if (origCnpj) filters.push(`cnpj.eq.${origCnpj}`);
+    if (email?.trim()) filters.push(`email.eq.${email.trim()}`);
+    if (cnpj?.trim()) filters.push(`cnpj.eq.${cnpj.trim()}`);
+    if (filters.length > 0) {
+      await supabase.from("clientes").update({ nome, email, cnpj, telefone, cargo }).or(filters.join(","));
+    }
+
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Perfil atualizado");
     refresh();
   };
@@ -74,7 +92,8 @@ function PerfilPage() {
 
       <div className="mt-8 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
         <Field label="Nome" value={nome} onChange={setNome} />
-        <Field label="Email" value={profile?.email ?? ""} onChange={() => {}} disabled />
+        <Field label="Email" value={email} onChange={setEmail} />
+        <Field label="CNPJ" value={cnpj} onChange={setCnpj} />
         <Field label="Telefone" value={telefone} onChange={setTelefone} />
         <Field label="Cargo" value={cargo} onChange={setCargo} />
         <button
