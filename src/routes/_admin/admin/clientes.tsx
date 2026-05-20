@@ -77,9 +77,17 @@ function ClientesPage() {
         ),
   );
 
+  const filteredImp = clientes.filter((c) =>
+    !qImp
+      ? true
+      : [c.nome, c.cnpj].some((v) =>
+          String(v ?? "").toLowerCase().includes(qImp.toLowerCase()),
+        ),
+  );
 
   const empresaNome = (id: string | null) =>
     id ? empresas.find((e) => e.id === id)?.nome ?? "—" : "—";
+
 
   return (
     <div>
