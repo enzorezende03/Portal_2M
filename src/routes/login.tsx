@@ -127,21 +127,60 @@ function LoginPage() {
             Entrar na sua conta
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Use o email cadastrado pelo seu contador.
+            Entre com seu email ou CNPJ.
           </p>
 
-          <form onSubmit={onSubmit} className="mt-8 space-y-4">
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2.5 outline-none focus:ring-2"
-                style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
-              />
-            </div>
+          <div className="mt-6 grid grid-cols-2 gap-1 rounded-lg bg-muted p-1 text-sm">
+            <button
+              type="button"
+              onClick={() => setMode("email")}
+              className={`rounded-md py-2 font-medium transition ${
+                mode === "email" ? "bg-white shadow-sm" : "text-muted-foreground"
+              }`}
+              style={mode === "email" ? { color: "var(--brand-navy)" } : undefined}
+            >
+              Email
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("cnpj")}
+              className={`rounded-md py-2 font-medium transition ${
+                mode === "cnpj" ? "bg-white shadow-sm" : "text-muted-foreground"
+              }`}
+              style={mode === "cnpj" ? { color: "var(--brand-navy)" } : undefined}
+            >
+              CNPJ
+            </button>
+          </div>
+
+          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+            {mode === "email" ? (
+              <div>
+                <label className="text-sm font-medium">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2.5 outline-none focus:ring-2"
+                  style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="text-sm font-medium">CNPJ</label>
+                <input
+                  type="text"
+                  required
+                  inputMode="numeric"
+                  placeholder="00.000.000/0000-00"
+                  value={cnpj}
+                  onChange={(e) => setCnpj(formatCnpj(e.target.value))}
+                  className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2.5 outline-none focus:ring-2"
+                  style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+                />
+              </div>
+            )}
             <div>
               <label className="text-sm font-medium">Senha</label>
               <input
