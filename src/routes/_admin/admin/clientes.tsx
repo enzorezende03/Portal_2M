@@ -149,6 +149,7 @@ function NovoClienteDialog({
   const create = useServerFn(createClienteUser);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [empresaId, setEmpresaId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -160,11 +161,13 @@ function NovoClienteDialog({
         data: {
           nome,
           email,
+          cnpj: cnpj.replace(/\D/g, "") || null,
           empresa_id: empresaId || null,
         },
       });
       toast.success("Usuário criado. Senha inicial: 2m_Brand");
       onCreated();
+
     } catch (err: any) {
       toast.error(err?.message ?? "Erro ao criar usuário");
     } finally {
