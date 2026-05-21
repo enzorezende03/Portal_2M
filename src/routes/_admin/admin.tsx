@@ -1,18 +1,19 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2, Upload, FileText, Plug } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 const tabs = [
-  { to: "/admin", label: "Visão geral", icon: Building2, exact: true },
-  { to: "/admin/clientes", label: "Clientes", icon: Users },
-  { to: "/admin/import-clientes", label: "Importar CSV", icon: Upload },
-  { to: "/admin/ferramentas", label: "Ferramentas", icon: Wrench },
-  { to: "/admin/treinamentos", label: "Treinamentos", icon: GraduationCap },
-  { to: "/admin/documentacao", label: "Documentação", icon: FileText },
-  { to: "/admin/integracoes/gclick", label: "G-Click", icon: Plug },
-  { to: "/admin/onboarding", label: "Onboarding", icon: ListChecks },
-  { to: "/admin/avisos", label: "Avisos", icon: Megaphone },
-  { to: "/admin/empresas", label: "Empresas", icon: Building2 },
+  { to: "/admin", label: "Visão geral", icon: Building2, exact: true, adminOnly: true },
+  { to: "/admin/clientes", label: "Clientes", icon: Users, adminOnly: true },
+  { to: "/admin/import-clientes", label: "Importar CSV", icon: Upload, adminOnly: true },
+  { to: "/admin/ferramentas", label: "Ferramentas", icon: Wrench, adminOnly: true },
+  { to: "/admin/treinamentos", label: "Treinamentos", icon: GraduationCap, adminOnly: true },
+  { to: "/admin/documentacao", label: "Documentação", icon: FileText, adminOnly: false },
+  { to: "/admin/integracoes/gclick", label: "G-Click", icon: Plug, adminOnly: true },
+  { to: "/admin/onboarding", label: "Onboarding", icon: ListChecks, adminOnly: true },
+  { to: "/admin/avisos", label: "Avisos", icon: Megaphone, adminOnly: true },
+  { to: "/admin/empresas", label: "Empresas", icon: Building2, adminOnly: true },
 ];
 
 export const Route = createFileRoute("/_admin/admin")({
@@ -21,16 +22,20 @@ export const Route = createFileRoute("/_admin/admin")({
 
 function AdminLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
+  const visibleTabs = tabs.filter((t) => isAdmin || !t.adminOnly);
   return (
     <div className="mx-auto max-w-6xl p-6 md:p-10">
       <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
         <span className="h-2 w-2 rounded-full" style={{ background: "var(--brand-navy)" }} />
-        Painel administrativo
+        {isAdmin ? "Painel administrativo" : "Painel do colaborador"}
       </div>
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Admin</h1>
+      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
+        {isAdmin ? "Admin" : "Documentos dos clientes"}
+      </h1>
 
       <div className="mt-6 flex flex-wrap gap-2 border-b border-border pb-2">
-        {tabs.map((t) => {
+        {visibleTabs.map((t) => {
           const active = t.exact ? path === t.to : path.startsWith(t.to);
           return (
             <Link

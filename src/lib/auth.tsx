@@ -19,6 +19,7 @@ type Ctx = {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isColaborador: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -29,6 +30,7 @@ const AuthContext = createContext<Ctx>({
   session: null,
   profile: null,
   isAdmin: false,
+  isColaborador: false,
   loading: true,
   signOut: async () => {},
   refresh: async () => {},
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isColaborador, setIsColaborador] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const loadExtras = async (uid: string) => {
@@ -48,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setProfile((prof as Profile) ?? null);
     setIsAdmin(!!roles?.some((r: any) => r.role === "admin"));
+    setIsColaborador(!!roles?.some((r: any) => r.role === "colaborador"));
   };
 
   useEffect(() => {
@@ -59,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setIsAdmin(false);
+        setIsColaborador(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -78,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, isAdmin, loading, signOut, refresh }}>
+    <AuthContext.Provider value={{ user, session, profile, isAdmin, isColaborador, loading, signOut, refresh }}>
       {children}
     </AuthContext.Provider>
   );

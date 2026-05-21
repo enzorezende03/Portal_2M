@@ -3,7 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { Sidebar } from "./Sidebar";
 
 export function ProtectedLayout({ adminOnly = false }: { adminOnly?: boolean }) {
-  const { user, loading, isAdmin, profile } = useAuth();
+  const { user, loading, isAdmin, isColaborador, profile } = useAuth();
   const location = useLocation();
   if (loading)
     return (
@@ -18,7 +18,18 @@ export function ProtectedLayout({ adminOnly = false }: { adminOnly?: boolean }) 
   ) {
     return <Navigate to="/reset-password" />;
   }
-  if (adminOnly && !isAdmin) return <Navigate to="/" />;
+  if (adminOnly && !isAdmin && !isColaborador) return <Navigate to="/" />;
+
+  // Colaborador só pode acessar a aba de documentação
+  if (
+    adminOnly &&
+    !isAdmin &&
+    isColaborador &&
+    location.pathname.startsWith("/admin") &&
+    location.pathname !== "/admin/documentacao"
+  ) {
+    return <Navigate to="/admin/documentacao" />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row" style={{ background: "var(--brand-bg)" }}>
