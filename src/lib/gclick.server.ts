@@ -94,9 +94,16 @@ export type GclickTarefa = {
   competencia?: string;
   vencimento?: string;
   dataVencimento?: string;
+  clienteId?: string | number;
+  clienteInscricao?: string;
+  clienteApelido?: string;
+  clienteNome?: string;
+  clienteEmail?: string;
   cliente?: {
     id?: string | number;
     nome?: string;
+    apelido?: string;
+    email?: string;
     inscricao?: string;
     cnpj?: string;
   };
