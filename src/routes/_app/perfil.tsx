@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_app/perfil")({
 
 function PerfilPage() {
   const { user, profile, refresh } = useAuth();
+  const trocarEmailLogin = useServerFn(changeLoginEmail);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [cnpj, setCnpj] = useState("");
