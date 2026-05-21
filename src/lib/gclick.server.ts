@@ -192,7 +192,7 @@ export async function baixarAnexo(url: string): Promise<{
   const buf = new Uint8Array(await res.arrayBuffer());
   const ct = res.headers.get("content-type") ?? "application/pdf";
   const cd = res.headers.get("content-disposition") ?? "";
-  const m = /filename\*?=(?:UTF-8'')?\"?([^\";]+)\"?/i.exec(cd);
+  const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
   const nome = m?.[1]
     ? decodeURIComponent(m[1])
     : (url.split("/").pop()?.split("?")[0] ?? "anexo.pdf");
