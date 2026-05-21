@@ -135,7 +135,7 @@ function GclickPage() {
         </h2>
         <p className="text-sm text-muted-foreground">
           Importa automaticamente as guias finalizadas no G-Click e publica na aba
-          Documentação do cliente correto (match por CNPJ).
+          Documentação do cliente correto (match por CNPJ, email ou nome).
         </p>
       </div>
 

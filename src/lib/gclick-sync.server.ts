@@ -82,7 +82,7 @@ export async function executarSincronizacao(opts: {
     const byEmail = new Map<string, Perfil>();
     const byNome = new Map<string, Perfil>();
     const normNome = (s?: string | null) =>
-      (s ?? "")
+      String(s ?? "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
@@ -118,9 +118,29 @@ export async function executarSincronizacao(opts: {
           if (!amostraTarefa) {
             amostraTarefa = JSON.stringify(Object.keys(t)).slice(0, 200);
           }
-          const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
-          const emailT = ((t.cliente as any)?.email ?? "").trim().toLowerCase();
-          const nomeT = normNome(t.cliente?.nome);
+          const cliente = (t.cliente ?? {}) as any;
+          const clienteNome =
+            cliente.nome ??
+            cliente.apelido ??
+            t.clienteNome ??
+            t.clienteApelido ??
+            (t as any).clienteRazaoSocial ??
+            null;
+          const cnpjT = onlyDigits(
+            cliente.cnpj ??
+              cliente.inscricao ??
+              t.clienteInscricao ??
+              (t as any).clienteCnpj ??
+              (t as any).clienteDocumento ??
+              (t as any).cnpj ??
+              (t as any).inscricao,
+          );
+          const emailT = String(
+            cliente.email ?? t.clienteEmail ?? (t as any).emailCliente ?? "",
+          )
+            .trim()
+            .toLowerCase();
+          const nomeT = normNome(clienteNome);
           const perfilMatch: Perfil | undefined =
             (cnpjT && byCnpj.get(cnpjT)) ||
             (emailT && byEmail.get(emailT)) ||
@@ -170,7 +190,7 @@ export async function executarSincronizacao(opts: {
               pendencias.push({
                 tarefa_id: String(t.id),
                 atividade_id: String(a.id),
-                cliente_nome: t.cliente?.nome,
+                cliente_nome: clienteNome ?? undefined,
                 cnpj: cnpjT || undefined,
                 motivo,
               });
@@ -203,8 +223,8 @@ export async function executarSincronizacao(opts: {
                 .insert({
                   user_id: perfil.id,
                   nome: titulo,
-                  descricao: t.cliente?.nome
-                    ? `G-Click · ${t.cliente.nome}`
+                  descricao: clienteNome
+                    ? `G-Click · ${clienteNome}`
                     : "G-Click",
                   arquivo_path: path,
                   arquivo_url: "",
