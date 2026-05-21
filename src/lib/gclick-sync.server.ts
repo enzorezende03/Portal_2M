@@ -65,6 +65,11 @@ export async function executarSincronizacao(opts: {
   let ignorados = 0;
   let erros = 0;
   const pendencias: Pendencia[] = [];
+  let totTarefas = 0;
+  let totAtividades = 0;
+  let totComAnexo = 0;
+  let totConcluidas = 0;
+
 
   try {
     const { data: profiles } = await supabaseAdmin
@@ -90,17 +95,22 @@ export async function executarSincronizacao(opts: {
           categoria,
         });
         if (tarefas.length === 0) break;
+        totTarefas += tarefas.length;
 
         for (const t of tarefas) {
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
+          totAtividades += atividades.length;
 
           for (const a of atividades) {
             const url = extrairAnexoUrl(a);
             const concluida = a.concluido === true || /conclu/i.test(a.status ?? "");
+            if (url) totComAnexo++;
+            if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
+
 
             const atividadeKey = `${t.id}-${a.id}`;
 
@@ -192,7 +202,7 @@ export async function executarSincronizacao(opts: {
         ignorados,
         erros,
         pendencias: pendencias.slice(0, 500),
-        mensagem: `OK — ${importados} importados, ${ignorados} ignorados, ${erros} erros`,
+        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros`,
       })
       .eq("id", logId);
 
