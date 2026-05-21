@@ -68,9 +68,9 @@ export function Sidebar() {
             </Link>
           );
         })}
-        {isAdmin && (
+        {(isAdmin || isColaborador) && (
           <Link
-            to="/admin"
+            to={isAdmin ? "/admin" : "/admin/documentacao"}
             onClick={() => setOpen(false)}
             className={cn(
               "mt-4 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
@@ -81,7 +81,7 @@ export function Sidebar() {
             style={path.startsWith("/admin") ? { background: "var(--brand-navy)" } : undefined}
           >
             <Shield className="h-4 w-4" />
-            Admin
+            {isAdmin ? "Admin" : "Documentos dos clientes"}
           </Link>
         )}
       </nav>
