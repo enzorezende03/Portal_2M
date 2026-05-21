@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Upload, Trash2, FileText, Download, X, Search, ArrowLeft } from "lucide-react";
+import { formatNome } from "@/lib/format-nome";
 
 export const Route = createFileRoute("/_admin/admin/documentacao")({
   component: DocumentacaoAdmin,
@@ -114,7 +115,7 @@ function DocumentacaoAdmin() {
           <tbody>
             {filtered.map((p) => (
               <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-3 font-medium">{p.nome ?? "—"}</td>
+                <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
                 <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
                 <td className="px-4 py-3">
@@ -202,7 +203,7 @@ function ClienteDocumentos({
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
-            Documentos · {cliente.nome ?? cliente.email ?? "Cliente"}
+            Documentos · {cliente.nome ? formatNome(cliente.nome) : cliente.email ?? "Cliente"}
           </h2>
           <p className="text-sm text-muted-foreground">
             {cliente.email ?? "—"} · {empresaNome} · {docs.length}{" "}
