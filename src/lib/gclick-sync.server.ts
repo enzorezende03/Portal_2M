@@ -264,6 +264,7 @@ export async function executarSincronizacao(opts: {
               });
               if (insErr) throw insErr;
               importados++;
+              importadosDetalhes.push({ cliente_nome: clienteNome ?? null, titulo });
             } catch (e: any) {
               erros++;
               pendencias.push({
