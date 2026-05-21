@@ -143,38 +143,50 @@ export type Database = {
         Row: {
           arquivo_path: string
           arquivo_url: string
+          competencia: string | null
           created_at: string
           created_by: string | null
           descricao: string | null
+          gclick_atividade_id: string | null
           id: string
           mime_type: string | null
           nome: string
+          origem: string
           tamanho_bytes: number | null
           user_id: string
+          vencimento: string | null
         }
         Insert: {
           arquivo_path: string
           arquivo_url: string
+          competencia?: string | null
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          gclick_atividade_id?: string | null
           id?: string
           mime_type?: string | null
           nome: string
+          origem?: string
           tamanho_bytes?: number | null
           user_id: string
+          vencimento?: string | null
         }
         Update: {
           arquivo_path?: string
           arquivo_url?: string
+          competencia?: string | null
           created_at?: string
           created_by?: string | null
           descricao?: string | null
+          gclick_atividade_id?: string | null
           id?: string
           mime_type?: string | null
           nome?: string
+          origem?: string
           tamanho_bytes?: number | null
           user_id?: string
+          vencimento?: string | null
         }
         Relationships: []
       }
@@ -306,6 +318,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      gclick_sync_log: {
+        Row: {
+          disparado_por: string | null
+          erros: number
+          finalizado_em: string | null
+          id: string
+          ignorados: number
+          importados: number
+          iniciado_em: string
+          mensagem: string | null
+          pendencias: Json
+        }
+        Insert: {
+          disparado_por?: string | null
+          erros?: number
+          finalizado_em?: string | null
+          id?: string
+          ignorados?: number
+          importados?: number
+          iniciado_em?: string
+          mensagem?: string | null
+          pendencias?: Json
+        }
+        Update: {
+          disparado_por?: string | null
+          erros?: number
+          finalizado_em?: string | null
+          id?: string
+          ignorados?: number
+          importados?: number
+          iniciado_em?: string
+          mensagem?: string | null
+          pendencias?: Json
+        }
+        Relationships: []
       }
       onboarding_etapas: {
         Row: {
