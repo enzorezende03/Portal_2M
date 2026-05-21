@@ -104,11 +104,16 @@ export type GclickTarefa = {
   [k: string]: any;
 };
 
+export type GclickArquivo = { nome?: string; url?: string; mimeType?: string };
+
 export type GclickAtividade = {
   id: string | number;
   nome?: string;
   status?: string;
   concluido?: boolean;
+  respondida?: boolean;
+  respondidaEm?: string;
+  arquivos?: GclickArquivo[];
   anexo?: { url?: string; nome?: string; mimeType?: string } | null;
   anexoUrl?: string;
   arquivoUrl?: string;
@@ -132,7 +137,6 @@ export async function listarTarefasGclick(params: {
   qs.set("page", String(params.page ?? 0));
 
   const data = await gclickFetch<any>(`/tarefas?${qs.toString()}`);
-  // A API costuma retornar { content: [...] } ou array direto
   if (Array.isArray(data)) return data as GclickTarefa[];
   if (Array.isArray(data?.content)) return data.content as GclickTarefa[];
   if (Array.isArray(data?.data)) return data.data as GclickTarefa[];
@@ -149,8 +153,19 @@ export async function listarAtividadesPorTarefa(
   return [];
 }
 
+export function extrairAnexo(a: GclickAtividade): GclickArquivo | null {
+  if (Array.isArray(a.arquivos)) {
+    const f = a.arquivos.find((x) => x?.url);
+    if (f?.url) return f;
+  }
+  if (a.anexo?.url) return a.anexo;
+  if (a.anexoUrl) return { url: a.anexoUrl };
+  if (a.arquivoUrl) return { url: a.arquivoUrl };
+  return null;
+}
+
 export function extrairAnexoUrl(a: GclickAtividade): string | null {
-  return a.anexo?.url ?? a.anexoUrl ?? a.arquivoUrl ?? null;
+  return extrairAnexo(a)?.url ?? null;
 }
 
 export async function baixarAnexo(url: string): Promise<{
