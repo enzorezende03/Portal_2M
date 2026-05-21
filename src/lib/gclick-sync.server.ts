@@ -95,17 +95,22 @@ export async function executarSincronizacao(opts: {
           categoria,
         });
         if (tarefas.length === 0) break;
+        totTarefas += tarefas.length;
 
         for (const t of tarefas) {
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
+          totAtividades += atividades.length;
 
           for (const a of atividades) {
             const url = extrairAnexoUrl(a);
             const concluida = a.concluido === true || /conclu/i.test(a.status ?? "");
+            if (url) totComAnexo++;
+            if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
+
 
             const atividadeKey = `${t.id}-${a.id}`;
 
