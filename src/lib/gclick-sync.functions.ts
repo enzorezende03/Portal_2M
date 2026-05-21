@@ -25,7 +25,8 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z
       .object({
-        diasAtras: z.number().int().min(1).max(180).default(30),
+        diasAtras: z.number().int().min(1).max(180).default(7),
+        offsetDias: z.number().int().min(0).max(180).default(0),
         categoria: CategoriaSchema.optional(),
       })
       .parse(input),
@@ -34,6 +35,7 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
     await assertAdmin(context);
     return executarSincronizacao({
       diasAtras: data.diasAtras,
+      offsetDias: data.offsetDias,
       categoria: data.categoria,
       disparadoPor: context.userId,
     });
