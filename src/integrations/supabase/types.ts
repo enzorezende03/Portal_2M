@@ -460,6 +460,7 @@ export type Database = {
           duracao_segundos: number | null
           id: string
           ordem: number
+          pdf_url: string | null
           thumbnail_url: string | null
           titulo: string
           video_url: string
@@ -472,6 +473,7 @@ export type Database = {
           duracao_segundos?: number | null
           id?: string
           ordem?: number
+          pdf_url?: string | null
           thumbnail_url?: string | null
           titulo: string
           video_url: string
@@ -484,6 +486,7 @@ export type Database = {
           duracao_segundos?: number | null
           id?: string
           ordem?: number
+          pdf_url?: string | null
           thumbnail_url?: string | null
           titulo?: string
           video_url?: string

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_app/treinamentos/$id")({
   component: TreinamentoPlayer,
 });
 
-type VideoKind = "youtube" | "vimeo" | "bunny" | "other";
+type VideoKind = "youtube" | "vimeo" | "bunny" | "file" | "other";
 
 function detectVideo(url: string): { kind: VideoKind; embed: string } {
   if (!url) return { kind: "other", embed: url };
@@ -25,6 +25,9 @@ function detectVideo(url: string): { kind: VideoKind; embed: string } {
   }
   if (/iframe\.mediadelivery\.net/i.test(url)) {
     return { kind: "bunny", embed: url };
+  }
+  if (/\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(url) || /treinamentos-videos/i.test(url)) {
+    return { kind: "file", embed: url };
   }
   return { kind: "other", embed: url };
 }
@@ -130,17 +133,32 @@ function TreinamentoPlayer() {
 
       <div className="mt-4 overflow-hidden rounded-lg border border-border bg-black shadow-sm">
         <div className="aspect-video">
-          <iframe
-            src={embed}
-            allow={allow}
-            allowFullScreen
-            className="h-full w-full"
-          />
+          {kind === "file" ? (
+            <video src={embed} controls className="h-full w-full" />
+          ) : (
+            <iframe
+              src={embed}
+              allow={allow}
+              allowFullScreen
+              className="h-full w-full"
+            />
+          )}
         </div>
       </div>
 
       <h1 className="mt-6 font-titulo text-3xl" style={{ color: "var(--brand-navy)" }}>{t.titulo}</h1>
       {t.descricao && <p className="mt-2 text-muted-foreground">{t.descricao}</p>}
+
+      {t.pdf_url && (
+        <a
+          href={t.pdf_url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+        >
+          📄 Baixar material em PDF
+        </a>
+      )}
 
       <button
         onClick={marcar}
