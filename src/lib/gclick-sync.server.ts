@@ -297,7 +297,7 @@ export async function executarSincronizacao(opts: {
       })
       .eq("id", logId);
 
-    return { logId, importados, ignorados, erros, pendencias, error: null as string | null };
+    return { logId, importados, ignorados, erros, pendencias, importadosDetalhes, error: null as string | null };
   } catch (e: any) {
     const mensagem = mensagemAmigavelGclick(e?.message);
     await supabaseAdmin
