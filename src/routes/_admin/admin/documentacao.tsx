@@ -203,7 +203,7 @@ function ClienteDocumentos({
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
           <h2 className="font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
-            Documentos · {cliente.nome ?? cliente.email ?? "Cliente"}
+            Documentos · {cliente.nome ? formatNome(cliente.nome) : cliente.email ?? "Cliente"}
           </h2>
           <p className="text-sm text-muted-foreground">
             {cliente.email ?? "—"} · {empresaNome} · {docs.length}{" "}
