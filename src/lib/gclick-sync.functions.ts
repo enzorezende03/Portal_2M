@@ -28,6 +28,7 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
         diasAtras: z.number().int().min(1).max(180).default(7),
         offsetDias: z.number().int().min(0).max(180).default(0),
         categoria: CategoriaSchema.optional(),
+        logId: z.string().uuid().optional(),
       })
       .parse(input),
   )
@@ -37,6 +38,7 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
       diasAtras: data.diasAtras,
       offsetDias: data.offsetDias,
       categoria: data.categoria,
+      logId: data.logId,
       disparadoPor: context.userId,
     });
   });
