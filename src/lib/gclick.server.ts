@@ -36,8 +36,14 @@ async function getAccessToken(): Promise<string> {
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
-    const details = txt ? `: ${txt.slice(0, 300)}` : "";
-    throw new Error(`G-Click auth falhou [${res.status}]${details}`);
+    console.error("G-Click auth falhou", { status: res.status, body: txt.slice(0, 300) });
+    if (res.status === 401 || txt.includes("invalid_client")) {
+      throw new Error("Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.");
+    }
+    if (res.status >= 500) {
+      throw new Error("O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.");
+    }
+    throw new Error(`Falha ao autenticar no G-Click (${res.status}).`);
   }
   const data = (await res.json()) as {
     access_token?: string;
