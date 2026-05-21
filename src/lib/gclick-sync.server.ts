@@ -100,6 +100,9 @@ export async function executarSincronizacao(opts: {
         totTarefas += tarefas.length;
 
         for (const t of tarefas) {
+          if (!amostraTarefa) {
+            amostraTarefa = JSON.stringify(Object.keys(t)).slice(0, 200);
+          }
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
@@ -107,8 +110,12 @@ export async function executarSincronizacao(opts: {
           totAtividades += atividades.length;
 
           for (const a of atividades) {
+            if (!amostraAtividade && atividades.length > 0) {
+              // dump completo (truncado) da 1ª atividade pra inspeção
+              amostraAtividade = JSON.stringify(a).slice(0, 600);
+            }
             const url = extrairAnexoUrl(a);
-            const concluida = a.concluido === true || /conclu/i.test(a.status ?? "");
+            const concluida = a.concluido === true || /conclu|finaliz|efetuad/i.test(a.status ?? "");
             if (url) totComAnexo++;
             if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
