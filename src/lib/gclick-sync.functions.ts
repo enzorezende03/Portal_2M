@@ -177,7 +177,6 @@ export async function executarSincronizacao(opts: {
       if (page > 50) break; // proteção
     }
 
-    const mensagem = mensagemAmigavelGclick(e?.message);
     await supabaseAdmin
       .from("gclick_sync_log")
       .update({
@@ -192,6 +191,7 @@ export async function executarSincronizacao(opts: {
 
     return { logId, importados, ignorados, erros, pendencias, error: null };
   } catch (e: any) {
+    const mensagem = mensagemAmigavelGclick(e?.message);
     await supabaseAdmin
       .from("gclick_sync_log")
       .update({
