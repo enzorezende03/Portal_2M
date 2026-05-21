@@ -65,6 +65,7 @@ export async function executarSincronizacao(opts: {
   let ignorados = 0;
   let erros = 0;
   const pendencias: Pendencia[] = [];
+  const importadosDetalhes: { cliente_nome: string | null; titulo: string }[] = [];
   let totTarefas = 0;
   let totAtividades = 0;
   let totComAnexo = 0;
@@ -263,6 +264,7 @@ export async function executarSincronizacao(opts: {
               });
               if (insErr) throw insErr;
               importados++;
+              importadosDetalhes.push({ cliente_nome: clienteNome ?? null, titulo });
             } catch (e: any) {
               erros++;
               pendencias.push({
@@ -295,7 +297,7 @@ export async function executarSincronizacao(opts: {
       })
       .eq("id", logId);
 
-    return { logId, importados, ignorados, erros, pendencias, error: null as string | null };
+    return { logId, importados, ignorados, erros, pendencias, importadosDetalhes, error: null as string | null };
   } catch (e: any) {
     const mensagem = mensagemAmigavelGclick(e?.message);
     await supabaseAdmin
@@ -315,6 +317,7 @@ export async function executarSincronizacao(opts: {
       ignorados,
       erros: erros + 1,
       pendencias,
+      importadosDetalhes,
       error: mensagem,
     };
   }

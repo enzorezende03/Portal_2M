@@ -90,7 +90,9 @@ function GclickPage() {
       for (let offset = 0; offset < dias; offset += JANELA) {
         const janela = Math.min(JANELA, dias - offset);
         for (const categoria of CATEGORIAS) {
-          toast.info(`Sincronizando ${categoria} (${offset + janela}/${dias} dias)…`);
+          toast.info(`Sincronizando ${categoria} (${offset + janela}/${dias} dias)…`, {
+            position: "bottom-left",
+          });
           try {
             const r = await sync({
               data: { diasAtras: janela, offsetDias: offset, categoria, logId },
@@ -100,6 +102,11 @@ function GclickPage() {
             totIgn = r.ignorados ?? totIgn;
             totErr = r.erros ?? totErr;
             if (r.error && !falha) falha = r.error;
+            for (const imp of r.importadosDetalhes ?? []) {
+              toast.success(`Importado: ${imp.titulo}${imp.cliente_nome ? ` — ${imp.cliente_nome}` : ""}`, {
+                position: "bottom-left",
+              });
+            }
           } catch (e: any) {
             totErr += 1;
             if (!falha) falha = mensagemAmigavel(e?.message);
