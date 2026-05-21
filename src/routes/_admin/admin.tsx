@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2, Upload } from "lucide-react";
+import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2, Upload, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -8,6 +8,7 @@ const tabs = [
   { to: "/admin/import-clientes", label: "Importar CSV", icon: Upload },
   { to: "/admin/ferramentas", label: "Ferramentas", icon: Wrench },
   { to: "/admin/treinamentos", label: "Treinamentos", icon: GraduationCap },
+  { to: "/admin/documentacao", label: "Documentação", icon: FileText },
   { to: "/admin/onboarding", label: "Onboarding", icon: ListChecks },
   { to: "/admin/avisos", label: "Avisos", icon: Megaphone },
   { to: "/admin/empresas", label: "Empresas", icon: Building2 },

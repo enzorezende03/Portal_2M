@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Wrench, GraduationCap, ListChecks, User, LogOut, Shield, Menu, X } from "lucide-react";
+import { LayoutDashboard, Wrench, GraduationCap, ListChecks, User, LogOut, Shield, Menu, X, FileText } from "lucide-react";
 import { useState } from "react";
 import { useEmpresa } from "@/lib/brand";
 import { useAuth } from "@/lib/auth";
@@ -9,6 +9,7 @@ const items = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/ferramentas", label: "Ferramentas", icon: Wrench },
   { to: "/treinamentos", label: "Treinamentos", icon: GraduationCap },
+  { to: "/documentacao", label: "Documentação", icon: FileText },
   { to: "/onboarding", label: "Onboarding", icon: ListChecks },
   { to: "/perfil", label: "Perfil", icon: User },
 ];

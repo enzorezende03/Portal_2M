@@ -139,6 +139,45 @@ export type Database = {
           },
         ]
       }
+      documentos: {
+        Row: {
+          arquivo_path: string
+          arquivo_url: string
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          id: string
+          mime_type: string | null
+          nome: string
+          tamanho_bytes: number | null
+          user_id: string
+        }
+        Insert: {
+          arquivo_path: string
+          arquivo_url: string
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          mime_type?: string | null
+          nome: string
+          tamanho_bytes?: number | null
+          user_id: string
+        }
+        Update: {
+          arquivo_path?: string
+          arquivo_url?: string
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          mime_type?: string | null
+          nome?: string
+          tamanho_bytes?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           cnpj: string | null

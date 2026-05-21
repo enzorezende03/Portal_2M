@@ -17,6 +17,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppPerfilRouteImport } from './routes/_app/perfil'
 import { Route as AppOnboardingRouteImport } from './routes/_app/onboarding'
 import { Route as AppFerramentasRouteImport } from './routes/_app/ferramentas'
+import { Route as AppDocumentacaoRouteImport } from './routes/_app/documentacao'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AppTreinamentosIndexRouteImport } from './routes/_app/treinamentos/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
@@ -26,6 +27,7 @@ import { Route as AdminAdminOnboardingRouteImport } from './routes/_admin/admin/
 import { Route as AdminAdminImportClientesRouteImport } from './routes/_admin/admin/import-clientes'
 import { Route as AdminAdminFerramentasRouteImport } from './routes/_admin/admin/ferramentas'
 import { Route as AdminAdminEmpresasRouteImport } from './routes/_admin/admin/empresas'
+import { Route as AdminAdminDocumentacaoRouteImport } from './routes/_admin/admin/documentacao'
 import { Route as AdminAdminClientesRouteImport } from './routes/_admin/admin/clientes'
 import { Route as AdminAdminAvisosRouteImport } from './routes/_admin/admin/avisos'
 
@@ -65,6 +67,11 @@ const AppOnboardingRoute = AppOnboardingRouteImport.update({
 const AppFerramentasRoute = AppFerramentasRouteImport.update({
   id: '/ferramentas',
   path: '/ferramentas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentacaoRoute = AppDocumentacaoRouteImport.update({
+  id: '/documentacao',
+  path: '/documentacao',
   getParentRoute: () => AppRoute,
 } as any)
 const AdminAdminRoute = AdminAdminRouteImport.update({
@@ -113,6 +120,11 @@ const AdminAdminEmpresasRoute = AdminAdminEmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminDocumentacaoRoute = AdminAdminDocumentacaoRouteImport.update({
+  id: '/documentacao',
+  path: '/documentacao',
+  getParentRoute: () => AdminAdminRoute,
+} as any)
 const AdminAdminClientesRoute = AdminAdminClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -129,11 +141,13 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AdminAdminRouteWithChildren
+  '/documentacao': typeof AppDocumentacaoRoute
   '/ferramentas': typeof AppFerramentasRoute
   '/onboarding': typeof AppOnboardingRoute
   '/perfil': typeof AppPerfilRoute
   '/admin/avisos': typeof AdminAdminAvisosRoute
   '/admin/clientes': typeof AdminAdminClientesRoute
+  '/admin/documentacao': typeof AdminAdminDocumentacaoRoute
   '/admin/empresas': typeof AdminAdminEmpresasRoute
   '/admin/ferramentas': typeof AdminAdminFerramentasRoute
   '/admin/import-clientes': typeof AdminAdminImportClientesRoute
@@ -147,11 +161,13 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/documentacao': typeof AppDocumentacaoRoute
   '/ferramentas': typeof AppFerramentasRoute
   '/onboarding': typeof AppOnboardingRoute
   '/perfil': typeof AppPerfilRoute
   '/admin/avisos': typeof AdminAdminAvisosRoute
   '/admin/clientes': typeof AdminAdminClientesRoute
+  '/admin/documentacao': typeof AdminAdminDocumentacaoRoute
   '/admin/empresas': typeof AdminAdminEmpresasRoute
   '/admin/ferramentas': typeof AdminAdminFerramentasRoute
   '/admin/import-clientes': typeof AdminAdminImportClientesRoute
@@ -168,12 +184,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_admin/admin': typeof AdminAdminRouteWithChildren
+  '/_app/documentacao': typeof AppDocumentacaoRoute
   '/_app/ferramentas': typeof AppFerramentasRoute
   '/_app/onboarding': typeof AppOnboardingRoute
   '/_app/perfil': typeof AppPerfilRoute
   '/_app/': typeof AppIndexRoute
   '/_admin/admin/avisos': typeof AdminAdminAvisosRoute
   '/_admin/admin/clientes': typeof AdminAdminClientesRoute
+  '/_admin/admin/documentacao': typeof AdminAdminDocumentacaoRoute
   '/_admin/admin/empresas': typeof AdminAdminEmpresasRoute
   '/_admin/admin/ferramentas': typeof AdminAdminFerramentasRoute
   '/_admin/admin/import-clientes': typeof AdminAdminImportClientesRoute
@@ -190,11 +208,13 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/admin'
+    | '/documentacao'
     | '/ferramentas'
     | '/onboarding'
     | '/perfil'
     | '/admin/avisos'
     | '/admin/clientes'
+    | '/admin/documentacao'
     | '/admin/empresas'
     | '/admin/ferramentas'
     | '/admin/import-clientes'
@@ -208,11 +228,13 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/documentacao'
     | '/ferramentas'
     | '/onboarding'
     | '/perfil'
     | '/admin/avisos'
     | '/admin/clientes'
+    | '/admin/documentacao'
     | '/admin/empresas'
     | '/admin/ferramentas'
     | '/admin/import-clientes'
@@ -228,12 +250,14 @@ export interface FileRouteTypes {
     | '/login'
     | '/reset-password'
     | '/_admin/admin'
+    | '/_app/documentacao'
     | '/_app/ferramentas'
     | '/_app/onboarding'
     | '/_app/perfil'
     | '/_app/'
     | '/_admin/admin/avisos'
     | '/_admin/admin/clientes'
+    | '/_admin/admin/documentacao'
     | '/_admin/admin/empresas'
     | '/_admin/admin/ferramentas'
     | '/_admin/admin/import-clientes'
@@ -309,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFerramentasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/documentacao': {
+      id: '/_app/documentacao'
+      path: '/documentacao'
+      fullPath: '/documentacao'
+      preLoaderRoute: typeof AppDocumentacaoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_admin/admin': {
       id: '/_admin/admin'
       path: '/admin'
@@ -372,6 +403,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminEmpresasRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/documentacao': {
+      id: '/_admin/admin/documentacao'
+      path: '/documentacao'
+      fullPath: '/admin/documentacao'
+      preLoaderRoute: typeof AdminAdminDocumentacaoRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
     '/_admin/admin/clientes': {
       id: '/_admin/admin/clientes'
       path: '/clientes'
@@ -392,6 +430,7 @@ declare module '@tanstack/react-router' {
 interface AdminAdminRouteChildren {
   AdminAdminAvisosRoute: typeof AdminAdminAvisosRoute
   AdminAdminClientesRoute: typeof AdminAdminClientesRoute
+  AdminAdminDocumentacaoRoute: typeof AdminAdminDocumentacaoRoute
   AdminAdminEmpresasRoute: typeof AdminAdminEmpresasRoute
   AdminAdminFerramentasRoute: typeof AdminAdminFerramentasRoute
   AdminAdminImportClientesRoute: typeof AdminAdminImportClientesRoute
@@ -403,6 +442,7 @@ interface AdminAdminRouteChildren {
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminAvisosRoute: AdminAdminAvisosRoute,
   AdminAdminClientesRoute: AdminAdminClientesRoute,
+  AdminAdminDocumentacaoRoute: AdminAdminDocumentacaoRoute,
   AdminAdminEmpresasRoute: AdminAdminEmpresasRoute,
   AdminAdminFerramentasRoute: AdminAdminFerramentasRoute,
   AdminAdminImportClientesRoute: AdminAdminImportClientesRoute,
@@ -426,6 +466,7 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppRouteChildren {
+  AppDocumentacaoRoute: typeof AppDocumentacaoRoute
   AppFerramentasRoute: typeof AppFerramentasRoute
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppPerfilRoute: typeof AppPerfilRoute
@@ -435,6 +476,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppDocumentacaoRoute: AppDocumentacaoRoute,
   AppFerramentasRoute: AppFerramentasRoute,
   AppOnboardingRoute: AppOnboardingRoute,
   AppPerfilRoute: AppPerfilRoute,
