@@ -31,7 +31,27 @@ function PerfilPage() {
   const salvar = async () => {
     if (!user) return;
     setSaving(true);
-    const patch = { nome, email, cnpj, telefone, cargo };
+
+    const novoEmail = email.trim().toLowerCase();
+    const emailAtualAuth = (user.email ?? "").toLowerCase();
+    const emailMudou =
+      !!novoEmail &&
+      novoEmail !== emailAtualAuth &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail);
+
+    // Se o email mudou, sincroniza também o email de login (auth.users)
+    // para que o acesso automático (SSO) aos sistemas integrados funcione
+    // tanto por email quanto por CNPJ.
+    if (emailMudou) {
+      try {
+        await trocarEmailLogin({ data: { newEmail: novoEmail } });
+      } catch (e: any) {
+        setSaving(false);
+        return toast.error(e?.message ?? "Não foi possível atualizar o email de acesso.");
+      }
+    }
+
+    const patch = { nome, email: novoEmail || email, cnpj, telefone, cargo };
     const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
     if (error) {
       setSaving(false);
@@ -51,7 +71,11 @@ function PerfilPage() {
     }
 
     setSaving(false);
-    toast.success("Perfil atualizado");
+    toast.success(
+      emailMudou
+        ? "Perfil atualizado. Use o novo email no próximo login."
+        : "Perfil atualizado",
+    );
     refresh();
   };
 
