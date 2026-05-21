@@ -115,17 +115,21 @@ export type GclickAtividade = {
   [k: string]: any;
 };
 
+export type GclickCategoria = "OBRIGACAO" | "SERVICO" | "PROCESSO" | "OUTROS";
+
 export async function listarTarefasGclick(params: {
   dataInicio?: string; // YYYY-MM-DD
   dataFim?: string;
   size?: number;
   page?: number;
+  categoria: GclickCategoria;
 }): Promise<GclickTarefa[]> {
   const qs = new URLSearchParams();
   if (params.dataInicio) qs.set("dataInicio", params.dataInicio);
   if (params.dataFim) qs.set("dataFim", params.dataFim);
   qs.set("size", String(params.size ?? 100));
   qs.set("page", String(params.page ?? 0));
+  qs.set("categoria", params.categoria);
 
   const data = await gclickFetch<any>(`/tarefas?${qs.toString()}`);
   // A API costuma retornar { content: [...] } ou array direto
