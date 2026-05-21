@@ -74,7 +74,9 @@ export async function executarSincronizacao(opts: {
       if (k) byCnpj.set(k, { id: (p as any).id, nome: (p as any).nome });
     }
 
-    // Pagina as tarefas
+    // Pagina as tarefas — G-Click exige `categoria`; iteramos sobre todas
+    const categorias = ["OBRIGACAO", "SERVICO", "PROCESSO", "OUTROS"] as const;
+    for (const categoria of categorias) {
     let page = 0;
     const size = 100;
     while (true) {
@@ -83,6 +85,7 @@ export async function executarSincronizacao(opts: {
         dataFim: fmt(ate),
         page,
         size,
+        categoria,
       });
       if (tarefas.length === 0) break;
 
