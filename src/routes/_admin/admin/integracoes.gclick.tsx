@@ -103,9 +103,9 @@ function GclickPage() {
               data: { diasAtras: janela, offsetDias: offset, categoria, logId },
             });
             logId = r.logId;
-            totImp += r.importados ?? 0;
-            totIgn += r.ignorados ?? 0;
-            totErr += r.erros ?? 0;
+            totImp = r.importados ?? totImp;
+            totIgn = r.ignorados ?? totIgn;
+            totErr = r.erros ?? totErr;
             if (r.error && !falha) falha = r.error;
           } catch (e: any) {
             totErr += 1;
