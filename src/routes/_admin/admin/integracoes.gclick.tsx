@@ -181,59 +181,74 @@ function GclickPage() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-border bg-card shadow-sm">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="border-b border-border px-4 py-3 text-sm font-medium">
           Histórico
         </div>
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left">
-            <tr>
-              <th className="px-3 py-2 font-medium">Quando</th>
-              <th className="px-3 py-2 font-medium">Status</th>
-              <th className="px-3 py-2 font-medium">Importados</th>
-              <th className="px-3 py-2 font-medium">Ignorados</th>
-              <th className="px-3 py-2 font-medium">Erros</th>
-              <th className="px-3 py-2 font-medium">Mensagem</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.map((l) => (
-              <tr key={l.id} className="border-t border-border">
-                <td className="px-3 py-2 text-muted-foreground">
-                  {new Date(l.iniciado_em).toLocaleString("pt-BR")}
-                </td>
-                <td className="px-3 py-2">
-                  {l.finalizado_em ? (
-                    l.erros > 0 ? (
-                      <span className="inline-flex items-center gap-1 text-amber-600">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Com erros
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-emerald-600">
-                        <CheckCircle2 className="h-3.5 w-3.5" /> OK
-                      </span>
-                    )
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" /> Em andamento
-                    </span>
-                  )}
-                </td>
-                <td className="px-3 py-2">{l.importados}</td>
-                <td className="px-3 py-2">{l.ignorados}</td>
-                <td className="px-3 py-2">{l.erros}</td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">{mensagemAmigavel(l.mensagem)}</td>
-              </tr>
-            ))}
-            {logs.length === 0 && (
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed text-sm">
+            <colgroup>
+              <col className="w-40" />
+              <col className="w-32" />
+              <col className="w-24" />
+              <col className="w-24" />
+              <col className="w-20" />
+              <col />
+            </colgroup>
+            <thead className="bg-muted/50 text-left">
               <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">
-                  Nenhuma sincronização ainda.
-                </td>
+                <th className="px-3 py-2 font-medium">Quando</th>
+                <th className="px-3 py-2 font-medium">Status</th>
+                <th className="px-3 py-2 font-medium">Importados</th>
+                <th className="px-3 py-2 font-medium">Ignorados</th>
+                <th className="px-3 py-2 font-medium">Erros</th>
+                <th className="px-3 py-2 font-medium">Mensagem</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {logs.map((l) => (
+                <tr key={l.id} className="border-t border-border align-top">
+                  <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
+                    {new Date(l.iniciado_em).toLocaleString("pt-BR")}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    {l.finalizado_em ? (
+                      l.erros > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-amber-600">
+                          <AlertTriangle className="h-3.5 w-3.5" /> Com erros
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-emerald-600">
+                          <CheckCircle2 className="h-3.5 w-3.5" /> OK
+                        </span>
+                      )
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" /> Em andamento
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">{l.importados}</td>
+                  <td className="px-3 py-2">{l.ignorados}</td>
+                  <td className="px-3 py-2">{l.erros}</td>
+                  <td
+                    className="px-3 py-2 text-xs text-muted-foreground truncate"
+                    title={l.mensagem ?? ""}
+                  >
+                    {mensagemAmigavel(l.mensagem)}
+                  </td>
+                </tr>
+              ))}
+              {logs.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">
+                    Nenhuma sincronização ainda.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
