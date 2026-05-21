@@ -75,7 +75,7 @@ export async function executarSincronizacao(opts: {
     }
 
     // Pagina as tarefas — G-Click exige `categoria`; iteramos sobre todas
-    const categorias = ["OBRIGACAO", "SERVICO", "PROCESSO", "OUTROS"] as const;
+    const categorias = ["Obrigacao", "Solicitacao", "Cobranca", "CertificadoDigital"] as const;
     for (const categoria of categorias) {
     let page = 0;
     const size = 100;
