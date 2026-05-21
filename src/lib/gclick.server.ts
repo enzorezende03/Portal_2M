@@ -38,10 +38,14 @@ async function getAccessToken(): Promise<string> {
     const txt = await res.text().catch(() => "");
     console.error("G-Click auth falhou", { status: res.status, body: txt.slice(0, 300) });
     if (res.status === 401 || txt.includes("invalid_client")) {
-      throw new Error("Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.");
+      throw new Error(
+        "Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.",
+      );
     }
     if (res.status >= 500) {
-      throw new Error("O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.");
+      throw new Error(
+        "O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.",
+      );
     }
     throw new Error(`Falha ao autenticar no G-Click (${res.status}).`);
   }
@@ -57,16 +61,12 @@ async function getAccessToken(): Promise<string> {
   cached = {
     token,
     // Token do G-Click costuma durar 24h; usamos expires_in se vier, senão 23h.
-    expiresAt: Date.now() + ((data.expires_in ?? 23 * 3600) * 1000),
+    expiresAt: Date.now() + (data.expires_in ?? 23 * 3600) * 1000,
   };
   return cached.token;
 }
 
-
-export async function gclickFetch<T = any>(
-  path: string,
-  init: RequestInit = {},
-): Promise<T> {
+export async function gclickFetch<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   const token = await getAccessToken();
   const url = path.startsWith("http") ? path : `${BASE_URL}${path}`;
   const res = await fetch(url, {
@@ -180,20 +180,22 @@ export async function baixarAnexo(url: string): Promise<{
   contentType: string;
   nomeSugerido: string;
 }> {
-  // Anexos do G-Click podem exigir o mesmo bearer; tentamos primeiro com auth.
+  // Alguns anexos vêm com URL assinada e falham com Bearer (400); outros exigem auth.
+  // Por isso tentamos primeiro o link direto e depois com autenticação.
   const token = await getAccessToken();
   const tryFetch = async (withAuth: boolean) =>
     fetch(url, withAuth ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-  let res = await tryFetch(true);
-  if (!res.ok && (res.status === 401 || res.status === 403)) {
-    res = await tryFetch(false);
-  }
+  let res = await tryFetch(false);
+  if (!res.ok) res = await tryFetch(true);
+  if (!res.ok && res.status === 400) res = await tryFetch(false);
   if (!res.ok) throw new Error(`Falha ao baixar anexo [${res.status}]`);
   const buf = new Uint8Array(await res.arrayBuffer());
   const ct = res.headers.get("content-type") ?? "application/pdf";
   const cd = res.headers.get("content-disposition") ?? "";
-  const m = /filename\*?=(?:UTF-8'')?\"?([^\";]+)\"?/i.exec(cd);
-  const nome = m?.[1] ? decodeURIComponent(m[1]) : url.split("/").pop()?.split("?")[0] ?? "anexo.pdf";
+  const m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+  const nome = m?.[1]
+    ? decodeURIComponent(m[1])
+    : (url.split("/").pop()?.split("?")[0] ?? "anexo.pdf");
   return { bytes: buf, contentType: ct, nomeSugerido: nome };
 }
 
