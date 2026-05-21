@@ -117,7 +117,21 @@ function PerfilPage() {
         </label>
       </div>
 
-      <div className="mt-8 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="mt-8 flex items-start gap-3 rounded-lg border p-4 text-sm" style={{ borderColor: "var(--brand-primary)", background: "color-mix(in oklab, var(--brand-primary) 8%, transparent)" }}>
+        <KeyRound className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "var(--brand-primary)" }} />
+        <div>
+          <p className="font-medium" style={{ color: "var(--brand-navy)" }}>
+            Acesso automático aos sistemas integrados
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Preencha o <strong>email</strong> e o <strong>CNPJ</strong> que você já utiliza nos sistemas parceiros
+            (DistribuiLucros, Referência Tributária e demais). Sempre que abrir um sistema integrado pelo portal,
+            entraremos automaticamente usando esses dados — não é preciso digitar senha de novo.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
         <Field label="Nome" value={nome} onChange={setNome} />
         <Field label="Email" value={email} onChange={setEmail} />
         <Field label="CNPJ" value={cnpj} onChange={setCnpj} />
