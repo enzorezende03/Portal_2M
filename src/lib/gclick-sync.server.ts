@@ -86,10 +86,6 @@ export async function executarSincronizacao(opts: {
       pendencias.push(...((logAtual as any).pendencias as Pendencia[]));
     }
     mensagemAnterior = String((logAtual as any)?.mensagem ?? "");
-    await supabaseAdmin
-      .from("gclick_sync_log")
-      .update({ finalizado_em: null })
-      .eq("id", logId);
   }
 
 
