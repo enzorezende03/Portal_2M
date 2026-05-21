@@ -85,19 +85,32 @@ function GclickPage() {
 
   const rodar = async () => {
     setRunning(true);
+    const JANELA = 7; // dias por chamada (G-Click trava em janelas grandes)
     let totImp = 0;
     let totIgn = 0;
     let totErr = 0;
     let falha: string | null = null;
     try {
-      for (const categoria of CATEGORIAS) {
-        toast.info(`Sincronizando: ${categoria}…`);
-        const r = await sync({ data: { diasAtras: dias, categoria } });
-        totImp += r.importados ?? 0;
-        totIgn += r.ignorados ?? 0;
-        totErr += r.erros ?? 0;
-        if (r.error && !falha) falha = r.error;
-        load();
+      for (let offset = 0; offset < dias; offset += JANELA) {
+        const janela = Math.min(JANELA, dias - offset);
+        for (const categoria of CATEGORIAS) {
+          toast.info(
+            `Sincronizando ${categoria} (${offset + janela}/${dias} dias)…`,
+          );
+          try {
+            const r = await sync({
+              data: { diasAtras: janela, offsetDias: offset, categoria },
+            });
+            totImp += r.importados ?? 0;
+            totIgn += r.ignorados ?? 0;
+            totErr += r.erros ?? 0;
+            if (r.error && !falha) falha = r.error;
+          } catch (e: any) {
+            totErr += 1;
+            if (!falha) falha = mensagemAmigavel(e?.message);
+          }
+          load();
+        }
       }
       if (falha) toast.error(falha);
       else

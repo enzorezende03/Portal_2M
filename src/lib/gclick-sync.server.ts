@@ -38,13 +38,16 @@ export type GclickCategoriaSync = (typeof CATEGORIAS)[number];
 
 export async function executarSincronizacao(opts: {
   diasAtras: number;
+  offsetDias?: number;
   disparadoPor?: string | null;
   logId?: string;
   categoria?: GclickCategoriaSync; // se ausente, processa todas
 }) {
+  const offset = opts.offsetDias ?? 0;
   const ate = new Date();
+  ate.setDate(ate.getDate() - offset);
   const de = new Date();
-  de.setDate(de.getDate() - opts.diasAtras);
+  de.setDate(de.getDate() - offset - opts.diasAtras);
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
 
   let logId = opts.logId;
