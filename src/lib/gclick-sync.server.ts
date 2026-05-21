@@ -90,10 +90,17 @@ export async function executarSincronizacao(opts: {
 
   try {
     const { data: profiles } = await supabaseAdmin.from("profiles").select("id, cnpj, email, nome");
+    const { data: clientes } = await supabaseAdmin
+      .from("clientes")
+      .select("id, cnpj, email, nome");
     type Perfil = { id: string; nome: string | null };
+    type ClienteRow = { id: string; nome: string | null };
     const byCnpj = new Map<string, Perfil>();
     const byEmail = new Map<string, Perfil>();
     const byNome = new Map<string, Perfil>();
+    const cliByCnpj = new Map<string, ClienteRow>();
+    const cliByEmail = new Map<string, ClienteRow>();
+    const cliByNome = new Map<string, ClienteRow>();
     const normNome = (s?: string | null) =>
       String(s ?? "")
         .normalize("NFD")
@@ -109,6 +116,15 @@ export async function executarSincronizacao(opts: {
       if (em) byEmail.set(em, entry);
       const nm = normNome((p as any).nome);
       if (nm) byNome.set(nm, entry);
+    }
+    for (const c of clientes ?? []) {
+      const entry: ClienteRow = { id: (c as any).id, nome: (c as any).nome };
+      const k = onlyDigits((c as any).cnpj);
+      if (k) cliByCnpj.set(k, entry);
+      const em = ((c as any).email ?? "").trim().toLowerCase();
+      if (em) cliByEmail.set(em, entry);
+      const nm = normNome((c as any).nome);
+      if (nm) cliByNome.set(nm, entry);
     }
 
     const categorias = opts.categoria ? [opts.categoria] : [...CATEGORIAS];
@@ -157,6 +173,11 @@ export async function executarSincronizacao(opts: {
             (emailT && byEmail.get(emailT)) ||
             (nomeT && byNome.get(nomeT)) ||
             undefined;
+          const clienteMatch: ClienteRow | undefined =
+            (cnpjT && cliByCnpj.get(cnpjT)) ||
+            (emailT && cliByEmail.get(emailT)) ||
+            (nomeT && cliByNome.get(nomeT)) ||
+            undefined;
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
@@ -189,13 +210,13 @@ export async function executarSincronizacao(opts: {
               continue;
             }
 
-            if (!perfilMatch) {
+            if (!clienteMatch && !perfilMatch) {
               const motivo = cnpjT
-                ? "CNPJ sem cadastro no portal (e sem match por email/nome)"
+                ? "CNPJ não encontrado na base de clientes"
                 : emailT
-                  ? "Email do cliente sem cadastro no portal"
+                  ? "Email do cliente não encontrado na base"
                   : nomeT
-                    ? "Cliente sem match por nome no portal"
+                    ? "Cliente sem match por nome"
                     : "Tarefa sem identificação de cliente";
               pendencias.push({
                 tarefa_id: String(t.id),
@@ -208,12 +229,11 @@ export async function executarSincronizacao(opts: {
               continue;
             }
 
-            const perfil = perfilMatch;
-
             try {
               const baixado = await baixarAnexo(url);
               const ext = (baixado.nomeSugerido.split(".").pop() || "pdf").toLowerCase();
-              const path = `${perfil.id}/gclick/${atividadeKey}.${ext}`;
+              const pastaDono = perfilMatch?.id ?? `clientes/${clienteMatch!.id}`;
+              const path = `${pastaDono}/gclick/${atividadeKey}.${ext}`;
 
               const { error: upErr } = await supabaseAdmin.storage
                 .from("documentos-clientes")
@@ -228,7 +248,8 @@ export async function executarSincronizacao(opts: {
               const venc = t.vencimento ?? t.dataVencimento ?? null;
 
               const { error: insErr } = await supabaseAdmin.from("documentos").insert({
-                user_id: perfil.id,
+                user_id: perfilMatch?.id ?? null,
+                cliente_id: clienteMatch?.id ?? null,
                 nome: titulo,
                 descricao: clienteNome ? `G-Click · ${clienteNome}` : "G-Click",
                 arquivo_path: path,

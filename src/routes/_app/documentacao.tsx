@@ -34,10 +34,34 @@ function DocumentacaoCliente() {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("cnpj, email")
+        .eq("id", user.id)
+        .maybeSingle();
+      const cnpjDigits = String(prof?.cnpj ?? "").replace(/\D/g, "");
+      const email = String(prof?.email ?? "").trim().toLowerCase();
+
+      // Busca clientes que casam por CNPJ/email para incluir os documentos vinculados a eles
+      const clienteIds: string[] = [];
+      if (cnpjDigits || email) {
+        const filtros: string[] = [];
+        if (cnpjDigits) filtros.push(`cnpj.eq.${cnpjDigits}`);
+        if (email) filtros.push(`email.ilike.${email}`);
+        const { data: clis } = await supabase
+          .from("clientes")
+          .select("id")
+          .or(filtros.join(","));
+        for (const c of clis ?? []) clienteIds.push((c as any).id);
+      }
+
+      const orParts = [`user_id.eq.${user.id}`];
+      if (clienteIds.length) orParts.push(`cliente_id.in.(${clienteIds.join(",")})`);
+
       const { data, error } = await supabase
         .from("documentos")
         .select("id,nome,descricao,arquivo_path,tamanho_bytes,mime_type,created_at")
-        .eq("user_id", user.id)
+        .or(orParts.join(","))
         .order("created_at", { ascending: false });
       if (error) toast.error(error.message);
       setDocs((data as Documento[]) ?? []);
