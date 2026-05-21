@@ -21,6 +21,7 @@ import { Route as AppDocumentacaoRouteImport } from './routes/_app/documentacao'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AppTreinamentosIndexRouteImport } from './routes/_app/treinamentos/index'
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
+import { Route as ApiPublicGclickSyncRouteImport } from './routes/api/public/gclick-sync'
 import { Route as AppTreinamentosIdRouteImport } from './routes/_app/treinamentos/$id'
 import { Route as AdminAdminTreinamentosRouteImport } from './routes/_admin/admin/treinamentos'
 import { Route as AdminAdminOnboardingRouteImport } from './routes/_admin/admin/onboarding'
@@ -30,6 +31,7 @@ import { Route as AdminAdminEmpresasRouteImport } from './routes/_admin/admin/em
 import { Route as AdminAdminDocumentacaoRouteImport } from './routes/_admin/admin/documentacao'
 import { Route as AdminAdminClientesRouteImport } from './routes/_admin/admin/clientes'
 import { Route as AdminAdminAvisosRouteImport } from './routes/_admin/admin/avisos'
+import { Route as AdminAdminIntegracoesGclickRouteImport } from './routes/_admin/admin/integracoes.gclick'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -89,6 +91,11 @@ const AdminAdminIndexRoute = AdminAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const ApiPublicGclickSyncRoute = ApiPublicGclickSyncRouteImport.update({
+  id: '/api/public/gclick-sync',
+  path: '/api/public/gclick-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppTreinamentosIdRoute = AppTreinamentosIdRouteImport.update({
   id: '/treinamentos/$id',
   path: '/treinamentos/$id',
@@ -135,6 +142,12 @@ const AdminAdminAvisosRoute = AdminAdminAvisosRouteImport.update({
   path: '/avisos',
   getParentRoute: () => AdminAdminRoute,
 } as any)
+const AdminAdminIntegracoesGclickRoute =
+  AdminAdminIntegracoesGclickRouteImport.update({
+    id: '/integracoes/gclick',
+    path: '/integracoes/gclick',
+    getParentRoute: () => AdminAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
@@ -154,8 +167,10 @@ export interface FileRoutesByFullPath {
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/admin/': typeof AdminAdminIndexRoute
   '/treinamentos/': typeof AppTreinamentosIndexRoute
+  '/admin/integracoes/gclick': typeof AdminAdminIntegracoesGclickRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
@@ -174,8 +189,10 @@ export interface FileRoutesByTo {
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/admin': typeof AdminAdminIndexRoute
   '/treinamentos': typeof AppTreinamentosIndexRoute
+  '/admin/integracoes/gclick': typeof AdminAdminIntegracoesGclickRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,8 +215,10 @@ export interface FileRoutesById {
   '/_admin/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/_admin/admin/treinamentos': typeof AdminAdminTreinamentosRoute
   '/_app/treinamentos/$id': typeof AppTreinamentosIdRoute
+  '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
   '/_app/treinamentos/': typeof AppTreinamentosIndexRoute
+  '/_admin/admin/integracoes/gclick': typeof AdminAdminIntegracoesGclickRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,8 +240,10 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/treinamentos'
     | '/treinamentos/$id'
+    | '/api/public/gclick-sync'
     | '/admin/'
     | '/treinamentos/'
+    | '/admin/integracoes/gclick'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -241,8 +262,10 @@ export interface FileRouteTypes {
     | '/admin/onboarding'
     | '/admin/treinamentos'
     | '/treinamentos/$id'
+    | '/api/public/gclick-sync'
     | '/admin'
     | '/treinamentos'
+    | '/admin/integracoes/gclick'
   id:
     | '__root__'
     | '/_admin'
@@ -264,8 +287,10 @@ export interface FileRouteTypes {
     | '/_admin/admin/onboarding'
     | '/_admin/admin/treinamentos'
     | '/_app/treinamentos/$id'
+    | '/api/public/gclick-sync'
     | '/_admin/admin/'
     | '/_app/treinamentos/'
+    | '/_admin/admin/integracoes/gclick'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -273,6 +298,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicGclickSyncRoute: typeof ApiPublicGclickSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -361,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminIndexRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/api/public/gclick-sync': {
+      id: '/api/public/gclick-sync'
+      path: '/api/public/gclick-sync'
+      fullPath: '/api/public/gclick-sync'
+      preLoaderRoute: typeof ApiPublicGclickSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/treinamentos/$id': {
       id: '/_app/treinamentos/$id'
       path: '/treinamentos/$id'
@@ -424,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminAvisosRouteImport
       parentRoute: typeof AdminAdminRoute
     }
+    '/_admin/admin/integracoes/gclick': {
+      id: '/_admin/admin/integracoes/gclick'
+      path: '/integracoes/gclick'
+      fullPath: '/admin/integracoes/gclick'
+      preLoaderRoute: typeof AdminAdminIntegracoesGclickRouteImport
+      parentRoute: typeof AdminAdminRoute
+    }
   }
 }
 
@@ -437,6 +477,7 @@ interface AdminAdminRouteChildren {
   AdminAdminOnboardingRoute: typeof AdminAdminOnboardingRoute
   AdminAdminTreinamentosRoute: typeof AdminAdminTreinamentosRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
+  AdminAdminIntegracoesGclickRoute: typeof AdminAdminIntegracoesGclickRoute
 }
 
 const AdminAdminRouteChildren: AdminAdminRouteChildren = {
@@ -449,6 +490,7 @@ const AdminAdminRouteChildren: AdminAdminRouteChildren = {
   AdminAdminOnboardingRoute: AdminAdminOnboardingRoute,
   AdminAdminTreinamentosRoute: AdminAdminTreinamentosRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
+  AdminAdminIntegracoesGclickRoute: AdminAdminIntegracoesGclickRoute,
 }
 
 const AdminAdminRouteWithChildren = AdminAdminRoute._addFileChildren(
@@ -492,6 +534,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicGclickSyncRoute: ApiPublicGclickSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
