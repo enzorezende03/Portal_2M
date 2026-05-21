@@ -317,6 +317,7 @@ export async function executarSincronizacao(opts: {
       ignorados,
       erros: erros + 1,
       pendencias,
+      importadosDetalhes,
       error: mensagem,
     };
   }
