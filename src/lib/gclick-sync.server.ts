@@ -65,6 +65,11 @@ export async function executarSincronizacao(opts: {
   let ignorados = 0;
   let erros = 0;
   const pendencias: Pendencia[] = [];
+  let totTarefas = 0;
+  let totAtividades = 0;
+  let totComAnexo = 0;
+  let totConcluidas = 0;
+
 
   try {
     const { data: profiles } = await supabaseAdmin
