@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   listarTarefasGclick,
   listarAtividadesPorTarefa,
-  extrairAnexoUrl,
+  extrairAnexo,
   baixarAnexo,
   onlyDigits,
   type GclickAtividade,
