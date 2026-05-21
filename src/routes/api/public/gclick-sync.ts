@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { executarSincronizacao } from "@/lib/gclick-sync.functions";
+import { executarSincronizacao } from "@/lib/gclick-sync.server";
 
 // Endpoint chamado pelo pg_cron (Supabase) ou agendador externo.
 // Proteção: header `apikey` deve ser a chave anon/publishable do projeto
