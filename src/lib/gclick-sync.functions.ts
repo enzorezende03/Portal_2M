@@ -218,10 +218,42 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    return executarSincronizacao({
+
+    // Cria o log já para refletir "Em andamento" no histórico
+    const { data: logRow, error: logErr } = await supabaseAdmin
+      .from("gclick_sync_log")
+      .insert({ disparado_por: context.userId, mensagem: "Em andamento…" })
+      .select()
+      .single();
+    if (logErr) throw new Error(logErr.message);
+    const logId = (logRow as any).id as string;
+
+    // Dispara em background para não estourar o timeout do gateway
+    const promise = executarSincronizacaoEmLog({
+      logId,
       diasAtras: data.diasAtras,
-      disparadoPor: context.userId,
+    }).catch((e) => {
+      console.error("[gclick-sync] background falhou", e);
     });
+
+    try {
+      const { getEvent } = await import("@tanstack/react-start/server");
+      const event: any = getEvent();
+      const cf = event?.context?.cloudflare?.ctx;
+      if (cf?.waitUntil) cf.waitUntil(promise);
+    } catch {
+      // sem waitUntil — segue sem bloquear
+    }
+
+    return {
+      logId,
+      started: true,
+      importados: 0,
+      ignorados: 0,
+      erros: 0,
+      pendencias: [] as Pendencia[],
+      error: null as string | null,
+    };
   });
 
 export const listarSyncLog = createServerFn({ method: "GET" })
