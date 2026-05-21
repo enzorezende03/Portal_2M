@@ -26,6 +26,17 @@ type LogItem = {
   mensagem: string | null;
 };
 
+function mensagemAmigavel(mensagem?: string | null) {
+  if (!mensagem) return "—";
+  if (mensagem.includes("invalid_client") || mensagem.includes("[401]")) {
+    return "FALHA: Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.";
+  }
+  if (mensagem.includes("Internal Server Error") || mensagem.includes("traceId") || mensagem.includes("[500]")) {
+    return "FALHA: O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.";
+  }
+  return mensagem;
+}
+
 function GclickPage() {
   const sync = useServerFn(sincronizarGclick);
   const fetchLog = useServerFn(listarSyncLog);
@@ -59,7 +70,7 @@ function GclickPage() {
       }
       load();
     } catch (e: any) {
-      toast.error(e?.message ?? "Falha na sincronização");
+      toast.error(mensagemAmigavel(e?.message ?? "Falha na sincronização"));
     } finally {
       setRunning(false);
     }
@@ -184,7 +195,7 @@ function GclickPage() {
                 <td className="px-3 py-2">{l.importados}</td>
                 <td className="px-3 py-2">{l.ignorados}</td>
                 <td className="px-3 py-2">{l.erros}</td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">{l.mensagem ?? "—"}</td>
+                <td className="px-3 py-2 text-xs text-muted-foreground">{mensagemAmigavel(l.mensagem)}</td>
               </tr>
             ))}
             {logs.length === 0 && (
