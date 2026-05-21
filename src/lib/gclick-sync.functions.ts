@@ -179,6 +179,7 @@ export async function executarSincronizacao(opts: {
       page++;
       if (page > 50) break; // proteção
     }
+    } // fim for categorias
 
     await supabaseAdmin
       .from("gclick_sync_log")
