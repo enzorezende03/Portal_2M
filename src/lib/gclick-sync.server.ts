@@ -69,6 +69,8 @@ export async function executarSincronizacao(opts: {
   let totAtividades = 0;
   let totComAnexo = 0;
   let totConcluidas = 0;
+  let amostraAtividade: string | null = null;
+  let amostraTarefa: string | null = null;
 
 
   try {
