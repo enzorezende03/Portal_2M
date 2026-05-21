@@ -76,12 +76,7 @@ function GclickPage() {
     load();
   }, []);
 
-  const CATEGORIAS = [
-    "Obrigacao",
-    "Solicitacao",
-    "Cobranca",
-    "CertificadoDigital",
-  ] as const;
+  const CATEGORIAS = ["Obrigacao", "Solicitacao", "Cobranca", "CertificadoDigital"] as const;
 
   const rodar = async () => {
     setRunning(true);
@@ -90,20 +85,20 @@ function GclickPage() {
     let totIgn = 0;
     let totErr = 0;
     let falha: string | null = null;
+    let logId: string | undefined;
     try {
       for (let offset = 0; offset < dias; offset += JANELA) {
         const janela = Math.min(JANELA, dias - offset);
         for (const categoria of CATEGORIAS) {
-          toast.info(
-            `Sincronizando ${categoria} (${offset + janela}/${dias} dias)…`,
-          );
+          toast.info(`Sincronizando ${categoria} (${offset + janela}/${dias} dias)…`);
           try {
             const r = await sync({
-              data: { diasAtras: janela, offsetDias: offset, categoria },
+              data: { diasAtras: janela, offsetDias: offset, categoria, logId },
             });
-            totImp += r.importados ?? 0;
-            totIgn += r.ignorados ?? 0;
-            totErr += r.erros ?? 0;
+            logId = r.logId;
+            totImp = r.importados ?? totImp;
+            totIgn = r.ignorados ?? totIgn;
+            totErr = r.erros ?? totErr;
             if (r.error && !falha) falha = r.error;
           } catch (e: any) {
             totErr += 1;
@@ -134,8 +129,8 @@ function GclickPage() {
           Integração G-Click
         </h2>
         <p className="text-sm text-muted-foreground">
-          Importa automaticamente as guias finalizadas no G-Click e publica na aba
-          Documentação do cliente correto (match por CNPJ, email ou nome).
+          Importa automaticamente as guias finalizadas no G-Click e publica na aba Documentação do
+          cliente correto (match por CNPJ, email ou nome).
         </p>
       </div>
 
@@ -204,7 +199,6 @@ function GclickPage() {
       ) : null}
 
       <HistoricoCompacto logs={logs} />
-
     </div>
   );
 }
@@ -230,12 +224,28 @@ function HistoricoCompacto({ logs }: { logs: LogItem[] }) {
         {visiveis.map((l) => {
           const travado = logTravado(l);
           const status = travado
-            ? { icon: <AlertTriangle className="h-3.5 w-3.5" />, label: "Interrompida", color: "text-amber-600" }
+            ? {
+                icon: <AlertTriangle className="h-3.5 w-3.5" />,
+                label: "Interrompida",
+                color: "text-amber-600",
+              }
             : l.finalizado_em
               ? l.erros > 0
-                ? { icon: <AlertTriangle className="h-3.5 w-3.5" />, label: "Com erros", color: "text-amber-600" }
-                : { icon: <CheckCircle2 className="h-3.5 w-3.5" />, label: "OK", color: "text-emerald-600" }
-              : { icon: <Clock className="h-3.5 w-3.5" />, label: "Em andamento", color: "text-muted-foreground" };
+                ? {
+                    icon: <AlertTriangle className="h-3.5 w-3.5" />,
+                    label: "Com erros",
+                    color: "text-amber-600",
+                  }
+                : {
+                    icon: <CheckCircle2 className="h-3.5 w-3.5" />,
+                    label: "OK",
+                    color: "text-emerald-600",
+                  }
+              : {
+                  icon: <Clock className="h-3.5 w-3.5" />,
+                  label: "Em andamento",
+                  color: "text-muted-foreground",
+                };
 
           return (
             <li key={l.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
@@ -270,7 +280,6 @@ function HistoricoCompacto({ logs }: { logs: LogItem[] }) {
   );
 }
 
-
 function Stat({
   label,
   value,
@@ -281,11 +290,7 @@ function Stat({
   tone: "ok" | "warn" | "muted";
 }) {
   const color =
-    tone === "ok"
-      ? "text-emerald-600"
-      : tone === "warn"
-        ? "text-amber-600"
-        : "text-foreground";
+    tone === "ok" ? "text-emerald-600" : tone === "warn" ? "text-amber-600" : "text-foreground";
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <div className="text-xs text-muted-foreground">{label}</div>
