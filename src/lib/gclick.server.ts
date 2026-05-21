@@ -180,14 +180,14 @@ export async function baixarAnexo(url: string): Promise<{
   contentType: string;
   nomeSugerido: string;
 }> {
-  // Anexos do G-Click podem exigir o mesmo bearer; tentamos primeiro com auth.
+  // Alguns anexos vêm com URL assinada e falham com Bearer (400); outros exigem auth.
+  // Por isso tentamos primeiro o link direto e depois com autenticação.
   const token = await getAccessToken();
   const tryFetch = async (withAuth: boolean) =>
     fetch(url, withAuth ? { headers: { Authorization: `Bearer ${token}` } } : undefined);
-  let res = await tryFetch(true);
-  if (!res.ok && (res.status === 401 || res.status === 403)) {
-    res = await tryFetch(false);
-  }
+  let res = await tryFetch(false);
+  if (!res.ok) res = await tryFetch(true);
+  if (!res.ok && res.status === 400) res = await tryFetch(false);
   if (!res.ok) throw new Error(`Falha ao baixar anexo [${res.status}]`);
   const buf = new Uint8Array(await res.arrayBuffer());
   const ct = res.headers.get("content-type") ?? "application/pdf";
