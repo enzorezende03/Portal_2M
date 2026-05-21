@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { Upload, Mail } from "lucide-react";
+import { Upload, Mail, KeyRound } from "lucide-react";
 import { changeLoginEmail } from "@/lib/change-login-email.functions";
 
 export const Route = createFileRoute("/_app/perfil")({
