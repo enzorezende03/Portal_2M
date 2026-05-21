@@ -71,6 +71,7 @@ export async function executarSincronizacao(opts: {
   let totConcluidas = 0;
   let amostraAtividade: string | null = null;
   let amostraTarefa: string | null = null;
+  let mensagemAnterior = "";
 
   if (opts.logId) {
     const { data: logAtual } = await supabaseAdmin
@@ -84,6 +85,11 @@ export async function executarSincronizacao(opts: {
     if (Array.isArray((logAtual as any)?.pendencias)) {
       pendencias.push(...((logAtual as any).pendencias as Pendencia[]));
     }
+    mensagemAnterior = String((logAtual as any)?.mensagem ?? "");
+    await supabaseAdmin
+      .from("gclick_sync_log")
+      .update({ finalizado_em: null })
+      .eq("id", logId);
   }
 
 
@@ -270,14 +276,6 @@ export async function executarSincronizacao(opts: {
       }
     }
 
-    const mensagemAnterior = opts.logId
-      ? await supabaseAdmin
-          .from("gclick_sync_log")
-          .select("mensagem")
-          .eq("id", logId)
-          .maybeSingle()
-          .then(({ data }) => String((data as any)?.mensagem ?? ""))
-      : "";
     const resumoAtual = `${opts.categoria ? `${opts.categoria}: ` : ""}${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo)`;
     await supabaseAdmin
       .from("gclick_sync_log")
