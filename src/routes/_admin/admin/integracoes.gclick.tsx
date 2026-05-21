@@ -29,6 +29,10 @@ type LogItem = {
 function mensagemAmigavel(mensagem?: string | null) {
   if (!mensagem) return "—";
   const m = mensagem;
+  const lower = m.toLowerCase();
+  if (lower.includes("sincronização interrompida")) {
+    return "Sincronização interrompida. Rode novamente com um período menor.";
+  }
   if (m.includes("invalid_client") || m.includes("[401]")) {
     return "Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret.";
   }
@@ -45,6 +49,11 @@ function mensagemAmigavel(mensagem?: string | null) {
   if (m.startsWith("OK")) return m;
   // fallback: mostra só os primeiros 120 caracteres
   return m.length > 140 ? m.slice(0, 140) + "…" : m;
+}
+
+function logTravado(log: LogItem) {
+  if (log.finalizado_em) return false;
+  return Date.now() - new Date(log.iniciado_em).getTime() > 2 * 60 * 1000;
 }
 
 function GclickPage() {
@@ -206,13 +215,19 @@ function GclickPage() {
               </tr>
             </thead>
             <tbody>
-              {logs.map((l) => (
+              {logs.map((l) => {
+                const travado = logTravado(l);
+                return (
                 <tr key={l.id} className="border-t border-border align-top">
                   <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
                     {new Date(l.iniciado_em).toLocaleString("pt-BR")}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {l.finalizado_em ? (
+                    {travado ? (
+                      <span className="inline-flex items-center gap-1 text-amber-600">
+                        <AlertTriangle className="h-3.5 w-3.5" /> Interrompida
+                      </span>
+                    ) : l.finalizado_em ? (
                       l.erros > 0 ? (
                         <span className="inline-flex items-center gap-1 text-amber-600">
                           <AlertTriangle className="h-3.5 w-3.5" /> Com erros
@@ -235,10 +250,13 @@ function GclickPage() {
                     className="px-3 py-2 text-xs text-muted-foreground truncate"
                     title={l.mensagem ?? ""}
                   >
-                    {mensagemAmigavel(l.mensagem)}
+                    {travado
+                      ? "Sincronização interrompida. Rode novamente com um período menor."
+                      : mensagemAmigavel(l.mensagem)}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
               {logs.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">

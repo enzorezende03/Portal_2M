@@ -44,6 +44,19 @@ export const listarSyncLog = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const limiteTravado = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+
+    await supabaseAdmin
+      .from("gclick_sync_log")
+      .update({
+        finalizado_em: new Date().toISOString(),
+        erros: 1,
+        mensagem:
+          "FALHA: Sincronização interrompida antes de terminar. Rode novamente com um período menor.",
+      })
+      .is("finalizado_em", null)
+      .lt("iniciado_em", limiteTravado);
+
     const { data, error } = await supabaseAdmin
       .from("gclick_sync_log")
       .select("*")
