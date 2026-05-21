@@ -36,7 +36,7 @@ function GclickPage() {
   const load = async () => {
     try {
       const { items } = await fetchLog();
-      setLogs(items as LogItem[]);
+      setLogs(items as unknown as LogItem[]);
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao carregar histórico");
     }
