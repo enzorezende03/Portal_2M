@@ -28,13 +28,23 @@ type LogItem = {
 
 function mensagemAmigavel(mensagem?: string | null) {
   if (!mensagem) return "—";
-  if (mensagem.includes("invalid_client") || mensagem.includes("[401]")) {
-    return "FALHA: Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.";
+  const m = mensagem;
+  if (m.includes("invalid_client") || m.includes("[401]")) {
+    return "Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret.";
   }
-  if (mensagem.includes("Internal Server Error") || mensagem.includes("traceId") || mensagem.includes("[500]")) {
-    return "FALHA: O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.";
+  if (m.includes("Internal Server Error") || m.includes("traceId") || m.includes("[500]")) {
+    return "G-Click retornou erro interno. Tente novamente em alguns minutos.";
   }
-  return mensagem;
+  if (m.includes("typeMismatch") || m.includes("NotNull") || m.includes("tarefaFiltroDTO")) {
+    return "Filtro inválido enviado ao G-Click (categoria). Já foi corrigido — rode novamente.";
+  }
+  if (m.includes("upstream request timeout") || m.toLowerCase().includes("timeout")) {
+    return "A consulta ao G-Click demorou demais. Tente um período menor.";
+  }
+  if (m.startsWith("FALHA:")) return m.replace(/^FALHA:\s*/, "");
+  if (m.startsWith("OK")) return m;
+  // fallback: mostra só os primeiros 120 caracteres
+  return m.length > 140 ? m.slice(0, 140) + "…" : m;
 }
 
 function GclickPage() {
