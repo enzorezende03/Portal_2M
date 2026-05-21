@@ -13,37 +13,42 @@ let cached: TokenCache | null = null;
 async function getAccessToken(): Promise<string> {
   if (cached && cached.expiresAt > Date.now() + 60_000) return cached.token;
 
-  const clientId = process.env.GCLICK_CLIENT_ID;
-  const clientSecret = process.env.GCLICK_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
+  const appKey = process.env.GCLICK_CLIENT_ID;
+  const appSecret = process.env.GCLICK_CLIENT_SECRET;
+  if (!appKey || !appSecret) {
     throw new Error("GCLICK_CLIENT_ID/GCLICK_CLIENT_SECRET não configurados");
   }
 
-  const body = new URLSearchParams({
-    client_id: clientId,
-    client_secret: clientSecret,
-    grant_type: "client_credentials",
-  });
-
-  const res = await fetch(`${BASE_URL}/oauth/token`, {
+  // G-Click (Omie) usa POST /api/auth com app_key/app_secret em JSON.
+  const res = await fetch(`${BASE_URL}/api/auth`, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({ app_key: appKey, app_secret: appSecret }),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
     throw new Error(`G-Click auth falhou [${res.status}]: ${txt}`);
   }
   const data = (await res.json()) as {
-    access_token: string;
-    expires_in: number;
+    access_token?: string;
+    token?: string;
+    expires_in?: number;
   };
+  const token = data.access_token ?? data.token;
+  if (!token) {
+    throw new Error("G-Click auth: resposta sem token");
+  }
   cached = {
-    token: data.access_token,
-    expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+    token,
+    // Token do G-Click costuma durar 24h; usamos expires_in se vier, senão 23h.
+    expiresAt: Date.now() + ((data.expires_in ?? 23 * 3600) * 1000),
   };
   return cached.token;
 }
+
 
 export async function gclickFetch<T = any>(
   path: string,
