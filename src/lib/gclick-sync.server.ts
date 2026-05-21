@@ -77,10 +77,25 @@ export async function executarSincronizacao(opts: {
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
       .select("id, cnpj, email, nome");
-    const byCnpj = new Map<string, { id: string; nome: string | null }>();
+    type Perfil = { id: string; nome: string | null };
+    const byCnpj = new Map<string, Perfil>();
+    const byEmail = new Map<string, Perfil>();
+    const byNome = new Map<string, Perfil>();
+    const normNome = (s?: string | null) =>
+      (s ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
     for (const p of profiles ?? []) {
+      const entry: Perfil = { id: (p as any).id, nome: (p as any).nome };
       const k = onlyDigits((p as any).cnpj);
-      if (k) byCnpj.set(k, { id: (p as any).id, nome: (p as any).nome });
+      if (k) byCnpj.set(k, entry);
+      const em = ((p as any).email ?? "").trim().toLowerCase();
+      if (em) byEmail.set(em, entry);
+      const nm = normNome((p as any).nome);
+      if (nm) byNome.set(nm, entry);
     }
 
     const categorias = opts.categoria ? [opts.categoria] : [...CATEGORIAS];
@@ -104,6 +119,13 @@ export async function executarSincronizacao(opts: {
             amostraTarefa = JSON.stringify(Object.keys(t)).slice(0, 200);
           }
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
+          const emailT = ((t.cliente as any)?.email ?? "").trim().toLowerCase();
+          const nomeT = normNome(t.cliente?.nome);
+          const perfilMatch: Perfil | undefined =
+            (cnpjT && byCnpj.get(cnpjT)) ||
+            (emailT && byEmail.get(emailT)) ||
+            (nomeT && byNome.get(nomeT)) ||
+            undefined;
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
@@ -137,19 +159,26 @@ export async function executarSincronizacao(opts: {
               continue;
             }
 
-            if (!cnpjT || !byCnpj.has(cnpjT)) {
+            if (!perfilMatch) {
+              const motivo = cnpjT
+                ? "CNPJ sem cadastro no portal (e sem match por email/nome)"
+                : emailT
+                  ? "Email do cliente sem cadastro no portal"
+                  : nomeT
+                    ? "Cliente sem match por nome no portal"
+                    : "Tarefa sem identificação de cliente";
               pendencias.push({
                 tarefa_id: String(t.id),
                 atividade_id: String(a.id),
                 cliente_nome: t.cliente?.nome,
                 cnpj: cnpjT || undefined,
-                motivo: cnpjT ? "CNPJ sem cadastro no portal" : "Tarefa sem CNPJ",
+                motivo,
               });
               ignorados++;
               continue;
             }
 
-            const perfil = byCnpj.get(cnpjT)!;
+            const perfil = perfilMatch;
 
             try {
               const baixado = await baixarAnexo(url);
