@@ -44,19 +44,23 @@ function mensagemAmigavelGclick(message?: string) {
 export async function executarSincronizacao(opts: {
   diasAtras: number;
   disparadoPor?: string | null;
+  logId?: string;
 }) {
   const ate = new Date();
   const de = new Date();
   de.setDate(de.getDate() - opts.diasAtras);
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
 
-  const { data: logRow, error: logErr } = await supabaseAdmin
-    .from("gclick_sync_log")
-    .insert({ disparado_por: opts.disparadoPor ?? null })
-    .select()
-    .single();
-  if (logErr) throw new Error(logErr.message);
-  const logId = (logRow as any).id as string;
+  let logId = opts.logId;
+  if (!logId) {
+    const { data: logRow, error: logErr } = await supabaseAdmin
+      .from("gclick_sync_log")
+      .insert({ disparado_por: opts.disparadoPor ?? null })
+      .select()
+      .single();
+    if (logErr) throw new Error(logErr.message);
+    logId = (logRow as any).id as string;
+  }
 
   let importados = 0;
   let ignorados = 0;
