@@ -57,20 +57,22 @@ function GclickPage() {
     load();
   }, []);
 
+  // Enquanto houver sincronização "Em andamento", recarrega a cada 4s
+  useEffect(() => {
+    const emAndamento = logs.some((l) => !l.finalizado_em);
+    if (!emAndamento) return;
+    const t = setInterval(load, 4000);
+    return () => clearInterval(t);
+  }, [logs]);
+
   const rodar = async () => {
     setRunning(true);
     try {
-      const r = await sync({ data: { diasAtras: dias } });
-      if (r.error) {
-        toast.error(r.error);
-      } else {
-        toast.success(
-          `Sincronização concluída — ${r.importados} importados, ${r.ignorados} ignorados, ${r.erros} erros`,
-        );
-      }
+      await sync({ data: { diasAtras: dias } });
+      toast.success("Sincronização iniciada — acompanhe o histórico abaixo.");
       load();
     } catch (e: any) {
-      toast.error(mensagemAmigavel(e?.message ?? "Falha na sincronização"));
+      toast.error(mensagemAmigavel(e?.message ?? "Falha ao iniciar a sincronização"));
     } finally {
       setRunning(false);
     }
