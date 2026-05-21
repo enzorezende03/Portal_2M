@@ -232,19 +232,20 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
     if (logErr) throw new Error(logErr.message);
     const logId = (logRow as any).id as string;
 
-    // Dispara em background para não estourar o timeout do gateway
-    const promise = executarSincronizacaoEmLog({
+    // Dispara em background para não estourar o timeout do gateway.
+    // Em runtimes serverless (Cloudflare) tentamos manter vivo via waitUntil.
+    const promise = executarSincronizacao({
       logId,
       diasAtras: data.diasAtras,
-    }).catch((e) => {
+      disparadoPor: context.userId,
+    }).catch((e: any) => {
       console.error("[gclick-sync] background falhou", e);
     });
 
     try {
-      const { getEvent } = await import("@tanstack/react-start/server");
-      const event: any = getEvent();
-      const cf = event?.context?.cloudflare?.ctx;
-      if (cf?.waitUntil) cf.waitUntil(promise);
+      const g: any = globalThis as any;
+      const cfCtx = g?.__cfExecutionCtx ?? g?.executionCtx;
+      if (cfCtx?.waitUntil) cfCtx.waitUntil(promise);
     } catch {
       // sem waitUntil — segue sem bloquear
     }
