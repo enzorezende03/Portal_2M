@@ -13,12 +13,7 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   }
 }
 
-const CategoriaSchema = z.enum([
-  "Obrigacao",
-  "Solicitacao",
-  "Cobranca",
-  "CertificadoDigital",
-]);
+const CategoriaSchema = z.enum(["Obrigacao", "Solicitacao", "Cobranca", "CertificadoDigital"]);
 
 export const sincronizarGclick = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

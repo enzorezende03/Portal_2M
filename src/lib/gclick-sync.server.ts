@@ -88,11 +88,8 @@ export async function executarSincronizacao(opts: {
     mensagemAnterior = String((logAtual as any)?.mensagem ?? "");
   }
 
-
   try {
-    const { data: profiles } = await supabaseAdmin
-      .from("profiles")
-      .select("id, cnpj, email, nome");
+    const { data: profiles } = await supabaseAdmin.from("profiles").select("id, cnpj, email, nome");
     type Perfil = { id: string; nome: string | null };
     const byCnpj = new Map<string, Perfil>();
     const byEmail = new Map<string, Perfil>();
@@ -151,9 +148,7 @@ export async function executarSincronizacao(opts: {
               (t as any).cnpj ??
               (t as any).inscricao,
           );
-          const emailT = String(
-            cliente.email ?? t.clienteEmail ?? (t as any).emailCliente ?? "",
-          )
+          const emailT = String(cliente.email ?? t.clienteEmail ?? (t as any).emailCliente ?? "")
             .trim()
             .toLowerCase();
           const nomeT = normNome(clienteNome);
@@ -181,7 +176,6 @@ export async function executarSincronizacao(opts: {
             if (url) totComAnexo++;
             if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
-
 
             const atividadeKey = `${t.id}-${a.id}`;
 
@@ -229,28 +223,23 @@ export async function executarSincronizacao(opts: {
                 });
               if (upErr) throw upErr;
 
-              const titulo =
-                a.nome || t.nome || baixado.nomeSugerido.replace(/\.[^.]+$/, "");
+              const titulo = a.nome || t.nome || baixado.nomeSugerido.replace(/\.[^.]+$/, "");
               const competencia = t.competencia ?? null;
               const venc = t.vencimento ?? t.dataVencimento ?? null;
 
-              const { error: insErr } = await supabaseAdmin
-                .from("documentos")
-                .insert({
-                  user_id: perfil.id,
-                  nome: titulo,
-                  descricao: clienteNome
-                    ? `G-Click · ${clienteNome}`
-                    : "G-Click",
-                  arquivo_path: path,
-                  arquivo_url: "",
-                  tamanho_bytes: baixado.bytes.byteLength,
-                  mime_type: baixado.contentType,
-                  origem: "gclick",
-                  gclick_atividade_id: atividadeKey,
-                  competencia,
-                  vencimento: venc,
-                });
+              const { error: insErr } = await supabaseAdmin.from("documentos").insert({
+                user_id: perfil.id,
+                nome: titulo,
+                descricao: clienteNome ? `G-Click · ${clienteNome}` : "G-Click",
+                arquivo_path: path,
+                arquivo_url: "",
+                tamanho_bytes: baixado.bytes.byteLength,
+                mime_type: baixado.contentType,
+                origem: "gclick",
+                gclick_atividade_id: atividadeKey,
+                competencia,
+                vencimento: venc,
+              });
               if (insErr) throw insErr;
               importados++;
             } catch (e: any) {
