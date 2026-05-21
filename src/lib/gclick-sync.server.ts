@@ -159,19 +159,26 @@ export async function executarSincronizacao(opts: {
               continue;
             }
 
-            if (!cnpjT || !byCnpj.has(cnpjT)) {
+            if (!perfilMatch) {
+              const motivo = cnpjT
+                ? "CNPJ sem cadastro no portal (e sem match por email/nome)"
+                : emailT
+                  ? "Email do cliente sem cadastro no portal"
+                  : nomeT
+                    ? "Cliente sem match por nome no portal"
+                    : "Tarefa sem identificação de cliente";
               pendencias.push({
                 tarefa_id: String(t.id),
                 atividade_id: String(a.id),
                 cliente_nome: t.cliente?.nome,
                 cnpj: cnpjT || undefined,
-                motivo: cnpjT ? "CNPJ sem cadastro no portal" : "Tarefa sem CNPJ",
+                motivo,
               });
               ignorados++;
               continue;
             }
 
-            const perfil = byCnpj.get(cnpjT)!;
+            const perfil = perfilMatch;
 
             try {
               const baixado = await baixarAnexo(url);
