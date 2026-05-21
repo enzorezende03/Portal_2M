@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_app/treinamentos/$id")({
   component: TreinamentoPlayer,
 });
 
-type VideoKind = "youtube" | "vimeo" | "bunny" | "other";
+type VideoKind = "youtube" | "vimeo" | "bunny" | "file" | "other";
 
 function detectVideo(url: string): { kind: VideoKind; embed: string } {
   if (!url) return { kind: "other", embed: url };
@@ -25,6 +25,9 @@ function detectVideo(url: string): { kind: VideoKind; embed: string } {
   }
   if (/iframe\.mediadelivery\.net/i.test(url)) {
     return { kind: "bunny", embed: url };
+  }
+  if (/\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(url) || /treinamentos-videos/i.test(url)) {
+    return { kind: "file", embed: url };
   }
   return { kind: "other", embed: url };
 }
