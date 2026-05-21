@@ -77,10 +77,25 @@ export async function executarSincronizacao(opts: {
     const { data: profiles } = await supabaseAdmin
       .from("profiles")
       .select("id, cnpj, email, nome");
-    const byCnpj = new Map<string, { id: string; nome: string | null }>();
+    type Perfil = { id: string; nome: string | null };
+    const byCnpj = new Map<string, Perfil>();
+    const byEmail = new Map<string, Perfil>();
+    const byNome = new Map<string, Perfil>();
+    const normNome = (s?: string | null) =>
+      (s ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
     for (const p of profiles ?? []) {
+      const entry: Perfil = { id: (p as any).id, nome: (p as any).nome };
       const k = onlyDigits((p as any).cnpj);
-      if (k) byCnpj.set(k, { id: (p as any).id, nome: (p as any).nome });
+      if (k) byCnpj.set(k, entry);
+      const em = ((p as any).email ?? "").trim().toLowerCase();
+      if (em) byEmail.set(em, entry);
+      const nm = normNome((p as any).nome);
+      if (nm) byNome.set(nm, entry);
     }
 
     const categorias = opts.categoria ? [opts.categoria] : [...CATEGORIAS];
