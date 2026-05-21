@@ -90,6 +90,7 @@ function GclickPage() {
     let totIgn = 0;
     let totErr = 0;
     let falha: string | null = null;
+    let logId: string | undefined;
     try {
       for (let offset = 0; offset < dias; offset += JANELA) {
         const janela = Math.min(JANELA, dias - offset);
@@ -99,8 +100,9 @@ function GclickPage() {
           );
           try {
             const r = await sync({
-              data: { diasAtras: janela, offsetDias: offset, categoria },
+              data: { diasAtras: janela, offsetDias: offset, categoria, logId },
             });
+            logId = r.logId;
             totImp += r.importados ?? 0;
             totIgn += r.ignorados ?? 0;
             totErr += r.erros ?? 0;
