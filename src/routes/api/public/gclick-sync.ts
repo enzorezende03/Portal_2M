@@ -1,15 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { executarSincronizacao } from "@/lib/gclick-sync.functions";
 
-// Endpoint para agendador externo (n8n, cron-job.org).
-// Proteção: header X-Sync-Token deve bater com GCLICK_SYNC_TOKEN.
+// Endpoint chamado pelo pg_cron (Supabase) ou agendador externo.
+// Proteção: header `apikey` deve ser a chave anon/publishable do projeto
+// OU header `x-sync-token` deve bater com GCLICK_SYNC_TOKEN (compat).
 export const Route = createFileRoute("/api/public/gclick-sync")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const expected = process.env.GCLICK_SYNC_TOKEN;
+        const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
+        const expectedToken = process.env.GCLICK_SYNC_TOKEN;
+        const apikey = request.headers.get("apikey");
         const token = request.headers.get("x-sync-token");
-        if (!expected || token !== expected) {
+        const okApikey = !!anon && apikey === anon;
+        const okToken = !!expectedToken && token === expectedToken;
+        if (!okApikey && !okToken) {
           return new Response("Unauthorized", { status: 401 });
         }
         const url = new URL(request.url);
