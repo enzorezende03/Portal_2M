@@ -203,87 +203,73 @@ function GclickPage() {
         </div>
       ) : null}
 
-      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-4 py-3 text-sm font-medium">
-          Histórico
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full table-fixed text-sm">
-            <colgroup>
-              <col className="w-40" />
-              <col className="w-32" />
-              <col className="w-24" />
-              <col className="w-24" />
-              <col className="w-20" />
-              <col />
-            </colgroup>
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="px-3 py-2 font-medium">Quando</th>
-                <th className="px-3 py-2 font-medium">Status</th>
-                <th className="px-3 py-2 font-medium">Importados</th>
-                <th className="px-3 py-2 font-medium">Ignorados</th>
-                <th className="px-3 py-2 font-medium">Erros</th>
-                <th className="px-3 py-2 font-medium">Mensagem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((l) => {
-                const travado = logTravado(l);
-                return (
-                <tr key={l.id} className="border-t border-border align-top">
-                  <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
-                    {new Date(l.iniciado_em).toLocaleString("pt-BR")}
-                  </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    {travado ? (
-                      <span className="inline-flex items-center gap-1 text-amber-600">
-                        <AlertTriangle className="h-3.5 w-3.5" /> Interrompida
-                      </span>
-                    ) : l.finalizado_em ? (
-                      l.erros > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-amber-600">
-                          <AlertTriangle className="h-3.5 w-3.5" /> Com erros
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-emerald-600">
-                          <CheckCircle2 className="h-3.5 w-3.5" /> OK
-                        </span>
-                      )
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-muted-foreground">
-                        <Clock className="h-3.5 w-3.5" /> Em andamento
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2">{l.importados}</td>
-                  <td className="px-3 py-2">{l.ignorados}</td>
-                  <td className="px-3 py-2">{l.erros}</td>
-                  <td
-                    className="px-3 py-2 text-xs text-muted-foreground truncate"
-                    title={l.mensagem ?? ""}
-                  >
-                    {travado
-                      ? "Sincronização interrompida. Rode novamente com um período menor."
-                      : mensagemAmigavel(l.mensagem)}
-                  </td>
-                </tr>
-              );
-              })}
-              {logs.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">
-                    Nenhuma sincronização ainda.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <HistoricoCompacto logs={logs} />
+
     </div>
   );
 }
+
+function HistoricoCompacto({ logs }: { logs: LogItem[] }) {
+  const [expandido, setExpandido] = useState(false);
+  const visiveis = expandido ? logs : logs.slice(0, 5);
+
+  return (
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 text-sm font-medium">
+        <span>Histórico de sincronizações</span>
+        {logs.length > 5 && (
+          <button
+            onClick={() => setExpandido((v) => !v)}
+            className="text-xs font-normal text-muted-foreground hover:text-foreground"
+          >
+            {expandido ? "Mostrar menos" : `Ver todas (${logs.length})`}
+          </button>
+        )}
+      </div>
+      <ul className="divide-y divide-border">
+        {visiveis.map((l) => {
+          const travado = logTravado(l);
+          const status = travado
+            ? { icon: <AlertTriangle className="h-3.5 w-3.5" />, label: "Interrompida", color: "text-amber-600" }
+            : l.finalizado_em
+              ? l.erros > 0
+                ? { icon: <AlertTriangle className="h-3.5 w-3.5" />, label: "Com erros", color: "text-amber-600" }
+                : { icon: <CheckCircle2 className="h-3.5 w-3.5" />, label: "OK", color: "text-emerald-600" }
+              : { icon: <Clock className="h-3.5 w-3.5" />, label: "Em andamento", color: "text-muted-foreground" };
+
+          return (
+            <li key={l.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+              <span className={`inline-flex items-center gap-1 w-32 shrink-0 ${status.color}`}>
+                {status.icon}
+                <span className="text-xs">{status.label}</span>
+              </span>
+              <span className="w-40 shrink-0 text-xs text-muted-foreground whitespace-nowrap">
+                {new Date(l.iniciado_em).toLocaleString("pt-BR")}
+              </span>
+              <span className="flex-1 text-xs text-muted-foreground truncate">
+                <span className="text-emerald-600 font-medium">{l.importados}</span> importados
+                {" · "}
+                <span className="text-foreground font-medium">{l.ignorados}</span> ignorados
+                {l.erros > 0 && (
+                  <>
+                    {" · "}
+                    <span className="text-amber-600 font-medium">{l.erros}</span> erros
+                  </>
+                )}
+              </span>
+            </li>
+          );
+        })}
+        {logs.length === 0 && (
+          <li className="px-4 py-8 text-center text-sm text-muted-foreground">
+            Nenhuma sincronização ainda.
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 
 function Stat({
   label,
