@@ -19,14 +19,14 @@ async function getAccessToken(): Promise<string> {
     throw new Error("GCLICK_CLIENT_ID/GCLICK_CLIENT_SECRET não configurados");
   }
 
-  // G-Click (Omie) usa POST /api/auth com app_key/app_secret em JSON.
-  const res = await fetch(`${BASE_URL}/api/auth`, {
+  // G-Click (Omie): POST /signin com app_key/app_secret nos HEADERS.
+  const res = await fetch(`${BASE_URL}/signin`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      app_key: appKey,
+      app_secret: appSecret,
       Accept: "application/json",
     },
-    body: JSON.stringify({ app_key: appKey, app_secret: appSecret }),
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
