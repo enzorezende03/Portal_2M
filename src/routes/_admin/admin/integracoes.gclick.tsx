@@ -57,24 +57,39 @@ function GclickPage() {
     load();
   }, []);
 
-  // Enquanto houver sincronização "Em andamento", recarrega a cada 4s
-  useEffect(() => {
-    const emAndamento = logs.some((l) => !l.finalizado_em);
-    if (!emAndamento) return;
-    const t = setInterval(load, 4000);
-    return () => clearInterval(t);
-  }, [logs]);
+  const CATEGORIAS = [
+    "Obrigacao",
+    "Solicitacao",
+    "Cobranca",
+    "CertificadoDigital",
+  ] as const;
 
   const rodar = async () => {
     setRunning(true);
+    let totImp = 0;
+    let totIgn = 0;
+    let totErr = 0;
+    let falha: string | null = null;
     try {
-      await sync({ data: { diasAtras: dias } });
-      toast.success("Sincronização iniciada — acompanhe o histórico abaixo.");
-      load();
+      for (const categoria of CATEGORIAS) {
+        toast.info(`Sincronizando: ${categoria}…`);
+        const r = await sync({ data: { diasAtras: dias, categoria } });
+        totImp += r.importados ?? 0;
+        totIgn += r.ignorados ?? 0;
+        totErr += r.erros ?? 0;
+        if (r.error && !falha) falha = r.error;
+        load();
+      }
+      if (falha) toast.error(falha);
+      else
+        toast.success(
+          `Sincronização concluída — ${totImp} importados, ${totIgn} ignorados, ${totErr} erros`,
+        );
     } catch (e: any) {
-      toast.error(mensagemAmigavel(e?.message ?? "Falha ao iniciar a sincronização"));
+      toast.error(mensagemAmigavel(e?.message ?? "Falha na sincronização"));
     } finally {
       setRunning(false);
+      load();
     }
   };
 
