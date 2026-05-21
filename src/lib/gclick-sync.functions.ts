@@ -44,19 +44,23 @@ function mensagemAmigavelGclick(message?: string) {
 export async function executarSincronizacao(opts: {
   diasAtras: number;
   disparadoPor?: string | null;
+  logId?: string;
 }) {
   const ate = new Date();
   const de = new Date();
   de.setDate(de.getDate() - opts.diasAtras);
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
 
-  const { data: logRow, error: logErr } = await supabaseAdmin
-    .from("gclick_sync_log")
-    .insert({ disparado_por: opts.disparadoPor ?? null })
-    .select()
-    .single();
-  if (logErr) throw new Error(logErr.message);
-  const logId = (logRow as any).id as string;
+  let logId = opts.logId;
+  if (!logId) {
+    const { data: logRow, error: logErr } = await supabaseAdmin
+      .from("gclick_sync_log")
+      .insert({ disparado_por: opts.disparadoPor ?? null })
+      .select()
+      .single();
+    if (logErr) throw new Error(logErr.message);
+    logId = (logRow as any).id as string;
+  }
 
   let importados = 0;
   let ignorados = 0;
@@ -218,10 +222,43 @@ export const sincronizarGclick = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    return executarSincronizacao({
+
+    // Cria o log já para refletir "Em andamento" no histórico
+    const { data: logRow, error: logErr } = await supabaseAdmin
+      .from("gclick_sync_log")
+      .insert({ disparado_por: context.userId, mensagem: "Em andamento…" })
+      .select()
+      .single();
+    if (logErr) throw new Error(logErr.message);
+    const logId = (logRow as any).id as string;
+
+    // Dispara em background para não estourar o timeout do gateway.
+    // Em runtimes serverless (Cloudflare) tentamos manter vivo via waitUntil.
+    const promise = executarSincronizacao({
+      logId,
       diasAtras: data.diasAtras,
       disparadoPor: context.userId,
+    }).catch((e: any) => {
+      console.error("[gclick-sync] background falhou", e);
     });
+
+    try {
+      const g: any = globalThis as any;
+      const cfCtx = g?.__cfExecutionCtx ?? g?.executionCtx;
+      if (cfCtx?.waitUntil) cfCtx.waitUntil(promise);
+    } catch {
+      // sem waitUntil — segue sem bloquear
+    }
+
+    return {
+      logId,
+      started: true,
+      importados: 0,
+      ignorados: 0,
+      erros: 0,
+      pendencias: [] as Pendencia[],
+      error: null as string | null,
+    };
   });
 
 export const listarSyncLog = createServerFn({ method: "GET" })
