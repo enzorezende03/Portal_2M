@@ -72,6 +72,20 @@ export async function executarSincronizacao(opts: {
   let amostraAtividade: string | null = null;
   let amostraTarefa: string | null = null;
 
+  if (opts.logId) {
+    const { data: logAtual } = await supabaseAdmin
+      .from("gclick_sync_log")
+      .select("importados, ignorados, erros, pendencias, mensagem")
+      .eq("id", logId)
+      .maybeSingle();
+    importados = Number((logAtual as any)?.importados ?? 0);
+    ignorados = Number((logAtual as any)?.ignorados ?? 0);
+    erros = Number((logAtual as any)?.erros ?? 0);
+    if (Array.isArray((logAtual as any)?.pendencias)) {
+      pendencias.push(...((logAtual as any).pendencias as Pendencia[]));
+    }
+  }
+
 
   try {
     const { data: profiles } = await supabaseAdmin
@@ -256,6 +270,15 @@ export async function executarSincronizacao(opts: {
       }
     }
 
+    const mensagemAnterior = opts.logId
+      ? await supabaseAdmin
+          .from("gclick_sync_log")
+          .select("mensagem")
+          .eq("id", logId)
+          .maybeSingle()
+          .then(({ data }) => String((data as any)?.mensagem ?? ""))
+      : "";
+    const resumoAtual = `${opts.categoria ? `${opts.categoria}: ` : ""}${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo)`;
     await supabaseAdmin
       .from("gclick_sync_log")
       .update({
@@ -264,7 +287,7 @@ export async function executarSincronizacao(opts: {
         ignorados,
         erros,
         pendencias: pendencias.slice(0, 500),
-        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros${amostraAtividade ? ` · AMOSTRA_ATV: ${amostraAtividade}` : ""}${amostraTarefa ? ` · CAMPOS_TAR: ${amostraTarefa}` : ""}`,
+        mensagem: `OK — ${mensagemAnterior ? `${mensagemAnterior.replace(/^OK —\s*/, "")} | ` : ""}${resumoAtual} · ${importados} importados, ${ignorados} ignorados, ${erros} erros${amostraAtividade ? ` · AMOSTRA_ATV: ${amostraAtividade}` : ""}${amostraTarefa ? ` · CAMPOS_TAR: ${amostraTarefa}` : ""}`,
       })
       .eq("id", logId);
 
