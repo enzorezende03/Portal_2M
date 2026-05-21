@@ -178,7 +178,7 @@ export async function executarSincronizacao(opts: {
       })
       .eq("id", logId);
 
-    return { logId, importados, ignorados, erros, pendencias };
+    return { logId, importados, ignorados, erros, pendencias, error: null };
   } catch (e: any) {
     await supabaseAdmin
       .from("gclick_sync_log")
@@ -191,7 +191,7 @@ export async function executarSincronizacao(opts: {
         mensagem: `FALHA: ${e?.message ?? "erro desconhecido"}`,
       })
       .eq("id", logId);
-    throw e;
+    return { logId, importados, ignorados, erros: erros + 1, pendencias, error: e?.message ?? "erro desconhecido" };
   }
 }
 

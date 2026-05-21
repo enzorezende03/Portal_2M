@@ -24,6 +24,9 @@ export const Route = createFileRoute("/api/public/gclick-sync")({
         );
         try {
           const result = await executarSincronizacao({ diasAtras: dias });
+          if (result.error) {
+            return Response.json({ ok: false, ...result }, { status: 502 });
+          }
           return Response.json({ ok: true, ...result });
         } catch (e: any) {
           return Response.json(

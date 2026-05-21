@@ -50,9 +50,13 @@ function GclickPage() {
     setRunning(true);
     try {
       const r = await sync({ data: { diasAtras: dias } });
-      toast.success(
-        `Sincronização concluída — ${r.importados} importados, ${r.ignorados} ignorados, ${r.erros} erros`,
-      );
+      if (r.error) {
+        toast.error(r.error);
+      } else {
+        toast.success(
+          `Sincronização concluída — ${r.importados} importados, ${r.ignorados} ignorados, ${r.erros} erros`,
+        );
+      }
       load();
     } catch (e: any) {
       toast.error(e?.message ?? "Falha na sincronização");

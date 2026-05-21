@@ -13,24 +13,31 @@ let cached: TokenCache | null = null;
 async function getAccessToken(): Promise<string> {
   if (cached && cached.expiresAt > Date.now() + 60_000) return cached.token;
 
-  const appKey = process.env.GCLICK_CLIENT_ID;
-  const appSecret = process.env.GCLICK_CLIENT_SECRET;
-  if (!appKey || !appSecret) {
+  const clientId = process.env.GCLICK_CLIENT_ID?.trim();
+  const clientSecret = process.env.GCLICK_CLIENT_SECRET?.trim();
+  if (!clientId || !clientSecret) {
     throw new Error("GCLICK_CLIENT_ID/GCLICK_CLIENT_SECRET não configurados");
   }
 
-  // G-Click (Omie): POST /signin com app_key/app_secret nos HEADERS.
-  const res = await fetch(`${BASE_URL}/signin`, {
+  const body = new URLSearchParams({
+    client_id: clientId,
+    client_secret: clientSecret,
+    grant_type: "client_credentials",
+  });
+
+  // Documentação oficial do Omie.G-Click: POST /oauth/token com form-urlencoded.
+  const res = await fetch(`${BASE_URL}/oauth/token`, {
     method: "POST",
     headers: {
-      app_key: appKey,
-      app_secret: appSecret,
+      "Content-Type": "application/x-www-form-urlencoded",
       Accept: "application/json",
     },
+    body,
   });
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
-    throw new Error(`G-Click auth falhou [${res.status}]: ${txt}`);
+    const details = txt ? `: ${txt.slice(0, 300)}` : "";
+    throw new Error(`G-Click auth falhou [${res.status}]${details}`);
   }
   const data = (await res.json()) as {
     access_token?: string;
