@@ -211,7 +211,7 @@ export async function executarSincronizacao(opts: {
         ignorados,
         erros,
         pendencias: pendencias.slice(0, 500),
-        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros`,
+        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros${amostraAtividade ? ` · AMOSTRA_ATV: ${amostraAtividade}` : ""}${amostraTarefa ? ` · CAMPOS_TAR: ${amostraTarefa}` : ""}`,
       })
       .eq("id", logId);
 
