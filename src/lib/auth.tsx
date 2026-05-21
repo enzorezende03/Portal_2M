@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setProfile(null);
         setIsAdmin(false);
+        setIsColaborador(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -82,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, isAdmin, loading, signOut, refresh }}>
+    <AuthContext.Provider value={{ user, session, profile, isAdmin, isColaborador, loading, signOut, refresh }}>
       {children}
     </AuthContext.Provider>
   );
