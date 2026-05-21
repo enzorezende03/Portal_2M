@@ -111,11 +111,15 @@ export async function executarSincronizacao(opts: {
 
           for (const a of atividades) {
             if (!amostraAtividade && atividades.length > 0) {
-              // dump completo (truncado) da 1ª atividade pra inspeção
               amostraAtividade = JSON.stringify(a).slice(0, 600);
             }
-            const url = extrairAnexoUrl(a);
-            const concluida = a.concluido === true || /conclu|finaliz|efetuad/i.test(a.status ?? "");
+            const anexo = extrairAnexo(a);
+            const url = anexo?.url ?? null;
+            const concluida =
+              a.respondida === true ||
+              a.concluido === true ||
+              !!a.respondidaEm ||
+              /conclu|finaliz|efetuad|respond/i.test(a.status ?? "");
             if (url) totComAnexo++;
             if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
