@@ -90,10 +90,17 @@ export async function executarSincronizacao(opts: {
 
   try {
     const { data: profiles } = await supabaseAdmin.from("profiles").select("id, cnpj, email, nome");
+    const { data: clientes } = await supabaseAdmin
+      .from("clientes")
+      .select("id, cnpj, email, nome");
     type Perfil = { id: string; nome: string | null };
+    type ClienteRow = { id: string; nome: string | null };
     const byCnpj = new Map<string, Perfil>();
     const byEmail = new Map<string, Perfil>();
     const byNome = new Map<string, Perfil>();
+    const cliByCnpj = new Map<string, ClienteRow>();
+    const cliByEmail = new Map<string, ClienteRow>();
+    const cliByNome = new Map<string, ClienteRow>();
     const normNome = (s?: string | null) =>
       String(s ?? "")
         .normalize("NFD")
@@ -109,6 +116,15 @@ export async function executarSincronizacao(opts: {
       if (em) byEmail.set(em, entry);
       const nm = normNome((p as any).nome);
       if (nm) byNome.set(nm, entry);
+    }
+    for (const c of clientes ?? []) {
+      const entry: ClienteRow = { id: (c as any).id, nome: (c as any).nome };
+      const k = onlyDigits((c as any).cnpj);
+      if (k) cliByCnpj.set(k, entry);
+      const em = ((c as any).email ?? "").trim().toLowerCase();
+      if (em) cliByEmail.set(em, entry);
+      const nm = normNome((c as any).nome);
+      if (nm) cliByNome.set(nm, entry);
     }
 
     const categorias = opts.categoria ? [opts.categoria] : [...CATEGORIAS];
