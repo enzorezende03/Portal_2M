@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { Upload, Mail } from "lucide-react";
+import { Upload, Mail, KeyRound } from "lucide-react";
 import { changeLoginEmail } from "@/lib/change-login-email.functions";
 
 export const Route = createFileRoute("/_app/perfil")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/_app/perfil")({
 
 function PerfilPage() {
   const { user, profile, refresh } = useAuth();
+  const trocarEmailLogin = useServerFn(changeLoginEmail);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [cnpj, setCnpj] = useState("");
@@ -31,7 +32,27 @@ function PerfilPage() {
   const salvar = async () => {
     if (!user) return;
     setSaving(true);
-    const patch = { nome, email, cnpj, telefone, cargo };
+
+    const novoEmail = email.trim().toLowerCase();
+    const emailAtualAuth = (user.email ?? "").toLowerCase();
+    const emailMudou =
+      !!novoEmail &&
+      novoEmail !== emailAtualAuth &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail);
+
+    // Se o email mudou, sincroniza também o email de login (auth.users)
+    // para que o acesso automático (SSO) aos sistemas integrados funcione
+    // tanto por email quanto por CNPJ.
+    if (emailMudou) {
+      try {
+        await trocarEmailLogin({ data: { newEmail: novoEmail } });
+      } catch (e: any) {
+        setSaving(false);
+        return toast.error(e?.message ?? "Não foi possível atualizar o email de acesso.");
+      }
+    }
+
+    const patch = { nome, email: novoEmail || email, cnpj, telefone, cargo };
     const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
     if (error) {
       setSaving(false);
@@ -51,7 +72,11 @@ function PerfilPage() {
     }
 
     setSaving(false);
-    toast.success("Perfil atualizado");
+    toast.success(
+      emailMudou
+        ? "Perfil atualizado. Use o novo email no próximo login."
+        : "Perfil atualizado",
+    );
     refresh();
   };
 
@@ -92,7 +117,21 @@ function PerfilPage() {
         </label>
       </div>
 
-      <div className="mt-8 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="mt-8 flex items-start gap-3 rounded-lg border p-4 text-sm" style={{ borderColor: "var(--brand-primary)", background: "color-mix(in oklab, var(--brand-primary) 8%, transparent)" }}>
+        <KeyRound className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "var(--brand-primary)" }} />
+        <div>
+          <p className="font-medium" style={{ color: "var(--brand-navy)" }}>
+            Acesso automático aos sistemas integrados
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            Preencha o <strong>email</strong> e o <strong>CNPJ</strong> que você já utiliza nos sistemas parceiros
+            (DistribuiLucros, Referência Tributária e demais). Sempre que abrir um sistema integrado pelo portal,
+            entraremos automaticamente usando esses dados — não é preciso digitar senha de novo.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
         <Field label="Nome" value={nome} onChange={setNome} />
         <Field label="Email" value={email} onChange={setEmail} />
         <Field label="CNPJ" value={cnpj} onChange={setCnpj} />
