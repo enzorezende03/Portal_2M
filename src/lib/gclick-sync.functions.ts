@@ -30,6 +30,17 @@ type Pendencia = {
   motivo: string;
 };
 
+function mensagemAmigavelGclick(message?: string) {
+  const texto = message ?? "erro desconhecido";
+  if (texto.includes("invalid_client") || texto.includes("401")) {
+    return "Credenciais do G-Click inválidas. Atualize o Client ID e Client Secret da integração.";
+  }
+  if (texto.includes("Internal Server Error") || texto.includes("traceId") || texto.includes("[500]")) {
+    return "O G-Click retornou erro interno ao autenticar. Tente novamente em alguns minutos.";
+  }
+  return texto;
+}
+
 export async function executarSincronizacao(opts: {
   diasAtras: number;
   disparadoPor?: string | null;
@@ -166,6 +177,7 @@ export async function executarSincronizacao(opts: {
       if (page > 50) break; // proteção
     }
 
+    const mensagem = mensagemAmigavelGclick(e?.message);
     await supabaseAdmin
       .from("gclick_sync_log")
       .update({
@@ -188,10 +200,10 @@ export async function executarSincronizacao(opts: {
         ignorados,
         erros: erros + 1,
         pendencias,
-        mensagem: `FALHA: ${e?.message ?? "erro desconhecido"}`,
+        mensagem: `FALHA: ${mensagem}`,
       })
       .eq("id", logId);
-    return { logId, importados, ignorados, erros: erros + 1, pendencias, error: e?.message ?? "erro desconhecido" };
+    return { logId, importados, ignorados, erros: erros + 1, pendencias, error: mensagem };
   }
 }
 
