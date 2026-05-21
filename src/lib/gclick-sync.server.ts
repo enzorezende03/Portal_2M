@@ -119,6 +119,13 @@ export async function executarSincronizacao(opts: {
             amostraTarefa = JSON.stringify(Object.keys(t)).slice(0, 200);
           }
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
+          const emailT = ((t.cliente as any)?.email ?? "").trim().toLowerCase();
+          const nomeT = normNome(t.cliente?.nome);
+          const perfilMatch: Perfil | undefined =
+            (cnpjT && byCnpj.get(cnpjT)) ||
+            (emailT && byEmail.get(emailT)) ||
+            (nomeT && byNome.get(nomeT)) ||
+            undefined;
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
