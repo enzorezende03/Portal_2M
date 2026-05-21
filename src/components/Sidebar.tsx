@@ -16,7 +16,7 @@ const items = [
 
 export function Sidebar() {
   const { empresa } = useEmpresa();
-  const { profile, isAdmin, signOut } = useAuth();
+  const { profile, isAdmin, isColaborador, signOut } = useAuth();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
