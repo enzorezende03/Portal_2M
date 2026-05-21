@@ -69,6 +69,8 @@ export async function executarSincronizacao(opts: {
   let totAtividades = 0;
   let totComAnexo = 0;
   let totConcluidas = 0;
+  let amostraAtividade: string | null = null;
+  let amostraTarefa: string | null = null;
 
 
   try {
@@ -98,6 +100,9 @@ export async function executarSincronizacao(opts: {
         totTarefas += tarefas.length;
 
         for (const t of tarefas) {
+          if (!amostraTarefa) {
+            amostraTarefa = JSON.stringify(Object.keys(t)).slice(0, 200);
+          }
           const cnpjT = onlyDigits(t.cliente?.cnpj ?? t.cliente?.inscricao);
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
@@ -105,8 +110,12 @@ export async function executarSincronizacao(opts: {
           totAtividades += atividades.length;
 
           for (const a of atividades) {
+            if (!amostraAtividade && atividades.length > 0) {
+              // dump completo (truncado) da 1ª atividade pra inspeção
+              amostraAtividade = JSON.stringify(a).slice(0, 600);
+            }
             const url = extrairAnexoUrl(a);
-            const concluida = a.concluido === true || /conclu/i.test(a.status ?? "");
+            const concluida = a.concluido === true || /conclu|finaliz|efetuad/i.test(a.status ?? "");
             if (url) totComAnexo++;
             if (concluida) totConcluidas++;
             if (!url || !concluida) continue;
@@ -202,7 +211,7 @@ export async function executarSincronizacao(opts: {
         ignorados,
         erros,
         pendencias: pendencias.slice(0, 500),
-        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros`,
+        mensagem: `OK — ${totTarefas} tarefas, ${totAtividades} atividades (${totConcluidas} concluídas, ${totComAnexo} c/ anexo) · ${importados} importados, ${ignorados} ignorados, ${erros} erros${amostraAtividade ? ` · AMOSTRA_ATV: ${amostraAtividade}` : ""}${amostraTarefa ? ` · CAMPOS_TAR: ${amostraTarefa}` : ""}`,
       })
       .eq("id", logId);
 
