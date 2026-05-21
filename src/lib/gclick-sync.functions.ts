@@ -191,7 +191,7 @@ export async function executarSincronizacao(opts: {
         mensagem: `FALHA: ${e?.message ?? "erro desconhecido"}`,
       })
       .eq("id", logId);
-    throw e;
+    return { logId, importados, ignorados, erros: erros + 1, pendencias, error: e?.message ?? "erro desconhecido" };
   }
 }
 
