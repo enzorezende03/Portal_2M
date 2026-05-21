@@ -142,7 +142,8 @@ export type Database = {
       documentos: {
         Row: {
           arquivo_path: string
-          arquivo_url: string
+          arquivo_url: string | null
+          cliente_id: string | null
           competencia: string | null
           created_at: string
           created_by: string | null
@@ -153,12 +154,13 @@ export type Database = {
           nome: string
           origem: string
           tamanho_bytes: number | null
-          user_id: string
+          user_id: string | null
           vencimento: string | null
         }
         Insert: {
           arquivo_path: string
-          arquivo_url: string
+          arquivo_url?: string | null
+          cliente_id?: string | null
           competencia?: string | null
           created_at?: string
           created_by?: string | null
@@ -169,12 +171,13 @@ export type Database = {
           nome: string
           origem?: string
           tamanho_bytes?: number | null
-          user_id: string
+          user_id?: string | null
           vencimento?: string | null
         }
         Update: {
           arquivo_path?: string
-          arquivo_url?: string
+          arquivo_url?: string | null
+          cliente_id?: string | null
           competencia?: string | null
           created_at?: string
           created_by?: string | null
@@ -185,10 +188,18 @@ export type Database = {
           nome?: string
           origem?: string
           tamanho_bytes?: number | null
-          user_id?: string
+          user_id?: string | null
           vencimento?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "documentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       empresas: {
         Row: {
