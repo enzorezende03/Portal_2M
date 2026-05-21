@@ -115,7 +115,7 @@ function DocumentacaoAdmin() {
           <tbody>
             {filtered.map((p) => (
               <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-3 font-medium">{p.nome ?? "—"}</td>
+                <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
                 <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
                 <td className="px-4 py-3">
