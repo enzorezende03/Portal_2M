@@ -198,5 +198,5 @@ export async function baixarAnexo(url: string): Promise<{
 }
 
 export function onlyDigits(s?: string | null): string {
-  return (s ?? "").replace(/\D+/g, "");
+  return String(s ?? "").replace(/\D+/g, "");
 }

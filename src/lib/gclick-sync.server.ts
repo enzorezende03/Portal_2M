@@ -82,7 +82,7 @@ export async function executarSincronizacao(opts: {
     const byEmail = new Map<string, Perfil>();
     const byNome = new Map<string, Perfil>();
     const normNome = (s?: string | null) =>
-      (s ?? "")
+      String(s ?? "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
