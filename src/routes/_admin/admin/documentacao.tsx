@@ -13,10 +13,12 @@ type Profile = {
   id: string;
   nome: string | null;
   email: string | null;
+  cnpj: string | null;
   empresa_id: string | null;
 };
 
 type Empresa = { id: string; nome: string };
+type ClienteRef = { id: string; cnpj: string | null; email: string | null };
 
 type Documento = {
   id: string;
@@ -40,17 +42,53 @@ function fmtBytes(b?: number | null) {
 function DocumentacaoAdmin() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Profile | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [{ data: p }, { data: e }] = await Promise.all([
-        supabase.from("profiles").select("id,nome,email,empresa_id").order("nome"),
+      const [{ data: p }, { data: e }, { data: cls }, { data: docs }] = await Promise.all([
+        supabase.from("profiles").select("id,nome,email,cnpj,empresa_id").order("nome"),
         supabase.from("empresas").select("id,nome"),
+        supabase.from("clientes").select("id,cnpj,email"),
+        supabase.from("documentos").select("user_id,cliente_id"),
       ]);
-      setProfiles((p as Profile[]) ?? []);
+      const profs = (p as Profile[]) ?? [];
+      const clientes = (cls as ClienteRef[]) ?? [];
+      const ds = (docs as { user_id: string | null; cliente_id: string | null }[]) ?? [];
+
+      // Map cliente_id -> list of profile ids matched by cnpj/email
+      const clienteToProfiles = new Map<string, string[]>();
+      for (const c of clientes) {
+        const cCnpj = c.cnpj ? c.cnpj.replace(/\D/g, "") : "";
+        const cEmail = c.email ? c.email.trim().toLowerCase() : "";
+        const matched = profs
+          .filter((pr) => {
+            const pCnpj = pr.cnpj ? pr.cnpj.replace(/\D/g, "") : "";
+            const pEmail = pr.email ? pr.email.trim().toLowerCase() : "";
+            return (cCnpj && pCnpj && cCnpj === pCnpj) || (cEmail && pEmail && cEmail === pEmail);
+          })
+          .map((pr) => pr.id);
+        if (matched.length) clienteToProfiles.set(c.id, matched);
+      }
+
+      const counts: Record<string, number> = {};
+      for (const d of ds) {
+        const targets = new Set<string>();
+        if (d.user_id) targets.add(d.user_id);
+        if (d.cliente_id) {
+          const ids = clienteToProfiles.get(d.cliente_id);
+          if (ids) ids.forEach((id) => targets.add(id));
+        }
+        targets.forEach((id) => {
+          counts[id] = (counts[id] ?? 0) + 1;
+        });
+      }
+
+      setProfiles(profs);
       setEmpresas((e as Empresa[]) ?? []);
+      setDocCounts(counts);
     })();
   }, []);
 
@@ -66,6 +104,11 @@ function DocumentacaoAdmin() {
               .some((v) => String(v ?? "").toLowerCase().includes(q.toLowerCase())),
       ),
     [profiles, q, empresas],
+  );
+
+  const totalComDocs = useMemo(
+    () => profiles.filter((p) => (docCounts[p.id] ?? 0) > 0).length,
+    [profiles, docCounts],
   );
 
   if (selected) {
@@ -89,6 +132,9 @@ function DocumentacaoAdmin() {
             Selecione um cliente para gerenciar os documentos dele. Cada cliente vê apenas
             os próprios documentos — sem permissão para adicionar, editar ou remover.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {totalComDocs} de {profiles.length} clientes com documentos cadastrados.
+          </p>
         </div>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -109,28 +155,45 @@ function DocumentacaoAdmin() {
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
+              <th className="px-4 py-3 font-medium">Documentos</th>
               <th className="px-4 py-3 font-medium w-32"></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
-                <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
-                <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => setSelected(p)}
-                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-                  >
-                    Abrir documentos
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map((p) => {
+              const count = docCounts[p.id] ?? 0;
+              return (
+                <tr key={p.id} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
+                  <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
+                  <td className="px-4 py-3">
+                    {count > 0 ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                        style={{ background: "var(--brand-primary)" }}
+                      >
+                        <FileText className="h-3 w-3" />
+                        {count}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Sem documentos</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setSelected(p)}
+                      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
+                    >
+                      Abrir documentos
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum cliente encontrado.
                 </td>
               </tr>
