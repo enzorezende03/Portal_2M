@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { FileText, Download, FolderOpen, AlertTriangle } from "lucide-react";
+import { FileText, Download, FolderOpen, AlertTriangle, Shield } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 
@@ -30,7 +30,7 @@ function fmtBytes(b?: number | null) {
 }
 
 function DocumentacaoCliente() {
-  const { user } = useAuth();
+  const { user, isAdmin, isColaborador } = useAuth();
   const [docs, setDocs] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
   const [cnpjFaltando, setCnpjFaltando] = useState(false);
@@ -96,6 +96,30 @@ function DocumentacaoCliente() {
       <p className="mt-1 text-sm text-muted-foreground">
         Documentos enviados pela nossa equipe para você. Apenas você e a equipe têm acesso.
       </p>
+
+      {(isAdmin || isColaborador) && (
+        <div className="mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm"
+          style={{ borderColor: "var(--brand-navy)", background: "color-mix(in oklab, var(--brand-navy) 8%, transparent)", color: "var(--brand-navy)" }}
+        >
+          <Shield className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="flex-1">
+            <div className="font-medium">
+              Você está logado como {isAdmin ? "administrador" : "colaborador"}
+            </div>
+            <p className="mt-0.5 opacity-80">
+              Esta página mostra apenas os documentos vinculados ao seu próprio perfil.
+              Para acessar e gerenciar os documentos de todos os clientes, use a área administrativa.
+            </p>
+            <Link
+              to="/admin/documentacao"
+              className="mt-2 inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+              style={{ background: "var(--brand-navy)" }}
+            >
+              Abrir documentos dos clientes
+            </Link>
+          </div>
+        </div>
+      )}
 
       {cnpjFaltando && (
         <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
