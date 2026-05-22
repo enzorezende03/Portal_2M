@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, ExternalLink, FileText, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { Download, FileText, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -273,16 +273,6 @@ function PdfCanvasPreview({
           >
             <ZoomIn className="h-4 w-4" />
           </button>
-          {openUrl && (
-            <a
-              href={openUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-accent"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Abrir
-            </a>
-          )}
           <a
             href={downloadUrl}
             download={fileName}

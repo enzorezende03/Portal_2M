@@ -17,7 +17,6 @@ import {
   Upload,
   ArrowLeft,
   Eye,
-  ExternalLink,
 } from "lucide-react";
 import { formatNome } from "@/lib/format-nome";
 import { DocumentoPreviewContent, useDocumentoFile } from "@/components/documentos/DocumentoPreviewer";
@@ -852,7 +851,6 @@ function PreviewDocumentoDialog({
   onClose: () => void;
 }) {
   const { url, fileBlob, error, loading } = useDocumentoFile(doc);
-  const openUrl = `/documentos/${doc.id}`;
 
   return (
     <div
@@ -872,21 +870,9 @@ function PreviewDocumentoDialog({
               {fmtBytes(doc.tamanho_bytes)} · {doc.mime_type ?? "tipo desconhecido"}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            {url && (
-              <a
-                href={openUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-              >
-                <ExternalLink className="h-3.5 w-3.5" /> Abrir em nova aba
-              </a>
-            )}
-            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+            <X className="h-5 w-5" />
+          </button>
         </div>
         <div className="min-h-0 flex-1 bg-muted/30">
           <DocumentoPreviewContent
@@ -895,7 +881,6 @@ function PreviewDocumentoDialog({
             fileBlob={fileBlob}
             loading={loading}
             error={error}
-            openUrl={openUrl}
           />
         </div>
       </div>
