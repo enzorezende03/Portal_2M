@@ -67,14 +67,12 @@ export function DocumentoPreviewContent({
   fileBlob,
   loading,
   error,
-  openUrl,
 }: {
   doc: PreviewDocumento;
   url: string | null;
   fileBlob: Blob | null;
   loading: boolean;
   error: string | null;
-  openUrl?: string;
 }) {
   const mime = doc.mime_type ?? "";
   const isImage = mime.startsWith("image/");
@@ -93,7 +91,7 @@ export function DocumentoPreviewContent({
   }
 
   if (isPdf && fileBlob) {
-    return <PdfCanvasPreview file={fileBlob} fileName={doc.nome} openUrl={openUrl} downloadUrl={url} />;
+    return <PdfCanvasPreview file={fileBlob} fileName={doc.nome} downloadUrl={url} />;
   }
 
   if (isText) return <iframe src={url} title={doc.nome} className="h-full w-full border-0 bg-background" />;
@@ -125,12 +123,10 @@ type PdfDocLike = {
 function PdfCanvasPreview({
   file,
   fileName,
-  openUrl,
   downloadUrl,
 }: {
   file: Blob;
   fileName: string;
-  openUrl?: string;
   downloadUrl: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
