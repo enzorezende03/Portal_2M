@@ -174,7 +174,7 @@ function DocumentacaoAdmin() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => {
+            {paginated.map((p) => {
               const count = docCounts[p.id] ?? 0;
               return (
                 <tr key={p.id} className="border-t border-border">
@@ -205,7 +205,7 @@ function DocumentacaoAdmin() {
                 </tr>
               );
             })}
-            {filtered.length === 0 && (
+            {paginated.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum cliente encontrado.
@@ -215,6 +215,33 @@ function DocumentacaoAdmin() {
           </tbody>
         </table>
       </div>
+
+      {filtered.length >  0 && (
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Mostrando {paginated.length} de {filtered.length} clientes
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="inline-flex items-center rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="min-w-[4rem] text-center text-sm tabular-nums">
+              {safePage} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="inline-flex items-center rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
