@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Upload, Trash2, FileText, Download, X, Search, ArrowLeft } from "lucide-react";
+import { Plus, Upload, Trash2, FileText, Download, X, Search, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatNome } from "@/lib/format-nome";
 
 export const Route = createFileRoute("/_admin/admin/documentacao")({
@@ -39,11 +39,14 @@ function fmtBytes(b?: number | null) {
   return `${(b / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const PER_PAGE = 10;
+
 function DocumentacaoAdmin() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Profile | null>(null);
 
   useEffect(() => {
@@ -106,10 +109,21 @@ function DocumentacaoAdmin() {
     [profiles, q, empresas],
   );
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = useMemo(() => {
+    const start = (safePage - 1) * PER_PAGE;
+    return filtered.slice(start, start + PER_PAGE);
+  }, [filtered, safePage]);
+
   const totalComDocs = useMemo(
     () => profiles.filter((p) => (docCounts[p.id] ?? 0) > 0).length,
     [profiles, docCounts],
   );
+
+  useEffect(() => {
+    setPage(1);
+  }, [q]);
 
   if (selected) {
     return (
@@ -160,7 +174,7 @@ function DocumentacaoAdmin() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => {
+            {paginated.map((p) => {
               const count = docCounts[p.id] ?? 0;
               return (
                 <tr key={p.id} className="border-t border-border">
@@ -191,7 +205,7 @@ function DocumentacaoAdmin() {
                 </tr>
               );
             })}
-            {filtered.length === 0 && (
+            {paginated.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum cliente encontrado.
@@ -201,6 +215,33 @@ function DocumentacaoAdmin() {
           </tbody>
         </table>
       </div>
+
+      {filtered.length >  0 && (
+        <div className="mt-3 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Mostrando {paginated.length} de {filtered.length} clientes
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="inline-flex items-center rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="min-w-[4rem] text-center text-sm tabular-nums">
+              {safePage} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="inline-flex items-center rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm hover:bg-accent disabled:opacity-40"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
