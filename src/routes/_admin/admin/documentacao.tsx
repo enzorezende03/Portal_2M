@@ -109,10 +109,21 @@ function DocumentacaoAdmin() {
     [profiles, q, empresas],
   );
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = useMemo(() => {
+    const start = (safePage - 1) * PER_PAGE;
+    return filtered.slice(start, start + PER_PAGE);
+  }, [filtered, safePage]);
+
   const totalComDocs = useMemo(
     () => profiles.filter((p) => (docCounts[p.id] ?? 0) > 0).length,
     [profiles, docCounts],
   );
+
+  useEffect(() => {
+    setPage(1);
+  }, [q]);
 
   if (selected) {
     return (
