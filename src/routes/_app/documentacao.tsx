@@ -97,6 +97,30 @@ function DocumentacaoCliente() {
         Documentos enviados pela nossa equipe para você. Apenas você e a equipe têm acesso.
       </p>
 
+      {(isAdmin || isColaborador) && (
+        <div className="mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm"
+          style={{ borderColor: "var(--brand-navy)", background: "color-mix(in oklab, var(--brand-navy) 8%, transparent)", color: "var(--brand-navy)" }}
+        >
+          <Shield className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="flex-1">
+            <div className="font-medium">
+              Você está logado como {isAdmin ? "administrador" : "colaborador"}
+            </div>
+            <p className="mt-0.5 opacity-80">
+              Esta página mostra apenas os documentos vinculados ao seu próprio perfil.
+              Para acessar e gerenciar os documentos de todos os clientes, use a área administrativa.
+            </p>
+            <Link
+              to="/admin/documentacao"
+              className="mt-2 inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+              style={{ background: "var(--brand-navy)" }}
+            >
+              Abrir documentos dos clientes
+            </Link>
+          </div>
+        </div>
+      )}
+
       {cnpjFaltando && (
         <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
