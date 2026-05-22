@@ -856,12 +856,8 @@ function PreviewDocumentoDialog({
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    let objectUrl: string | null = null;
     let cancelled = false;
     (async () => {
-      // Baixa o arquivo via SDK e cria um blob URL local.
-      // Isso evita bloqueios de extensões / proteções do navegador
-      // (ex.: ERR_BLOCKED_BY_CLIENT no domínio do storage).
       const { data, error } = await supabase.storage
         .from("documentos-clientes")
         .download(doc.arquivo_path);
@@ -874,14 +870,24 @@ function PreviewDocumentoDialog({
         doc.mime_type && data.type !== doc.mime_type
           ? new Blob([data], { type: doc.mime_type })
           : data;
-      objectUrl = URL.createObjectURL(typed);
-      setUrl(objectUrl);
+      // Usa data URL (base64) em vez de blob: — Edge/SmartScreen e algumas
+      // extensões bloqueiam blob: URLs dentro de iframes aninhados (preview).
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (cancelled) return;
+        setUrl(typeof reader.result === "string" ? reader.result : null);
+      };
+      reader.onerror = () => {
+        if (cancelled) return;
+        setErro("Falha ao ler o arquivo");
+      };
+      reader.readAsDataURL(typed);
     })();
     return () => {
       cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [doc.arquivo_path, doc.mime_type]);
+
 
 
   const mime = doc.mime_type ?? "";
@@ -936,8 +942,28 @@ function PreviewDocumentoDialog({
             <div className="flex h-full items-center justify-center overflow-auto p-4">
               <img src={url} alt={doc.nome} className="max-h-full max-w-full object-contain" />
             </div>
+          ) : isPdf ? (
+            <object data={url} type="application/pdf" className="h-full w-full">
+              <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+                <FileText className="h-10 w-10 text-muted-foreground" />
+                <div className="text-sm text-muted-foreground">
+                  Seu navegador bloqueou a pré-visualização inline do PDF.
+                </div>
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  download={doc.nome}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white"
+                  style={{ background: "var(--brand-primary)" }}
+                >
+                  <ExternalLink className="h-4 w-4" /> Abrir em nova aba
+                </a>
+              </div>
+            </object>
           ) : podeRenderizar ? (
             <iframe src={url} title={doc.nome} className="h-full w-full border-0" />
+
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
               <FileText className="h-10 w-10 text-muted-foreground" />
