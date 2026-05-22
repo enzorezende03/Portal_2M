@@ -860,7 +860,7 @@ function PreviewDocumentoDialog({
       onClick={onClose}
     >
       <div
-        className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl"
+        className="flex h-[92vh] w-full max-w-[min(96vw,1400px)] flex-col overflow-hidden rounded-2xl bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-3 border-b border-border p-4">
