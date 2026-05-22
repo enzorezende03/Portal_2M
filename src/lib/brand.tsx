@@ -79,8 +79,8 @@ export function BrandProvider({ children }: { children: ReactNode }) {
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
-          setEmpresa(data as Empresa);
-          applyTheme(data as Empresa);
+          setEmpresa(data as unknown as Empresa);
+          applyTheme(data as unknown as Empresa);
         }
         setLoading(false);
       });
