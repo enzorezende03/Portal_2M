@@ -949,25 +949,8 @@ function PreviewDocumentoDialog({
             <div className="flex h-full items-center justify-center overflow-auto p-4">
               <img src={url} alt={doc.nome} className="max-h-full max-w-full object-contain" />
             </div>
-          ) : isPdf ? (
-            <object data={url} type="application/pdf" className="h-full w-full">
-              <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-                <FileText className="h-10 w-10 text-muted-foreground" />
-                <div className="text-sm text-muted-foreground">
-                  Seu navegador bloqueou a pré-visualização inline do PDF.
-                </div>
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  download={doc.nome}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white"
-                  style={{ background: "var(--brand-primary)" }}
-                >
-                  <ExternalLink className="h-4 w-4" /> Abrir em nova aba
-                </a>
-              </div>
-            </object>
+          ) : isPdf && fileBlob ? (
+            <PdfCanvasPreview file={fileBlob} fileName={doc.nome} fallbackUrl={url} />
           ) : podeRenderizar ? (
             <iframe src={url} title={doc.nome} className="h-full w-full border-0" />
 
