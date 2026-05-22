@@ -75,6 +75,13 @@ export type Database = {
             referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "avisos_empresas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       categorias_treinamento: {
@@ -135,6 +142,13 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clientes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
             referencedColumns: ["id"]
           },
         ]
@@ -322,6 +336,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "ferramentas_empresas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ferramentas_empresas_ferramenta_id_fkey"
             columns: ["ferramenta_id"]
             isOneToOne: false
@@ -421,6 +442,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "onboarding_etapas_empresas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "onboarding_etapas_empresas_etapa_id_fkey"
             columns: ["etapa_id"]
             isOneToOne: false
@@ -510,6 +538,13 @@ export type Database = {
             columns: ["empresa_id"]
             isOneToOne: false
             referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
             referencedColumns: ["id"]
           },
         ]
@@ -621,6 +656,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "treinamentos_empresas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "treinamentos_empresas_treinamento_id_fkey"
             columns: ["treinamento_id"]
             isOneToOne: false
@@ -649,7 +691,51 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      empresas_public: {
+        Row: {
+          cor_bg: string | null
+          cor_navy: string | null
+          cor_primary: string | null
+          cor_soft: string | null
+          cor_text: string | null
+          fonte_corpo: string | null
+          fonte_decorativa: string | null
+          fonte_titulo: string | null
+          id: string | null
+          logo_url: string | null
+          nome: string | null
+          slug: string | null
+        }
+        Insert: {
+          cor_bg?: string | null
+          cor_navy?: string | null
+          cor_primary?: string | null
+          cor_soft?: string | null
+          cor_text?: string | null
+          fonte_corpo?: string | null
+          fonte_decorativa?: string | null
+          fonte_titulo?: string | null
+          id?: string | null
+          logo_url?: string | null
+          nome?: string | null
+          slug?: string | null
+        }
+        Update: {
+          cor_bg?: string | null
+          cor_navy?: string | null
+          cor_primary?: string | null
+          cor_soft?: string | null
+          cor_text?: string | null
+          fonte_corpo?: string | null
+          fonte_decorativa?: string | null
+          fonte_titulo?: string | null
+          id?: string | null
+          logo_url?: string | null
+          nome?: string | null
+          slug?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       current_empresa_id: { Args: never; Returns: string }

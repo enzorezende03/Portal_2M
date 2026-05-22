@@ -73,14 +73,14 @@ export function BrandProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const slug = detectSlug();
     supabase
-      .from("empresas")
+      .from("empresas_public" as any)
       .select("*")
       .eq("slug", slug)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
-          setEmpresa(data as Empresa);
-          applyTheme(data as Empresa);
+          setEmpresa(data as unknown as Empresa);
+          applyTheme(data as unknown as Empresa);
         }
         setLoading(false);
       });
