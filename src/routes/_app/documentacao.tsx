@@ -12,9 +12,11 @@ import {
   Search,
   X,
   Trash2,
+  Pencil,
   Plus,
   Upload,
   ArrowLeft,
+
 } from "lucide-react";
 import { formatNome } from "@/lib/format-nome";
 
