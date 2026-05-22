@@ -858,6 +858,7 @@ function PreviewDocumentoDialog({
   onClose: () => void;
 }) {
   const [url, setUrl] = useState<string | null>(null);
+  const [fileBlob, setFileBlob] = useState<Blob | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
@@ -875,6 +876,7 @@ function PreviewDocumentoDialog({
         doc.mime_type && data.type !== doc.mime_type
           ? new Blob([data], { type: doc.mime_type })
           : data;
+      setFileBlob(typed);
       // Usa data URL (base64) em vez de blob: — Edge/SmartScreen e algumas
       // extensões bloqueiam blob: URLs dentro de iframes aninhados (preview).
       const reader = new FileReader();
