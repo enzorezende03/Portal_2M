@@ -856,12 +856,8 @@ function PreviewDocumentoDialog({
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    let objectUrl: string | null = null;
     let cancelled = false;
     (async () => {
-      // Baixa o arquivo via SDK e cria um blob URL local.
-      // Isso evita bloqueios de extensões / proteções do navegador
-      // (ex.: ERR_BLOCKED_BY_CLIENT no domínio do storage).
       const { data, error } = await supabase.storage
         .from("documentos-clientes")
         .download(doc.arquivo_path);
@@ -874,14 +870,24 @@ function PreviewDocumentoDialog({
         doc.mime_type && data.type !== doc.mime_type
           ? new Blob([data], { type: doc.mime_type })
           : data;
-      objectUrl = URL.createObjectURL(typed);
-      setUrl(objectUrl);
+      // Usa data URL (base64) em vez de blob: — Edge/SmartScreen e algumas
+      // extensões bloqueiam blob: URLs dentro de iframes aninhados (preview).
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (cancelled) return;
+        setUrl(typeof reader.result === "string" ? reader.result : null);
+      };
+      reader.onerror = () => {
+        if (cancelled) return;
+        setErro("Falha ao ler o arquivo");
+      };
+      reader.readAsDataURL(typed);
     })();
     return () => {
       cancelled = true;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [doc.arquivo_path, doc.mime_type]);
+
 
 
   const mime = doc.mime_type ?? "";
