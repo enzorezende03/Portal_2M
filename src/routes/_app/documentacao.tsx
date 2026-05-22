@@ -707,10 +707,18 @@ function EditarDocumentoDialog({
     if (!nome.trim()) return toast.error("Informe o nome do documento");
     setSaving(true);
     try {
-      const patch: Record<string, any> = {
+      const patch: {
+        nome: string;
+        descricao: string | null;
+        arquivo_path?: string;
+        arquivo_url?: string | null;
+        tamanho_bytes?: number;
+        mime_type?: string | null;
+      } = {
         nome: nome.trim(),
         descricao: descricao.trim() || null,
       };
+
 
       if (file) {
         const ext = file.name.split(".").pop() || "bin";
