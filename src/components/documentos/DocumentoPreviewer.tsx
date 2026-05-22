@@ -114,6 +114,14 @@ export function DocumentoPreviewContent({
   );
 }
 
+type PdfDocLike = {
+  numPages: number;
+  getPage: (n: number) => Promise<{
+    getViewport: (opts: { scale: number }) => { width: number; height: number };
+    render: (opts: { canvasContext: CanvasRenderingContext2D; canvas: null; viewport: { width: number; height: number } }) => { promise: Promise<void>; cancel: () => void };
+  }>;
+};
+
 function PdfCanvasPreview({
   file,
   fileName,
@@ -127,35 +135,50 @@ function PdfCanvasPreview({
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const pdfRef = useRef<PdfDocLike | null>(null);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [scale, setScale] = useState(1);
   const [fitWidth, setFitWidth] = useState(true);
   const [visibleScale, setVisibleScale] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [docReady, setDocReady] = useState(false);
+  const [cssZoom, setCssZoom] = useState(1);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    let renderTask: { cancel: () => void; promise: Promise<void> } | null = null;
-
+    setDocReady(false);
+    setError(null);
+    pdfRef.current = null;
     (async () => {
       try {
-        setLoading(true);
-        setError(null);
         const pdfjs = await import("pdfjs-dist");
         pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
         const bytes = new Uint8Array(await file.arrayBuffer());
         const pdf = await pdfjs.getDocument({ data: bytes }).promise;
         if (cancelled) return;
+        pdfRef.current = pdf as unknown as PdfDocLike;
         setPages(pdf.numPages);
+        setPage(1);
+        setDocReady(true);
+      } catch {
+        if (!cancelled) setError("Não foi possível carregar o PDF.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
 
+  useEffect(() => {
+    if (!docReady || !pdfRef.current) return;
+    let cancelled = false;
+    let renderTask: { cancel: () => void; promise: Promise<void> } | null = null;
+
+    (async () => {
+      try {
+        const pdf = pdfRef.current!;
         const safePage = Math.min(Math.max(page, 1), pdf.numPages);
-        if (safePage !== page) {
-          setPage(safePage);
-          return;
-        }
-
         const pdfPage = await pdf.getPage(safePage);
         if (cancelled) return;
         const baseViewport = pdfPage.getViewport({ scale: 1 });
@@ -163,7 +186,6 @@ function PdfCanvasPreview({
         const renderScale = fitWidth
           ? Math.min(2.4, Math.max(0.6, (containerWidth - 64) / baseViewport.width))
           : scale;
-        setVisibleScale(renderScale);
         const viewport = pdfPage.getViewport({ scale: renderScale });
         const canvas = canvasRef.current;
         const context = canvas?.getContext("2d");
@@ -176,11 +198,12 @@ function PdfCanvasPreview({
         context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
         renderTask = pdfPage.render({ canvasContext: context, canvas: null, viewport });
         await renderTask.promise;
-        if (!cancelled) setLoading(false);
+        if (cancelled) return;
+        setVisibleScale(renderScale);
+        setCssZoom(1);
       } catch (err) {
         if (!cancelled && (err as { name?: string }).name !== "RenderingCancelledException") {
-          setError("Não foi possível renderizar a pré-visualização do PDF.");
-          setLoading(false);
+          setError("Não foi possível renderizar a página.");
         }
       }
     })();
@@ -189,7 +212,16 @@ function PdfCanvasPreview({
       cancelled = true;
       renderTask?.cancel();
     };
-  }, [file, fitWidth, page, scale]);
+  }, [docReady, page, scale, fitWidth]);
+
+  const applyZoomDelta = (delta: number) => {
+    setFitWidth(false);
+    setScale((s) => {
+      const next = Math.min(2.4, Math.max(0.6, Number((s + delta).toFixed(2))));
+      if (next !== s) setCssZoom((z) => (z * next) / s);
+      return next;
+    });
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -217,27 +249,24 @@ function PdfCanvasPreview({
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <button
-            onClick={() => {
-              setFitWidth(false);
-              setScale((s) => Math.max(0.6, Number((s - 0.2).toFixed(1))));
-            }}
+            onClick={() => applyZoomDelta(-0.2)}
             className="rounded-lg border border-border p-2 hover:bg-accent"
             title="Diminuir zoom"
           >
             <ZoomOut className="h-4 w-4" />
           </button>
           <button
-            onClick={() => setFitWidth((value) => !value)}
+            onClick={() => {
+              setFitWidth((value) => !value);
+              setCssZoom(1);
+            }}
             className="rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-accent"
             title="Alternar ajuste à largura"
           >
-            {fitWidth ? "Ajustado" : `${Math.round(visibleScale * 100)}%`}
+            {fitWidth ? "Ajustado" : `${Math.round(visibleScale * cssZoom * 100)}%`}
           </button>
           <button
-            onClick={() => {
-              setFitWidth(false);
-              setScale((s) => Math.min(2.4, Number((s + 0.2).toFixed(1))));
-            }}
+            onClick={() => applyZoomDelta(0.2)}
             className="rounded-lg border border-border p-2 hover:bg-accent"
             title="Aumentar zoom"
           >
@@ -264,9 +293,6 @@ function PdfCanvasPreview({
         </div>
       </div>
       <div ref={viewportRef} className="relative min-h-0 flex-1 overflow-auto p-4 md:p-6">
-        {loading && (
-          <div className="absolute inset-x-0 top-4 text-center text-sm text-muted-foreground">Carregando página…</div>
-        )}
         {error ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-sm text-muted-foreground">
             <FileText className="h-10 w-10" />
@@ -281,7 +307,15 @@ function PdfCanvasPreview({
             </a>
           </div>
         ) : (
-          <canvas ref={canvasRef} className="mx-auto shadow-lg" />
+          <canvas
+            ref={canvasRef}
+            className="mx-auto shadow-lg"
+            style={{
+              transform: cssZoom === 1 ? undefined : `scale(${cssZoom})`,
+              transformOrigin: "top center",
+              transition: "transform 80ms ease-out",
+            }}
+          />
         )}
       </div>
     </div>
