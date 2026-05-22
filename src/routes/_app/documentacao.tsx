@@ -33,6 +33,8 @@ function DocumentacaoCliente() {
   const { user } = useAuth();
   const [docs, setDocs] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cnpjFaltando, setCnpjFaltando] = useState(false);
+
 
   useEffect(() => {
     if (!user) return;
