@@ -39,11 +39,14 @@ function fmtBytes(b?: number | null) {
   return `${(b / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const PER_PAGE = 10;
+
 function DocumentacaoAdmin() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [docCounts, setDocCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Profile | null>(null);
 
   useEffect(() => {
