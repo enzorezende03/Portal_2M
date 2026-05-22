@@ -856,17 +856,33 @@ function PreviewDocumentoDialog({
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
     (async () => {
+      // Baixa o arquivo via SDK e cria um blob URL local.
+      // Isso evita bloqueios de extensões / proteções do navegador
+      // (ex.: ERR_BLOCKED_BY_CLIENT no domínio do storage).
       const { data, error } = await supabase.storage
         .from("documentos-clientes")
-        .createSignedUrl(doc.arquivo_path, 600);
-      if (error) {
-        setErro(error.message);
+        .download(doc.arquivo_path);
+      if (cancelled) return;
+      if (error || !data) {
+        setErro(error?.message ?? "Não foi possível carregar o arquivo");
         return;
       }
-      setUrl(data.signedUrl);
+      const typed =
+        doc.mime_type && data.type !== doc.mime_type
+          ? new Blob([data], { type: doc.mime_type })
+          : data;
+      objectUrl = URL.createObjectURL(typed);
+      setUrl(objectUrl);
     })();
-  }, [doc.arquivo_path]);
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [doc.arquivo_path, doc.mime_type]);
+
 
   const mime = doc.mime_type ?? "";
   const isImage = mime.startsWith("image/");
