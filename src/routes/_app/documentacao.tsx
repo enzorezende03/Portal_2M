@@ -271,14 +271,24 @@ function DocumentacaoCliente() {
                   <Download className="h-4 w-4" /> Baixar
                 </button>
                 {canManage && impersonating && (
-                  <button
-                    onClick={() => remover(d)}
-                    className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    title="Remover"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setEditing(d)}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground"
+                      title="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => remover(d)}
+                      className="rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      title="Remover"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </>
                 )}
+
               </div>
             </div>
           ))
