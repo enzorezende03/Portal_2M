@@ -174,11 +174,23 @@ export async function executarSincronizacao(opts: {
             (emailT && byEmail.get(emailT)) ||
             (nomeT && byNome.get(nomeT)) ||
             undefined;
-          const clienteMatch: ClienteRow | undefined =
+          let clienteMatch: ClienteRow | undefined =
             (cnpjT && cliByCnpj.get(cnpjT)) ||
             (emailT && cliByEmail.get(emailT)) ||
             (nomeT && cliByNome.get(nomeT)) ||
             undefined;
+          // Fallback: se achou perfil mas não achou cliente direto,
+          // procura cliente que case com o CNPJ/nome do PERFIL encontrado.
+          if (!clienteMatch && perfilMatch) {
+            const pProf = (profiles ?? []).find((x: any) => x.id === perfilMatch.id) as any;
+            const pCnpj = onlyDigits(pProf?.cnpj);
+            const pNome = normNome(pProf?.nome);
+            clienteMatch =
+              (pCnpj && cliByCnpj.get(pCnpj)) ||
+              (pNome && cliByNome.get(pNome)) ||
+              undefined;
+          }
+
           const atividades = await listarAtividadesPorTarefa(t.id).catch(
             () => [] as GclickAtividade[],
           );
