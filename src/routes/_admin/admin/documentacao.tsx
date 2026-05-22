@@ -157,10 +157,35 @@ function ClienteDocumentos({
 
   const load = async () => {
     setLoading(true);
+    // Replica a lógica do /documentacao do cliente: documentos vinculados
+    // ao user_id OU a um cliente que casa por CNPJ/email do perfil
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("cnpj, email")
+      .eq("id", cliente.id)
+      .maybeSingle();
+    const cnpjDigits = String(prof?.cnpj ?? "").replace(/\D/g, "");
+    const email = String(prof?.email ?? "").trim().toLowerCase();
+
+    const clienteIds: string[] = [];
+    if (cnpjDigits || email) {
+      const filtros: string[] = [];
+      if (cnpjDigits) filtros.push(`cnpj.eq.${cnpjDigits}`);
+      if (email) filtros.push(`email.ilike.${email}`);
+      const { data: clis } = await supabase
+        .from("clientes")
+        .select("id")
+        .or(filtros.join(","));
+      for (const c of clis ?? []) clienteIds.push((c as any).id);
+    }
+
+    const orParts = [`user_id.eq.${cliente.id}`];
+    if (clienteIds.length) orParts.push(`cliente_id.in.(${clienteIds.join(",")})`);
+
     const { data, error } = await supabase
       .from("documentos")
       .select("*")
-      .eq("user_id", cliente.id)
+      .or(orParts.join(","))
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setDocs((data as Documento[]) ?? []);
