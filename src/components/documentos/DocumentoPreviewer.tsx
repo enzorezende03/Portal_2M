@@ -182,10 +182,15 @@ function PdfCanvasPreview({
         const pdfPage = await pdf.getPage(safePage);
         if (cancelled) return;
         const baseViewport = pdfPage.getViewport({ scale: 1 });
-        const containerWidth = viewportRef.current?.clientWidth ?? baseViewport.width;
-        const renderScale = fitWidth
-          ? Math.min(2.4, Math.max(0.6, (containerWidth - 64) / baseViewport.width))
-          : scale;
+        const containerEl = viewportRef.current;
+        const containerWidth = containerEl?.clientWidth ?? baseViewport.width;
+        const containerHeight = containerEl?.clientHeight ?? baseViewport.height;
+        // High-DPI base scale so the page is sharp; fit-width shrinks if needed.
+        const fitScale = Math.min(
+          (containerWidth - 48) / baseViewport.width,
+          (containerHeight - 48) / baseViewport.height,
+        );
+        const renderScale = fitWidth ? Math.max(0.2, fitScale) : scale;
         const viewport = pdfPage.getViewport({ scale: renderScale });
         const canvas = canvasRef.current;
         const context = canvas?.getContext("2d");
