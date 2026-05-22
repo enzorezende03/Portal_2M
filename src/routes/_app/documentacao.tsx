@@ -844,3 +844,103 @@ function EditarDocumentoDialog({
     </div>
   );
 }
+
+function PreviewDocumentoDialog({
+  doc,
+  onClose,
+}: {
+  doc: Documento;
+  onClose: () => void;
+}) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data, error } = await supabase.storage
+        .from("documentos-clientes")
+        .createSignedUrl(doc.arquivo_path, 600);
+      if (error) {
+        setErro(error.message);
+        return;
+      }
+      setUrl(data.signedUrl);
+    })();
+  }, [doc.arquivo_path]);
+
+  const mime = doc.mime_type ?? "";
+  const isImage = mime.startsWith("image/");
+  const isPdf = mime === "application/pdf" || doc.arquivo_path.toLowerCase().endsWith(".pdf");
+  const isText =
+    mime.startsWith("text/") ||
+    mime === "application/json" ||
+    mime === "application/xml";
+  const podeRenderizar = isImage || isPdf || isText;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-card shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-border p-4">
+          <div className="min-w-0">
+            <h3 className="truncate font-titulo text-lg" style={{ color: "var(--brand-navy)" }}>
+              {doc.nome}
+            </h3>
+            <div className="truncate text-xs text-muted-foreground">
+              {fmtBytes(doc.tamanho_bytes)} · {doc.mime_type ?? "tipo desconhecido"}
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Abrir em nova aba
+              </a>
+            )}
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 bg-muted/30">
+          {erro ? (
+            <div className="p-6 text-center text-sm text-destructive">{erro}</div>
+          ) : !url ? (
+            <div className="p-6 text-center text-sm text-muted-foreground">Carregando…</div>
+          ) : isImage ? (
+            <div className="flex h-full items-center justify-center overflow-auto p-4">
+              <img src={url} alt={doc.nome} className="max-h-full max-w-full object-contain" />
+            </div>
+          ) : podeRenderizar ? (
+            <iframe src={url} title={doc.nome} className="h-full w-full border-0" />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+              <FileText className="h-10 w-10 text-muted-foreground" />
+              <div className="text-sm text-muted-foreground">
+                Pré-visualização não disponível para este tipo de arquivo.
+              </div>
+              <a
+                href={url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white"
+                style={{ background: "var(--brand-primary)" }}
+              >
+                <ExternalLink className="h-4 w-4" /> Abrir em nova aba
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
