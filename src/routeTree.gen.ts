@@ -23,7 +23,6 @@ import { Route as AppTreinamentosIndexRouteImport } from './routes/_app/treiname
 import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index'
 import { Route as ApiPublicGclickSyncRouteImport } from './routes/api/public/gclick-sync'
 import { Route as AppTreinamentosIdRouteImport } from './routes/_app/treinamentos/$id'
-import { Route as AppDocumentosIdRouteImport } from './routes/_app/documentos/$id'
 import { Route as AdminAdminTreinamentosRouteImport } from './routes/_admin/admin/treinamentos'
 import { Route as AdminAdminOnboardingRouteImport } from './routes/_admin/admin/onboarding'
 import { Route as AdminAdminImportClientesRouteImport } from './routes/_admin/admin/import-clientes'
@@ -102,11 +101,6 @@ const AppTreinamentosIdRoute = AppTreinamentosIdRouteImport.update({
   path: '/treinamentos/$id',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDocumentosIdRoute = AppDocumentosIdRouteImport.update({
-  id: '/documentos/$id',
-  path: '/documentos/$id',
-  getParentRoute: () => AppRoute,
-} as any)
 const AdminAdminTreinamentosRoute = AdminAdminTreinamentosRouteImport.update({
   id: '/treinamentos',
   path: '/treinamentos',
@@ -172,7 +166,6 @@ export interface FileRoutesByFullPath {
   '/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
-  '/documentos/$id': typeof AppDocumentosIdRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/admin/': typeof AdminAdminIndexRoute
@@ -195,7 +188,6 @@ export interface FileRoutesByTo {
   '/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/admin/treinamentos': typeof AdminAdminTreinamentosRoute
-  '/documentos/$id': typeof AppDocumentosIdRoute
   '/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/admin': typeof AdminAdminIndexRoute
@@ -222,7 +214,6 @@ export interface FileRoutesById {
   '/_admin/admin/import-clientes': typeof AdminAdminImportClientesRoute
   '/_admin/admin/onboarding': typeof AdminAdminOnboardingRoute
   '/_admin/admin/treinamentos': typeof AdminAdminTreinamentosRoute
-  '/_app/documentos/$id': typeof AppDocumentosIdRoute
   '/_app/treinamentos/$id': typeof AppTreinamentosIdRoute
   '/api/public/gclick-sync': typeof ApiPublicGclickSyncRoute
   '/_admin/admin/': typeof AdminAdminIndexRoute
@@ -248,7 +239,6 @@ export interface FileRouteTypes {
     | '/admin/import-clientes'
     | '/admin/onboarding'
     | '/admin/treinamentos'
-    | '/documentos/$id'
     | '/treinamentos/$id'
     | '/api/public/gclick-sync'
     | '/admin/'
@@ -271,7 +261,6 @@ export interface FileRouteTypes {
     | '/admin/import-clientes'
     | '/admin/onboarding'
     | '/admin/treinamentos'
-    | '/documentos/$id'
     | '/treinamentos/$id'
     | '/api/public/gclick-sync'
     | '/admin'
@@ -297,7 +286,6 @@ export interface FileRouteTypes {
     | '/_admin/admin/import-clientes'
     | '/_admin/admin/onboarding'
     | '/_admin/admin/treinamentos'
-    | '/_app/documentos/$id'
     | '/_app/treinamentos/$id'
     | '/api/public/gclick-sync'
     | '/_admin/admin/'
@@ -413,13 +401,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTreinamentosIdRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/documentos/$id': {
-      id: '/_app/documentos/$id'
-      path: '/documentos/$id'
-      fullPath: '/documentos/$id'
-      preLoaderRoute: typeof AppDocumentosIdRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/_admin/admin/treinamentos': {
       id: '/_admin/admin/treinamentos'
       path: '/treinamentos'
@@ -532,7 +513,6 @@ interface AppRouteChildren {
   AppOnboardingRoute: typeof AppOnboardingRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
-  AppDocumentosIdRoute: typeof AppDocumentosIdRoute
   AppTreinamentosIdRoute: typeof AppTreinamentosIdRoute
   AppTreinamentosIndexRoute: typeof AppTreinamentosIndexRoute
 }
@@ -543,7 +523,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppOnboardingRoute: AppOnboardingRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,
-  AppDocumentosIdRoute: AppDocumentosIdRoute,
   AppTreinamentosIdRoute: AppTreinamentosIdRoute,
   AppTreinamentosIndexRoute: AppTreinamentosIndexRoute,
 }
@@ -560,3 +539,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
