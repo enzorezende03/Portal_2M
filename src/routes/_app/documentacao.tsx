@@ -16,6 +16,9 @@ import {
   Plus,
   Upload,
   ArrowLeft,
+  Eye,
+  ExternalLink,
+
 
 } from "lucide-react";
 import { formatNome } from "@/lib/format-nome";
