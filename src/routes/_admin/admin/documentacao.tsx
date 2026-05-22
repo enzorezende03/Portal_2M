@@ -42,17 +42,53 @@ function fmtBytes(b?: number | null) {
 function DocumentacaoAdmin() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [docCounts, setDocCounts] = useState<Record<string, number>>({});
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Profile | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [{ data: p }, { data: e }] = await Promise.all([
-        supabase.from("profiles").select("id,nome,email,empresa_id").order("nome"),
+      const [{ data: p }, { data: e }, { data: cls }, { data: docs }] = await Promise.all([
+        supabase.from("profiles").select("id,nome,email,cnpj,empresa_id").order("nome"),
         supabase.from("empresas").select("id,nome"),
+        supabase.from("clientes").select("id,cnpj,email"),
+        supabase.from("documentos").select("user_id,cliente_id"),
       ]);
-      setProfiles((p as Profile[]) ?? []);
+      const profs = (p as Profile[]) ?? [];
+      const clientes = (cls as ClienteRef[]) ?? [];
+      const ds = (docs as { user_id: string | null; cliente_id: string | null }[]) ?? [];
+
+      // Map cliente_id -> list of profile ids matched by cnpj/email
+      const clienteToProfiles = new Map<string, string[]>();
+      for (const c of clientes) {
+        const cCnpj = c.cnpj ? c.cnpj.replace(/\D/g, "") : "";
+        const cEmail = c.email ? c.email.trim().toLowerCase() : "";
+        const matched = profs
+          .filter((pr) => {
+            const pCnpj = pr.cnpj ? pr.cnpj.replace(/\D/g, "") : "";
+            const pEmail = pr.email ? pr.email.trim().toLowerCase() : "";
+            return (cCnpj && pCnpj && cCnpj === pCnpj) || (cEmail && pEmail && cEmail === pEmail);
+          })
+          .map((pr) => pr.id);
+        if (matched.length) clienteToProfiles.set(c.id, matched);
+      }
+
+      const counts: Record<string, number> = {};
+      for (const d of ds) {
+        const targets = new Set<string>();
+        if (d.user_id) targets.add(d.user_id);
+        if (d.cliente_id) {
+          const ids = clienteToProfiles.get(d.cliente_id);
+          if (ids) ids.forEach((id) => targets.add(id));
+        }
+        targets.forEach((id) => {
+          counts[id] = (counts[id] ?? 0) + 1;
+        });
+      }
+
+      setProfiles(profs);
       setEmpresas((e as Empresa[]) ?? []);
+      setDocCounts(counts);
     })();
   }, []);
 
@@ -68,6 +104,11 @@ function DocumentacaoAdmin() {
               .some((v) => String(v ?? "").toLowerCase().includes(q.toLowerCase())),
       ),
     [profiles, q, empresas],
+  );
+
+  const totalComDocs = useMemo(
+    () => profiles.filter((p) => (docCounts[p.id] ?? 0) > 0).length,
+    [profiles, docCounts],
   );
 
   if (selected) {
