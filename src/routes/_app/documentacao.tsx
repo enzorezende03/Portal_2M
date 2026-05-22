@@ -995,7 +995,7 @@ function PdfCanvasPreview({
 
   useEffect(() => {
     let cancelled = false;
-    let renderTask: { cancel: () => void } | null = null;
+    let renderTask: { cancel: () => void; promise: Promise<void> } | null = null;
 
     (async () => {
       try {
@@ -1024,7 +1024,7 @@ function PdfCanvasPreview({
         canvas.style.width = `${Math.floor(viewport.width)}px`;
         canvas.style.height = `${Math.floor(viewport.height)}px`;
         context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        renderTask = pdfPage.render({ canvasContext: context, viewport });
+        renderTask = pdfPage.render({ canvasContext: context, canvas: null, viewport });
         await renderTask.promise;
         if (!cancelled) setLoading(false);
       } catch (err) {
