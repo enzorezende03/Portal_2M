@@ -315,7 +315,19 @@ function DocumentacaoCliente() {
           }}
         />
       )}
+
+      {editing && canManage && impersonating && (
+        <EditarDocumentoDialog
+          doc={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null);
+            load();
+          }}
+        />
+      )}
     </div>
+
   );
 }
 
