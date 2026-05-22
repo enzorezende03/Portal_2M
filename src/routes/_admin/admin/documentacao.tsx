@@ -13,10 +13,12 @@ type Profile = {
   id: string;
   nome: string | null;
   email: string | null;
+  cnpj: string | null;
   empresa_id: string | null;
 };
 
 type Empresa = { id: string; nome: string };
+type ClienteRef = { id: string; cnpj: string | null; email: string | null };
 
 type Documento = {
   id: string;
