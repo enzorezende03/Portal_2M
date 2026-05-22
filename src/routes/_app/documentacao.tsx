@@ -46,6 +46,8 @@ function DocumentacaoCliente() {
         .maybeSingle();
       const cnpjDigits = String(prof?.cnpj ?? "").replace(/\D/g, "");
       const email = String(prof?.email ?? "").trim().toLowerCase();
+      setCnpjFaltando(!cnpjDigits);
+
 
       // Busca clientes que casam por CNPJ/email para incluir os documentos vinculados a eles
       const clienteIds: string[] = [];
