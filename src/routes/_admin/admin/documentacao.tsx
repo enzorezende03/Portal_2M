@@ -132,6 +132,9 @@ function DocumentacaoAdmin() {
             Selecione um cliente para gerenciar os documentos dele. Cada cliente vê apenas
             os próprios documentos — sem permissão para adicionar, editar ou remover.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {totalComDocs} de {profiles.length} clientes com documentos cadastrados.
+          </p>
         </div>
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -152,28 +155,45 @@ function DocumentacaoAdmin() {
               <th className="px-4 py-3 font-medium">Nome</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Empresa</th>
+              <th className="px-4 py-3 font-medium">Documentos</th>
               <th className="px-4 py-3 font-medium w-32"></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-t border-border">
-                <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
-                <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
-                <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
-                <td className="px-4 py-3">
-                  <button
-                    onClick={() => setSelected(p)}
-                    className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-                  >
-                    Abrir documentos
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map((p) => {
+              const count = docCounts[p.id] ?? 0;
+              return (
+                <tr key={p.id} className="border-t border-border">
+                  <td className="px-4 py-3 font-medium">{p.nome ? formatNome(p.nome) : "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{p.email ?? "—"}</td>
+                  <td className="px-4 py-3">{empresaNome(p.empresa_id)}</td>
+                  <td className="px-4 py-3">
+                    {count > 0 ? (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                        style={{ background: "var(--brand-primary)" }}
+                      >
+                        <FileText className="h-3 w-3" />
+                        {count}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Sem documentos</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => setSelected(p)}
+                      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-accent"
+                    >
+                      Abrir documentos
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
                   Nenhum cliente encontrado.
                 </td>
               </tr>
