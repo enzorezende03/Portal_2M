@@ -30,7 +30,7 @@ function fmtBytes(b?: number | null) {
 }
 
 function DocumentacaoCliente() {
-  const { user } = useAuth();
+  const { user, isAdmin, isColaborador } = useAuth();
   const [docs, setDocs] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
   const [cnpjFaltando, setCnpjFaltando] = useState(false);
