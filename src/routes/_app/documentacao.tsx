@@ -339,6 +339,14 @@ function DocumentacaoCliente() {
           }}
         />
       )}
+
+      {previewing && (
+        <PreviewDocumentoDialog
+          doc={previewing}
+          onClose={() => setPreviewing(null)}
+        />
+      )}
+
     </div>
 
   );
