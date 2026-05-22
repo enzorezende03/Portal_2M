@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
-import { FileText, Download, FolderOpen } from "lucide-react";
+import { FileText, Download, FolderOpen, AlertTriangle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+
+
 
 export const Route = createFileRoute("/_app/documentacao")({
   component: DocumentacaoCliente,
@@ -30,6 +33,8 @@ function DocumentacaoCliente() {
   const { user } = useAuth();
   const [docs, setDocs] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cnpjFaltando, setCnpjFaltando] = useState(false);
+
 
   useEffect(() => {
     if (!user) return;
@@ -41,6 +46,8 @@ function DocumentacaoCliente() {
         .maybeSingle();
       const cnpjDigits = String(prof?.cnpj ?? "").replace(/\D/g, "");
       const email = String(prof?.email ?? "").trim().toLowerCase();
+      setCnpjFaltando(!cnpjDigits);
+
 
       // Busca clientes que casam por CNPJ/email para incluir os documentos vinculados a eles
       const clienteIds: string[] = [];
@@ -89,6 +96,26 @@ function DocumentacaoCliente() {
       <p className="mt-1 text-sm text-muted-foreground">
         Documentos enviados pela nossa equipe para você. Apenas você e a equipe têm acesso.
       </p>
+
+      {cnpjFaltando && (
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+          <div className="flex-1">
+            <div className="font-medium">Seu CNPJ ainda não está cadastrado</div>
+            <p className="mt-0.5 text-amber-800">
+              As guias importadas do G-Click são vinculadas pelo CNPJ. Preencha seu CNPJ
+              no perfil para que os documentos da sua empresa apareçam aqui automaticamente.
+            </p>
+            <Link
+              to="/perfil"
+              className="mt-2 inline-flex items-center rounded-lg bg-amber-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-800"
+            >
+              Preencher CNPJ no perfil
+            </Link>
+          </div>
+        </div>
+      )}
+
 
       <div className="mt-6 space-y-3">
         {loading ? (
