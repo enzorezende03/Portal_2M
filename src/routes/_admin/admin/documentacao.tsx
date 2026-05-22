@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Upload, Trash2, FileText, Download, X, Search, ArrowLeft } from "lucide-react";
+import { Plus, Upload, Trash2, FileText, Download, X, Search, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatNome } from "@/lib/format-nome";
 
 export const Route = createFileRoute("/_admin/admin/documentacao")({
