@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
@@ -18,9 +18,14 @@ import {
   ArrowLeft,
   Eye,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
 
 
 } from "lucide-react";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 import { formatNome } from "@/lib/format-nome";
 
 export const Route = createFileRoute("/_app/documentacao")({
