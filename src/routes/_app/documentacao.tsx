@@ -269,12 +269,20 @@ function DocumentacaoCliente() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <button
+                  onClick={() => setPreviewing(d)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-accent"
+                  title="Visualizar"
+                >
+                  <Eye className="h-4 w-4" /> Visualizar
+                </button>
+                <button
                   onClick={() => baixar(d)}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white"
                   style={{ background: "var(--brand-primary)" }}
                 >
                   <Download className="h-4 w-4" /> Baixar
                 </button>
+
                 {canManage && impersonating && (
                   <>
                     <button
