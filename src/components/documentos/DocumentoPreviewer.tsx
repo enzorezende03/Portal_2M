@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, ExternalLink, FileText, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { Download, FileText, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -67,14 +67,12 @@ export function DocumentoPreviewContent({
   fileBlob,
   loading,
   error,
-  openUrl,
 }: {
   doc: PreviewDocumento;
   url: string | null;
   fileBlob: Blob | null;
   loading: boolean;
   error: string | null;
-  openUrl?: string;
 }) {
   const mime = doc.mime_type ?? "";
   const isImage = mime.startsWith("image/");
@@ -93,7 +91,7 @@ export function DocumentoPreviewContent({
   }
 
   if (isPdf && fileBlob) {
-    return <PdfCanvasPreview file={fileBlob} fileName={doc.nome} openUrl={openUrl} downloadUrl={url} />;
+    return <PdfCanvasPreview file={fileBlob} fileName={doc.nome} downloadUrl={url} />;
   }
 
   if (isText) return <iframe src={url} title={doc.nome} className="h-full w-full border-0 bg-background" />;
@@ -125,12 +123,10 @@ type PdfDocLike = {
 function PdfCanvasPreview({
   file,
   fileName,
-  openUrl,
   downloadUrl,
 }: {
   file: Blob;
   fileName: string;
-  openUrl?: string;
   downloadUrl: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -277,16 +273,6 @@ function PdfCanvasPreview({
           >
             <ZoomIn className="h-4 w-4" />
           </button>
-          {openUrl && (
-            <a
-              href={openUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-accent"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Abrir
-            </a>
-          )}
           <a
             href={downloadUrl}
             download={fileName}
