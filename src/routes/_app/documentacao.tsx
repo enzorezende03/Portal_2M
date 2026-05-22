@@ -312,33 +312,110 @@ function ClientePickerDialog({
   onClose: () => void;
   onSelect: (p: Profile) => void;
 }) {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<Array<Profile & { docCount: number }>>([]);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [onlyWithDocs, setOnlyWithDocs] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id,nome,email,cnpj")
-        .order("nome");
-      if (error) toast.error(error.message);
-      setProfiles((data as Profile[]) ?? []);
+      const PAGE = 1000;
+      const fetchAll = async <T,>(table: string, cols: string): Promise<T[]> => {
+        const out: T[] = [];
+        let from = 0;
+        for (let i = 0; i < 20; i++) {
+          const { data, error } = await supabase
+            .from(table as any)
+            .select(cols)
+            .range(from, from + PAGE - 1);
+          if (error) {
+            toast.error(error.message);
+            break;
+          }
+          const rows = (data as T[]) ?? [];
+          out.push(...rows);
+          if (rows.length < PAGE) break;
+          from += PAGE;
+        }
+        return out;
+      };
+
+      const [profs, clientes, docs] = await Promise.all([
+        fetchAll<Profile>("profiles", "id,nome,email,cnpj"),
+        fetchAll<{ id: string; cnpj: string | null; email: string | null }>(
+          "clientes",
+          "id,cnpj,email",
+        ),
+        fetchAll<{ user_id: string | null; cliente_id: string | null }>(
+          "documentos",
+          "user_id,cliente_id",
+        ),
+      ]);
+
+      const docsByUser = new Map<string, number>();
+      const docsByCliente = new Map<string, number>();
+      for (const d of docs) {
+        if (d.user_id) docsByUser.set(d.user_id, (docsByUser.get(d.user_id) ?? 0) + 1);
+        if (d.cliente_id)
+          docsByCliente.set(d.cliente_id, (docsByCliente.get(d.cliente_id) ?? 0) + 1);
+      }
+
+      const clientesByCnpj = new Map<string, string[]>();
+      const clientesByEmail = new Map<string, string[]>();
+      for (const c of clientes) {
+        const cnpj = String(c.cnpj ?? "").replace(/\D/g, "");
+        const email = String(c.email ?? "").trim().toLowerCase();
+        if (cnpj) {
+          const arr = clientesByCnpj.get(cnpj) ?? [];
+          arr.push(c.id);
+          clientesByCnpj.set(cnpj, arr);
+        }
+        if (email) {
+          const arr = clientesByEmail.get(email) ?? [];
+          arr.push(c.id);
+          clientesByEmail.set(email, arr);
+        }
+      }
+
+      const enriched = profs.map((p) => {
+        const cnpj = String(p.cnpj ?? "").replace(/\D/g, "");
+        const email = String(p.email ?? "").trim().toLowerCase();
+        const cids = new Set<string>();
+        if (cnpj) for (const id of clientesByCnpj.get(cnpj) ?? []) cids.add(id);
+        if (email) for (const id of clientesByEmail.get(email) ?? []) cids.add(id);
+        let count = docsByUser.get(p.id) ?? 0;
+        for (const cid of cids) count += docsByCliente.get(cid) ?? 0;
+        return { ...p, docCount: count };
+      });
+
+      enriched.sort((a, b) => {
+        if (b.docCount !== a.docCount) return b.docCount - a.docCount;
+        return (a.nome ?? "").localeCompare(b.nome ?? "");
+      });
+
+      setProfiles(enriched);
       setLoading(false);
     })();
   }, []);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return profiles.slice(0, 200);
-    return profiles
-      .filter((p) =>
+    let list = profiles;
+    if (onlyWithDocs) list = list.filter((p) => p.docCount > 0);
+    if (term) {
+      list = list.filter((p) =>
         [p.nome, p.email, p.cnpj]
           .filter(Boolean)
           .some((v) => String(v).toLowerCase().includes(term)),
-      )
-      .slice(0, 200);
-  }, [profiles, q]);
+      );
+    }
+    return list.slice(0, 200);
+  }, [profiles, q, onlyWithDocs]);
+
+  const totalComDocs = useMemo(
+    () => profiles.filter((p) => p.docCount > 0).length,
+    [profiles],
+  );
 
   return (
     <div
@@ -350,14 +427,21 @@ function ClientePickerDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
-          <h3 className="font-titulo text-xl" style={{ color: "var(--brand-navy)" }}>
-            Selecionar cliente
-          </h3>
+          <div>
+            <h3 className="font-titulo text-xl" style={{ color: "var(--brand-navy)" }}>
+              Selecionar cliente
+            </h3>
+            {!loading && (
+              <p className="text-xs text-muted-foreground">
+                {totalComDocs} de {profiles.length} clientes possuem documentos cadastrados
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="border-b border-border p-3">
+        <div className="space-y-2 border-b border-border p-3">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <input
@@ -369,6 +453,14 @@ function ClientePickerDialog({
               style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
             />
           </div>
+          <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={onlyWithDocs}
+              onChange={(e) => setOnlyWithDocs(e.target.checked)}
+            />
+            Mostrar apenas clientes com documentos
+          </label>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           {loading ? (
@@ -385,7 +477,7 @@ function ClientePickerDialog({
                     onClick={() => onSelect(p)}
                     className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left hover:bg-accent"
                   >
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-medium">
                         {p.nome ? formatNome(p.nome) : "—"}
                       </div>
@@ -394,6 +486,26 @@ function ClientePickerDialog({
                         {p.cnpj ? ` · ${p.cnpj}` : ""}
                       </div>
                     </div>
+                    <span
+                      className="shrink-0 rounded-full px-2 py-1 text-xs font-semibold"
+                      style={{
+                        backgroundColor:
+                          p.docCount > 0
+                            ? "color-mix(in oklab, var(--brand-primary) 15%, transparent)"
+                            : "color-mix(in oklab, var(--muted-foreground) 12%, transparent)",
+                        color:
+                          p.docCount > 0
+                            ? "var(--brand-primary)"
+                            : "var(--muted-foreground)",
+                      }}
+                      title={
+                        p.docCount > 0
+                          ? `${p.docCount} documento(s) cadastrado(s)`
+                          : "Nenhum documento cadastrado"
+                      }
+                    >
+                      {p.docCount} {p.docCount === 1 ? "doc" : "docs"}
+                    </span>
                   </button>
                 </li>
               ))}
@@ -402,7 +514,8 @@ function ClientePickerDialog({
         </div>
         {!loading && profiles.length > filtered.length && (
           <div className="border-t border-border p-2 text-center text-xs text-muted-foreground">
-            Mostrando {filtered.length} de {profiles.length} — refine a busca para ver mais.
+            Mostrando {filtered.length} de{" "}
+            {onlyWithDocs ? totalComDocs : profiles.length} — refine a busca para ver mais.
           </div>
         )}
       </div>
