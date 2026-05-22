@@ -65,6 +65,8 @@ function DocumentacaoCliente() {
   const [cnpjFaltando, setCnpjFaltando] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [editing, setEditing] = useState<Documento | null>(null);
+  const [previewing, setPreviewing] = useState<Documento | null>(null);
+
 
 
   const targetUserId = viewAs?.id ?? user?.id ?? null;
