@@ -55,6 +55,7 @@ function onlyDigits(value: string | null | undefined): string {
 export function VerComoSelector() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<FilterType>("nome");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
   const [starting, setStarting] = useState(false);
