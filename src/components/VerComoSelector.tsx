@@ -90,13 +90,16 @@ function formatRazaoSocial(raw: string): string {
 
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
-  if (nome) return formatPersonName(nome);
+  if (nome) {
+    return looksLikeRazaoSocial(nome) ? formatRazaoSocial(nome) : formatPersonName(nome);
+  }
   const razao = p.empresa_nome?.trim();
   if (razao) return formatRazaoSocial(razao);
   const emailUser = p.email?.split("@")[0];
   if (emailUser) return emailUser;
   return "(sem nome)";
 }
+
 
 function getInitials(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
