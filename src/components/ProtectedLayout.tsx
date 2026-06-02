@@ -12,8 +12,15 @@ export function ProtectedLayout({ adminOnly = false }: { adminOnly?: boolean }) 
       </div>
     );
   if (!user) return <Navigate to="/login" />;
+  const emailGeneric =
+    !profile?.email ||
+    profile.email.toLowerCase().endsWith("@distribuilucros.local") ||
+    profile.email.toLowerCase().endsWith(".local");
+  const cnpjMissing =
+    !profile?.cnpj || profile.cnpj.replace(/\D/g, "").length !== 14;
+  const needsCompletion = !isAdmin && !isColaborador && (emailGeneric || cnpjMissing);
   if (
-    profile?.must_reset_password &&
+    (profile?.must_reset_password || needsCompletion) &&
     location.pathname !== "/reset-password"
   ) {
     return <Navigate to="/reset-password" />;
