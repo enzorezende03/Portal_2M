@@ -121,7 +121,7 @@ function ClientesPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto surface">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>
@@ -482,7 +482,7 @@ export function SimpleList({ table, titulo, cols }: { table: string; titulo: str
           style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
         />
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto surface">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>{cols.map((c) => <th key={c} className="px-4 py-3 font-medium capitalize">{c}</th>)}</tr>

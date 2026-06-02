@@ -140,22 +140,32 @@ function DocumentacaoCliente() {
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl p-6 md:p-10">
-      <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
-        <span
-          className="h-2 w-2 rounded-full"
-          style={{ background: impersonating ? "var(--brand-navy)" : "var(--brand-primary)" }}
-        />
-        {impersonating ? "Vendo como cliente" : "Área pessoal"}
+    <div className="mx-auto max-w-5xl space-y-6 p-6 md:p-10">
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{
+          background: impersonating
+            ? "linear-gradient(135deg, var(--brand-navy), color-mix(in oklab, var(--brand-navy) 70%, var(--brand-primary)))"
+            : "var(--brand-gradient)",
+          boxShadow: "var(--shadow-elegant)",
+        }}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            {impersonating ? "Vendo como cliente" : "Área pessoal"}
+          </div>
+          <h1 className="mt-3 font-titulo text-4xl md:text-5xl leading-tight">
+            {impersonating ? `Documentos · ${headerNome}` : "Documentação"}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-white/80">
+            {impersonating
+              ? `${viewAs?.email ?? "—"} · ${docs.length} ${docs.length === 1 ? "documento" : "documentos"}`
+              : "Documentos enviados pela nossa equipe para você. Apenas você e a equipe têm acesso."}
+          </p>
+        </div>
       </div>
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
-        {impersonating ? `Documentos · ${headerNome}` : "Documentação"}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {impersonating
-          ? `${viewAs?.email ?? "—"} · ${docs.length} ${docs.length === 1 ? "documento" : "documentos"}`
-          : "Documentos enviados pela nossa equipe para você. Apenas você e a equipe têm acesso."}
-      </p>
 
       {canManage && !impersonating && (
         <div

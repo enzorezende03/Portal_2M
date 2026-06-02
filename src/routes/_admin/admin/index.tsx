@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Users, Wrench, GraduationCap, Megaphone } from "lucide-react";
 
 export const Route = createFileRoute("/_admin/admin/")({
   component: AdminHome,
@@ -27,18 +28,29 @@ function AdminHome() {
   }, []);
 
   const cards = [
-    { label: "Clientes", value: stats.clientes },
-    { label: "Ferramentas", value: stats.ferramentas },
-    { label: "Treinamentos", value: stats.treinamentos },
-    { label: "Avisos ativos", value: stats.avisos },
+    { label: "Clientes", value: stats.clientes, icon: Users },
+    { label: "Ferramentas", value: stats.ferramentas, icon: Wrench },
+    { label: "Treinamentos", value: stats.treinamentos, icon: GraduationCap },
+    { label: "Avisos ativos", value: stats.avisos, icon: Megaphone },
   ];
 
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
       {cards.map((c) => (
-        <div key={c.label} className="rounded-lg border border-border bg-card p-5 shadow-sm">
-          <div className="text-sm text-muted-foreground">{c.label}</div>
-          <div className="mt-2 font-titulo text-3xl" style={{ color: "var(--brand-navy)" }}>{c.value}</div>
+        <div key={c.label} className="surface card-hover relative overflow-hidden p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {c.label}
+              </div>
+              <div className="mt-2 font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
+                {c.value}
+              </div>
+            </div>
+            <div className="icon-tile h-10 w-10">
+              <c.icon className="h-5 w-5" />
+            </div>
+          </div>
         </div>
       ))}
     </div>

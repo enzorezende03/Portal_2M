@@ -127,48 +127,53 @@ function TreinamentoPlayer() {
 
   return (
     <div className="mx-auto max-w-4xl p-6 md:p-10">
-      <Link to="/treinamentos" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/treinamentos"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Voltar
       </Link>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-border bg-black shadow-sm">
+      <div
+        className="mt-4 overflow-hidden rounded-2xl bg-black"
+        style={{ boxShadow: "var(--shadow-elegant)" }}
+      >
         <div className="aspect-video">
           {kind === "file" ? (
             <video src={embed} controls className="h-full w-full" />
           ) : (
-            <iframe
-              src={embed}
-              allow={allow}
-              allowFullScreen
-              className="h-full w-full"
-            />
+            <iframe src={embed} allow={allow} allowFullScreen className="h-full w-full" />
           )}
         </div>
       </div>
 
-      <h1 className="mt-6 font-titulo text-3xl" style={{ color: "var(--brand-navy)" }}>{t.titulo}</h1>
+      <h1 className="mt-6 font-titulo text-3xl md:text-4xl" style={{ color: "var(--brand-navy)" }}>
+        {t.titulo}
+      </h1>
       {t.descricao && <p className="mt-2 text-muted-foreground">{t.descricao}</p>}
 
-      {t.pdf_url && (
-        <a
-          href={t.pdf_url}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
-        >
-          📄 Baixar material em PDF
-        </a>
-      )}
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        {t.pdf_url && (
+          <a
+            href={t.pdf_url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
+          >
+            📄 Baixar material em PDF
+          </a>
+        )}
 
-      <button
-        onClick={marcar}
-        disabled={done}
-        className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 font-medium text-white disabled:opacity-60"
-        style={{ background: done ? "#16a34a" : "var(--brand-primary)" }}
-      >
-        <CheckCircle2 className="h-4 w-4" />
-        {done ? "Concluído" : "Marcar como concluído"}
-      </button>
+        <button
+          onClick={marcar}
+          disabled={done}
+          className="btn-brand disabled:opacity-60"
+          style={done ? { background: "#16a34a" } : undefined}
+        >
+          <CheckCircle2 className="h-4 w-4" />
+          {done ? "Concluído" : "Marcar como concluído"}
+        </button>
+      </div>
     </div>
   );
 }
