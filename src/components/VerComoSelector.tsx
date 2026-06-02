@@ -23,11 +23,58 @@ type RingStyle = CSSProperties & { "--tw-ring-color": string };
 type FilterType = "nome" | "email" | "cnpj";
 
 
+const LOWERCASE_PARTICLES = new Set([
+  "da", "de", "di", "do", "du",
+  "das", "dos",
+  "e", "y",
+  "del", "della", "der", "den", "van", "von", "la", "le", "lo",
+]);
+
+const ABBREV_SUFFIXES = new Set(["jr", "júnior", "junior", "neto", "filho", "sobrinho"]);
+
+function formatPersonName(raw: string): string {
+  const cleaned = raw.trim().replace(/\s+/g, " ");
+  if (!cleaned) return cleaned;
+  const parts = cleaned.split(" ");
+  return parts
+    .map((word, idx) => {
+      const lower = word.toLowerCase().replace(/\.$/, "");
+      // Single-letter initials → "L."
+      if (lower.length === 1 && /[a-zà-ÿ]/i.test(lower)) {
+        return lower.toUpperCase() + ".";
+      }
+      // Particles (not if first word)
+      if (idx > 0 && LOWERCASE_PARTICLES.has(lower)) return lower;
+      // Junior-style abbreviations → add trailing dot
+      if (ABBREV_SUFFIXES.has(lower)) {
+        if (lower === "jr") return "Jr.";
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      }
+      // Hyphenated names (Maria-Clara)
+      if (lower.includes("-")) {
+        return lower
+          .split("-")
+          .map((p) => (p ? p.charAt(0).toUpperCase() + p.slice(1) : p))
+          .join("-");
+      }
+      // Already-abbreviated with dot in original (e.g. "J.")
+      if (/\.$/.test(word) && word.length <= 3) {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      }
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
+function formatRazaoSocial(raw: string): string {
+  return raw.trim().replace(/\s+/g, " ").toUpperCase();
+}
+
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
-  if (nome) return nome;
+  if (nome) return formatPersonName(nome);
   const razao = p.empresa_nome?.trim();
-  if (razao) return razao;
+  if (razao) return formatRazaoSocial(razao);
   const emailUser = p.email?.split("@")[0];
   if (emailUser) return emailUser;
   return "(sem nome)";
