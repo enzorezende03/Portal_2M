@@ -195,8 +195,8 @@ function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg py-3 font-medium text-white shadow-sm transition-opacity disabled:opacity-60"
-              style={{ background: "var(--brand-primary)" }}
+              className="w-full rounded-xl py-3 font-medium text-white transition-all disabled:opacity-60"
+              style={{ background: "var(--brand-gradient)", boxShadow: "var(--brand-glow)" }}
             >
               {loading ? "Entrando…" : "Entrar"}
             </button>
