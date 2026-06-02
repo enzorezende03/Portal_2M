@@ -107,9 +107,7 @@ export function VerComoSelector() {
     );
     if (!term) return sorted.slice(0, 50);
 
-    const startsWith = sorted.filter((p) =>
-      normalizeSearch(getDisplayName(p)).startsWith(term),
-    );
+    const startsWith = sorted.filter((p) => normalizeSearch(getDisplayName(p)).startsWith(term));
 
     return startsWith.slice(0, 50);
   }, [profiles, q]);
@@ -124,8 +122,9 @@ export function VerComoSelector() {
     }
   };
 
-  const dropdown = open && pos && typeof document !== "undefined"
-    ? createPortal(
+  const dropdown =
+    open && pos && typeof document !== "undefined"
+      ? createPortal(
         <div
           ref={ref}
           className="fixed z-[100] w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
@@ -140,7 +139,7 @@ export function VerComoSelector() {
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar por nome, razão social, email ou CNPJ…"
                 className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2"
-                style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+                style={{ "--tw-ring-color": "var(--brand-primary)" } as RingStyle}
               />
             </div>
             <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
@@ -193,9 +192,9 @@ export function VerComoSelector() {
               })}
           </div>
         </div>,
-        document.body,
-      )
-    : null;
+          document.body,
+        )
+      : null;
 
   return (
     <div className="relative">
