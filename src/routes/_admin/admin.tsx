@@ -2,6 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { Users, Wrench, GraduationCap, ListChecks, Megaphone, Building2, Upload, FileText, Plug } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { VerComoSelector } from "@/components/VerComoSelector";
 
 const tabs = [
   { to: "/admin", label: "Visão geral", icon: Building2, exact: true, adminOnly: true },
@@ -26,9 +27,12 @@ function AdminLayout() {
   const visibleTabs = tabs.filter((t) => isAdmin || !t.adminOnly);
   return (
     <div className="mx-auto max-w-6xl p-6 md:p-10">
-      <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
-        <span className="h-2 w-2 rounded-full" style={{ background: "var(--brand-navy)" }} />
-        {isAdmin ? "Painel administrativo" : "Painel do colaborador"}
+      <div className="mb-2 flex items-start justify-between gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
+          <span className="h-2 w-2 rounded-full" style={{ background: "var(--brand-navy)" }} />
+          {isAdmin ? "Painel administrativo" : "Painel do colaborador"}
+        </div>
+        {isAdmin && <VerComoSelector />}
       </div>
       <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
         {isAdmin ? "Admin" : "Documentos dos clientes"}
