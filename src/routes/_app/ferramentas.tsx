@@ -37,10 +37,16 @@ function FerramentasPage() {
 
   return (
     <div className="mx-auto max-w-6xl p-6 md:p-10">
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Ferramentas</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Acesse rapidamente os sistemas que você usa.</p>
+      <div className="mb-8">
+        <h1 className="font-titulo text-4xl md:text-5xl" style={{ color: "var(--brand-navy)" }}>
+          Ferramentas
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Acesse rapidamente os sistemas que você usa.
+        </p>
+      </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {items.map((f) => (
           <a
             key={f.id}
@@ -48,27 +54,37 @@ function FerramentasPage() {
             target={f.abre_em_nova_aba ? "_blank" : "_self"}
             rel="noreferrer"
             onClick={(e) => handleClick(e, f)}
-            className="group flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            className="surface card-hover group flex flex-col p-5"
           >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg text-white" style={{ background: "var(--brand-primary)" }}>
+            <div className="icon-tile mb-4 h-11 w-11">
               <ExternalLink className="h-5 w-5" />
             </div>
             <div className="flex items-center gap-2">
               <div className="font-medium">{f.nome}</div>
               {f.requer_sso && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground" title="Login automático">
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+                  title="Login automático"
+                  style={{
+                    background: "color-mix(in oklab, var(--brand-primary) 12%, transparent)",
+                    color: "var(--brand-primary)",
+                  }}
+                >
                   <KeyRound className="h-2.5 w-2.5" /> SSO
                 </span>
               )}
             </div>
             <div className="mt-1 flex-1 text-sm text-muted-foreground">{f.descricao}</div>
-            <div className="mt-4 inline-flex items-center gap-1 text-sm font-medium" style={{ color: "var(--brand-primary)" }}>
+            <div
+              className="mt-4 inline-flex items-center gap-1 text-sm font-semibold transition-transform group-hover:translate-x-0.5"
+              style={{ color: "var(--brand-primary)" }}
+            >
               Acessar <ExternalLink className="h-3.5 w-3.5" />
             </div>
           </a>
         ))}
         {items.length === 0 && (
-          <div className="col-span-full rounded-lg border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
+          <div className="col-span-full rounded-2xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
             Nenhuma ferramenta disponível.
           </div>
         )}

@@ -75,8 +75,8 @@ function useOnboardingProgress() {
 
 function CardSkeleton() {
   return (
-    <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
-      <Skeleton className="mb-3 h-10 w-10 rounded-lg" />
+    <div className="surface p-5">
+      <Skeleton className="mb-3 h-11 w-11 rounded-xl" />
       <Skeleton className="h-4 w-2/3" />
       <Skeleton className="mt-2 h-3 w-full" />
       <Skeleton className="mt-1 h-3 w-4/5" />
@@ -86,7 +86,7 @@ function CardSkeleton() {
 
 function VideoSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+    <div className="surface overflow-hidden">
       <Skeleton className="aspect-video w-full rounded-none" />
       <div className="p-3">
         <Skeleton className="h-4 w-3/4" />
@@ -120,12 +120,12 @@ function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-10">
+    <div className="mx-auto max-w-6xl space-y-10 p-6 md:p-10">
       {/* Avisos */}
       {(avisosQ.data ?? []).map((a: any) => (
         <div
           key={a.id}
-          className="flex items-start gap-3 rounded-lg border border-border bg-card p-4 shadow-sm"
+          className="surface flex items-start gap-3 p-4"
           style={{ borderLeftWidth: 4, borderLeftColor: "var(--brand-primary)" }}
         >
           <Megaphone className="mt-0.5 h-5 w-5" style={{ color: "var(--brand-primary)" }} />
@@ -136,62 +136,79 @@ function Dashboard() {
         </div>
       ))}
 
-      {/* Header */}
-      <div>
-        <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
-          Olá, {primeiroNome || "bem-vindo(a)"}
-        </h1>
-        <p className="mt-1 text-sm capitalize text-muted-foreground">{dataHoje}</p>
+      {/* Hero */}
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{ background: "var(--brand-gradient)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            <span className="capitalize">{dataHoje}</span>
+          </div>
+          <h1 className="mt-4 font-titulo text-4xl md:text-5xl leading-tight">
+            Olá, {primeiroNome || "bem-vindo(a)"}
+          </h1>
+          <p className="mt-2 max-w-xl text-sm text-white/80">
+            Tudo o que você precisa em um só lugar — ferramentas, treinamentos e seu onboarding.
+          </p>
+        </div>
       </div>
 
       {/* Onboarding */}
       {onbQ.isLoading ? (
-        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="surface p-6">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="mt-2 h-7 w-2/3" />
           <Skeleton className="mt-4 h-2 w-full rounded-full" />
         </div>
       ) : onb.total > 0 && onb.done < onb.total ? (
-        <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="surface-elevated p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="text-sm font-medium text-muted-foreground">Seu onboarding</div>
+              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Seu onboarding
+              </div>
               <div className="mt-1 font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
                 Você completou {onb.done} de {onb.total} etapas
               </div>
             </div>
-            <Link
-              to="/onboarding"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
-              style={{ background: "var(--brand-primary)" }}
-            >
+            <Link to="/onboarding" className="btn-brand text-sm">
               Continuar <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full transition-all"
-              style={{ width: `${onbPct}%`, background: "var(--brand-primary)" }}
-            />
+          <div className="mt-4 flex items-center gap-3">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full transition-all"
+                style={{ width: `${onbPct}%`, background: "var(--brand-gradient)" }}
+              />
+            </div>
+            <span className="text-xs font-semibold text-muted-foreground">{onbPct}%</span>
           </div>
         </div>
       ) : null}
 
       {/* Ferramentas */}
       <section>
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="font-titulo text-3xl" style={{ color: "var(--brand-navy)" }}>
             Suas ferramentas
           </h2>
-          <Link to="/ferramentas" className="text-sm text-muted-foreground hover:underline">
-            Ver todas
+          <Link
+            to="/ferramentas"
+            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Ver todas <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {ferramentasQ.isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
           ) : (ferramentasQ.data ?? []).length === 0 ? (
-            <div className="col-span-full rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="col-span-full rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
               Nenhuma ferramenta disponível ainda.
             </div>
           ) : (
@@ -202,16 +219,19 @@ function Dashboard() {
                 target={f.abre_em_nova_aba ? "_blank" : "_self"}
                 rel="noreferrer"
                 onClick={(e) => handleFerramentaClick(e, f)}
-                className="group rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="surface card-hover group block p-5"
               >
-                <div
-                  className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg text-white"
-                  style={{ background: "var(--brand-primary)" }}
-                >
+                <div className="icon-tile mb-4 h-11 w-11">
                   <ExternalLink className="h-5 w-5" />
                 </div>
                 <div className="font-medium">{f.nome}</div>
                 <div className="mt-1 line-clamp-2 text-sm text-muted-foreground">{f.descricao}</div>
+                <div
+                  className="mt-4 inline-flex items-center gap-1 text-xs font-semibold opacity-0 transition-opacity group-hover:opacity-100"
+                  style={{ color: "var(--brand-primary)" }}
+                >
+                  Acessar <ArrowRight className="h-3 w-3" />
+                </div>
               </a>
             ))
           )}
@@ -220,19 +240,22 @@ function Dashboard() {
 
       {/* Treinamentos */}
       <section>
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="font-titulo text-2xl" style={{ color: "var(--brand-navy)" }}>
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="font-titulo text-3xl" style={{ color: "var(--brand-navy)" }}>
             Últimos treinamentos
           </h2>
-          <Link to="/treinamentos" className="text-sm text-muted-foreground hover:underline">
-            Ver todos
+          <Link
+            to="/treinamentos"
+            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Ver todos <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {treinamentosQ.isLoading ? (
             Array.from({ length: 4 }).map((_, i) => <VideoSkeleton key={i} />)
           ) : (treinamentosQ.data ?? []).length === 0 ? (
-            <div className="col-span-full rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="col-span-full rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
               Nenhum treinamento publicado.
             </div>
           ) : (
@@ -241,18 +264,26 @@ function Dashboard() {
                 key={t.id}
                 to="/treinamentos/$id"
                 params={{ id: t.id }}
-                className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                className="surface card-hover group overflow-hidden"
               >
-                <div className="relative aspect-video bg-muted">
+                <div className="relative aspect-video overflow-hidden bg-muted">
                   {t.thumbnail_url ? (
-                    <img src={t.thumbnail_url} alt={t.titulo} className="h-full w-full object-cover" />
+                    <img
+                      src={t.thumbnail_url}
+                      alt={t.titulo}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <PlayCircle className="h-10 w-10 text-muted-foreground" />
+                    <div
+                      className="flex h-full items-center justify-center"
+                      style={{ background: "var(--brand-gradient)" }}
+                    >
+                      <PlayCircle className="h-12 w-12 text-white/90" />
                     </div>
                   )}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 </div>
-                <div className="p-3">
+                <div className="p-4">
                   <div className="line-clamp-2 text-sm font-medium">{t.titulo}</div>
                 </div>
               </Link>
