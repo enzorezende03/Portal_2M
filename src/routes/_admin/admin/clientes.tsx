@@ -6,6 +6,8 @@ import { createClienteUser } from "@/lib/admin-users.functions";
 import { toast } from "sonner";
 import { Plus, X, Pencil, Eye } from "lucide-react";
 import { startImpersonation } from "@/lib/impersonation";
+import { maskCnpj, maskTelefone } from "@/lib/masks";
+
 
 export const Route = createFileRoute("/_admin/admin/clientes")({
   component: ClientesPage,
@@ -141,7 +143,7 @@ function ClientesPage() {
                 <td className="px-4 py-3">{r.email ?? "—"}</td>
                 <td className="px-4 py-3 font-mono text-xs">{formatCnpj(r.cnpj)}</td>
                 <td className="px-4 py-3">{empresaNome(r.empresa_id)}</td>
-                <td className="px-4 py-3">{r.telefone ?? "—"}</td>
+                <td className="px-4 py-3">{r.telefone ? maskTelefone(r.telefone) : "—"}</td>
                 <td className="px-4 py-3">{r.cargo ?? "—"}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
@@ -284,7 +286,7 @@ function EditarClienteDialog({
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2" />
           </Field>
           <Field label="CNPJ">
-            <input value={cnpj} onChange={(e) => setCnpj(e.target.value)} placeholder="00.000.000/0000-00" className="w-full rounded-lg border border-border bg-card px-3 py-2" />
+            <input value={cnpj} onChange={(e) => setCnpj(maskCnpj(e.target.value))} placeholder="00.000.000/0000-00" inputMode="numeric" className="w-full rounded-lg border border-border bg-card px-3 py-2" />
           </Field>
           <Field label="Empresa">
             <select value={empresaId} onChange={(e) => setEmpresaId(e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2">
@@ -295,8 +297,9 @@ function EditarClienteDialog({
             </select>
           </Field>
           <Field label="Telefone">
-            <input value={telefone} onChange={(e) => setTelefone(e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2" />
+            <input value={telefone} onChange={(e) => setTelefone(maskTelefone(e.target.value))} placeholder="(00) 00000-0000" inputMode="numeric" className="w-full rounded-lg border border-border bg-card px-3 py-2" />
           </Field>
+
           <Field label="Cargo">
             <input value={cargo} onChange={(e) => setCargo(e.target.value)} className="w-full rounded-lg border border-border bg-card px-3 py-2" />
           </Field>
@@ -399,11 +402,13 @@ function NovoClienteDialog({
           <Field label="CNPJ">
             <input
               value={cnpj}
-              onChange={(e) => setCnpj(e.target.value)}
+              onChange={(e) => setCnpj(maskCnpj(e.target.value))}
               placeholder="00.000.000/0000-00"
+              inputMode="numeric"
               className="w-full rounded-lg border border-border bg-card px-3 py-2"
             />
           </Field>
+
 
           <Field label="Senha inicial (fixa, o usuário troca no 1º acesso)">
             <input
