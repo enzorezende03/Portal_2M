@@ -6,6 +6,8 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { Upload, Mail, KeyRound } from "lucide-react";
 import { changeLoginEmail } from "@/lib/change-login-email.functions";
+import { maskCnpj, maskCpf, maskCep, maskTelefone } from "@/lib/masks";
+
 
 export const Route = createFileRoute("/_app/perfil")({
   component: PerfilPage,
