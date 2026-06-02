@@ -116,8 +116,8 @@ export function VerComoSelector() {
     setStarting(true);
     try {
       await startImpersonation(p.id, getDisplayName(p));
-    } catch (e: any) {
-      toast.error(e?.message ?? "Falha ao entrar como este usuário.");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Falha ao entrar como este usuário.");
       setStarting(false);
     }
   };
