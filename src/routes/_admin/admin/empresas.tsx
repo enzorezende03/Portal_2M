@@ -91,14 +91,17 @@ function EmpresasAdmin() {
             <label className="flex flex-col gap-1">
               <span className="text-xs font-medium">CNPJ (usado no acesso ao DistribuiLucros)</span>
               <input
-                defaultValue={e.cnpj ?? ""}
-                placeholder="Apenas dígitos"
+                defaultValue={maskCnpj(e.cnpj ?? "")}
+                placeholder="00.000.000/0000-00"
+                inputMode="numeric"
+                onChange={(ev) => { ev.target.value = maskCnpj(ev.target.value); }}
                 onBlur={(ev) => {
                   const v = ev.target.value.replace(/\D/g, "") || null;
                   if (v !== e.cnpj) update(e.id, { cnpj: v });
                 }}
                 className="rounded border border-border bg-card px-3 py-2 text-sm"
               />
+
             </label>
           </div>
         </div>
