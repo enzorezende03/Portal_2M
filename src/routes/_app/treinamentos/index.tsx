@@ -41,14 +41,24 @@ function TreinamentosPage() {
 
   return (
     <div className="mx-auto max-w-6xl p-6 md:p-10">
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Treinamentos</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Aprenda no seu ritmo.</p>
+      <div className="mb-6">
+        <h1 className="font-titulo text-4xl md:text-5xl" style={{ color: "var(--brand-navy)" }}>
+          Treinamentos
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">Aprenda no seu ritmo.</p>
+      </div>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFiltro("all")}
-          className={`rounded-full border px-4 py-1.5 text-sm ${filtro === "all" ? "text-white" : "border-border bg-card"}`}
-          style={filtro === "all" ? { background: "var(--brand-primary)", borderColor: "var(--brand-primary)" } : undefined}
+          className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+            filtro === "all" ? "text-white shadow-sm" : "border-border bg-card hover:bg-accent"
+          }`}
+          style={
+            filtro === "all"
+              ? { background: "var(--brand-gradient)", borderColor: "transparent", boxShadow: "var(--brand-glow)" }
+              : undefined
+          }
         >
           Todos
         </button>
@@ -56,8 +66,14 @@ function TreinamentosPage() {
           <button
             key={c.id}
             onClick={() => setFiltro(c.id)}
-            className={`rounded-full border px-4 py-1.5 text-sm ${filtro === c.id ? "text-white" : "border-border bg-card"}`}
-            style={filtro === c.id ? { background: "var(--brand-primary)", borderColor: "var(--brand-primary)" } : undefined}
+            className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+              filtro === c.id ? "text-white shadow-sm" : "border-border bg-card hover:bg-accent"
+            }`}
+            style={
+              filtro === c.id
+                ? { background: "var(--brand-gradient)", borderColor: "transparent", boxShadow: "var(--brand-glow)" }
+                : undefined
+            }
           >
             {c.nome}
           </button>
@@ -70,18 +86,23 @@ function TreinamentosPage() {
             key={t.id}
             to="/treinamentos/$id"
             params={{ id: t.id }}
-            className="group overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+            className="surface card-hover group overflow-hidden"
           >
-            <div className="relative aspect-video bg-muted">
+            <div className="relative aspect-video overflow-hidden bg-muted">
               {t.thumbnail_url ? (
-                <img src={t.thumbnail_url} alt={t.titulo} className="h-full w-full object-cover" />
+                <img
+                  src={t.thumbnail_url}
+                  alt={t.titulo}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
               ) : (
-                <div className="flex h-full items-center justify-center">
-                  <PlayCircle className="h-12 w-12 text-muted-foreground" />
+                <div className="flex h-full items-center justify-center" style={{ background: "var(--brand-gradient)" }}>
+                  <PlayCircle className="h-12 w-12 text-white/90" />
                 </div>
               )}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               {progresso[t.id] && (
-                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-green-600 px-2 py-1 text-xs text-white">
+                <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-green-600/95 px-2 py-1 text-xs font-medium text-white shadow">
                   <CheckCircle2 className="h-3 w-3" /> Concluído
                 </span>
               )}
@@ -93,7 +114,7 @@ function TreinamentosPage() {
           </Link>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full rounded-lg border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
+          <div className="col-span-full rounded-2xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
             Nenhum treinamento.
           </div>
         )}
