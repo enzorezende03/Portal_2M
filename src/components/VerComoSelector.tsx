@@ -29,8 +29,26 @@ const LOWERCASE_PARTICLES = new Set([
   "e", "y",
   "del", "della", "der", "den", "van", "von", "la", "le", "lo",
 ]);
-
 const ABBREV_SUFFIXES = new Set(["jr", "júnior", "junior", "neto", "filho", "sobrinho"]);
+
+const RAZAO_KEYWORDS = [
+  "ltda", "eireli", "mei", "epp", "s/a", "s.a", " sa ", " sa.", "s/s",
+  "me ", " me.", "cia", "cia.", "companhia", "comercio", "comércio",
+  "industria", "indústria", "servicos", "serviços", "associacao", "associação",
+  "instituto", "fundacao", "fundação", "sociedade", "consultoria", "empresa",
+  "tecnologia", "engenharia", "construtora", "incorporadora", "transportes",
+  "logistica", "logística", "distribuidora", "atacado", "varejo", "holding",
+  "participacoes", "participações", "saude", "saúde", "clinica", "clínica",
+  "hospital", "farmacia", "farmácia", "lab", "laboratorio", "laboratório",
+];
+
+function looksLikeRazaoSocial(raw: string): boolean {
+  const s = ` ${raw.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")} `;
+  if (/\d/.test(raw)) return true;
+  if (/[&]/.test(raw)) return true;
+  return RAZAO_KEYWORDS.some((kw) => s.includes(kw));
+}
+
 
 function formatPersonName(raw: string): string {
   const cleaned = raw.trim().replace(/\s+/g, " ");
@@ -72,13 +90,16 @@ function formatRazaoSocial(raw: string): string {
 
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
-  if (nome) return formatPersonName(nome);
+  if (nome) {
+    return looksLikeRazaoSocial(nome) ? formatRazaoSocial(nome) : formatPersonName(nome);
+  }
   const razao = p.empresa_nome?.trim();
   if (razao) return formatRazaoSocial(razao);
   const emailUser = p.email?.split("@")[0];
   if (emailUser) return emailUser;
   return "(sem nome)";
 }
+
 
 function getInitials(name: string): string {
   const parts = name.split(/\s+/).filter(Boolean);
