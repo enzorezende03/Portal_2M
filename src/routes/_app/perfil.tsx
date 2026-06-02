@@ -235,17 +235,26 @@ function TrocarEmailLogin() {
   );
 }
 
-function Field({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+function Field({ label, value, onChange, disabled, mask }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean; mask?: "cnpj" | "cpf" | "telefone" | "cep" }) {
+  const apply = (raw: string) => {
+    if (!mask) return raw;
+    if (mask === "cnpj") return maskCnpj(raw);
+    if (mask === "cpf") return maskCpf(raw);
+    if (mask === "telefone") return maskTelefone(raw);
+    return maskCep(raw);
+  };
   return (
     <div>
       <label className="text-sm font-medium">{label}</label>
       <input
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(apply(e.target.value))}
         disabled={disabled}
+        inputMode={mask ? "numeric" : undefined}
         className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2.5 outline-none focus:ring-2 disabled:opacity-60"
         style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
       />
     </div>
   );
 }
+
