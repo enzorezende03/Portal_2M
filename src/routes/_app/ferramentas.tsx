@@ -36,17 +36,29 @@ function FerramentasPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6 md:p-10">
-      <div className="mb-8">
-        <h1 className="font-titulo text-4xl md:text-5xl" style={{ color: "var(--brand-navy)" }}>
-          Ferramentas
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Acesse rapidamente os sistemas que você usa.
-        </p>
+    <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-10">
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{ background: "var(--brand-gradient)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-10 h-52 w-52 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative">
+          <div className="text-xs font-medium uppercase tracking-wide text-white/70">
+            Atalhos rápidos
+          </div>
+          <h1 className="mt-1 font-titulo text-4xl md:text-5xl leading-tight">
+            Ferramentas
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-white/80">
+            Acesse rapidamente os sistemas que você usa — login automático sempre que disponível.
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         {items.map((f) => (
           <a
             key={f.id}
