@@ -29,6 +29,7 @@ const LOWERCASE_PARTICLES = new Set([
   "e", "y",
   "del", "della", "der", "den", "van", "von", "la", "le", "lo",
 ]);
+const ABBREV_SUFFIXES = new Set(["jr", "júnior", "junior", "neto", "filho", "sobrinho"]);
 
 const RAZAO_KEYWORDS = [
   "ltda", "eireli", "mei", "epp", "s/a", "s.a", " sa ", " sa.", "s/s",
