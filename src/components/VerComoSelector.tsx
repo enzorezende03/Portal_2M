@@ -45,6 +45,10 @@ function normalizeSearch(value: string | null | undefined): string {
     .toLowerCase();
 }
 
+function onlyDigits(value: string | null | undefined): string {
+  return String(value ?? "").replace(/\D/g, "");
+}
+
 export function VerComoSelector() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -102,10 +106,20 @@ export function VerComoSelector() {
 
   const filtered = useMemo(() => {
     const term = normalizeSearch(q);
+    const digits = onlyDigits(q);
+    const hasLetters = /[a-z]/i.test(term);
     const sorted = [...profiles].sort((a, b) =>
       getDisplayName(a).localeCompare(getDisplayName(b), "pt-BR"),
     );
     if (!term) return sorted.slice(0, 50);
+
+    if (digits && !hasLetters) {
+      const cnpjMatches = sorted.filter((p) => onlyDigits(p.cnpj).includes(digits));
+      const startsWith = cnpjMatches.filter((p) => onlyDigits(p.cnpj).startsWith(digits));
+      const containsOnly = cnpjMatches.filter((p) => !startsWith.some((s) => s.id === p.id));
+
+      return [...startsWith, ...containsOnly].slice(0, 50);
+    }
 
     const startsWith = sorted.filter((p) => normalizeSearch(getDisplayName(p)).startsWith(term));
 
@@ -162,6 +176,7 @@ export function VerComoSelector() {
                 filtered.map((p) => {
                   const display = getDisplayName(p);
                   const showRazao = !!p.empresa_nome && p.empresa_nome !== display;
+                  const showCnpj = !!p.cnpj;
                   return (
                     <button
                       key={p.id}
@@ -181,7 +196,9 @@ export function VerComoSelector() {
                         </div>
                         <div className="flex items-center gap-2 truncate text-[11px] text-muted-foreground">
                           {showRazao && <span className="truncate">{p.empresa_nome}</span>}
-                          {showRazao && p.email && <span>•</span>}
+                          {showRazao && (p.email || showCnpj) && <span>•</span>}
+                          {showCnpj && <span className="shrink-0">{p.cnpj}</span>}
+                          {showCnpj && p.email && <span>•</span>}
                           {p.email && <span className="truncate">{p.email}</span>}
                         </div>
                       </div>
