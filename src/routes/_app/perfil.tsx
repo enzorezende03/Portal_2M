@@ -93,31 +93,50 @@ function PerfilPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl p-6 md:p-10">
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Meu perfil</h1>
-
-      <div className="mt-8 flex items-center gap-5">
-        <div className="h-20 w-20 overflow-hidden rounded-full bg-muted">
-          {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full items-center justify-center text-2xl font-titulo" style={{ color: "var(--brand-primary)" }}>
-              {(nome || profile?.email || "U")[0].toUpperCase()}
+    <div className="mx-auto max-w-3xl space-y-8 p-6 md:p-10">
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{ background: "var(--brand-gradient)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 -left-10 h-52 w-52 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative flex items-center gap-5">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white/15 backdrop-blur ring-1 ring-white/20">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="font-titulo text-3xl text-white">
+                {(nome || profile?.email || "U")[0].toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs font-medium uppercase tracking-wide text-white/70">
+              Meu perfil
             </div>
-          )}
+            <h1 className="mt-1 font-titulo text-4xl md:text-5xl leading-tight">
+              {nome || "Seus dados"}
+            </h1>
+            <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur hover:bg-white/25">
+              <Upload className="h-3.5 w-3.5" /> Trocar foto
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
+              />
+            </label>
+          </div>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-accent">
-          <Upload className="h-4 w-4" /> Trocar foto
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
-          />
-        </label>
       </div>
 
-      <div className="mt-8 flex items-start gap-3 rounded-lg border p-4 text-sm" style={{ borderColor: "var(--brand-primary)", background: "color-mix(in oklab, var(--brand-primary) 8%, transparent)" }}>
+      <div
+        className="flex items-start gap-3 rounded-2xl border p-4 text-sm"
+        style={{
+          borderColor: "color-mix(in oklab, var(--brand-primary) 30%, transparent)",
+          background: "color-mix(in oklab, var(--brand-primary) 8%, transparent)",
+        }}
+      >
         <KeyRound className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "var(--brand-primary)" }} />
         <div>
           <p className="font-medium" style={{ color: "var(--brand-navy)" }}>
@@ -131,18 +150,13 @@ function PerfilPage() {
         </div>
       </div>
 
-      <div className="mt-6 space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="surface-elevated space-y-4 p-6">
         <Field label="Nome" value={nome} onChange={setNome} />
         <Field label="Email" value={email} onChange={setEmail} />
         <Field label="CNPJ" value={cnpj} onChange={setCnpj} />
         <Field label="Telefone" value={telefone} onChange={setTelefone} />
         <Field label="Cargo" value={cargo} onChange={setCargo} />
-        <button
-          onClick={salvar}
-          disabled={saving}
-          className="rounded-lg px-5 py-2.5 font-medium text-white disabled:opacity-60"
-          style={{ background: "var(--brand-primary)" }}
-        >
+        <button onClick={salvar} disabled={saving} className="btn-brand disabled:opacity-60">
           {saving ? "Salvando…" : "Salvar"}
         </button>
       </div>
