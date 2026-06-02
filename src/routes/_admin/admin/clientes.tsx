@@ -73,7 +73,26 @@ function ClientesPage() {
       telefone: r.telefone,
       cargo: r.cargo,
     }));
-    setRows([...profileRows, ...clienteRows]);
+    // Deduplicate: prefer profile over cliente when same CNPJ or same email
+    const all = [...profileRows, ...clienteRows];
+    const seen = new Set<string>();
+    const deduped: Row[] = [];
+    for (const r of all) {
+      const cnpjKey = r.cnpj ? r.cnpj.replace(/\D/g, "") : "";
+      const emailKey = r.email ? r.email.toLowerCase() : "";
+      const keys = [
+        cnpjKey && `cnpj:${cnpjKey}`,
+        emailKey && `email:${emailKey}`,
+      ].filter(Boolean) as string[];
+      if (keys.length === 0) {
+        deduped.push(r);
+        continue;
+      }
+      if (keys.some((k) => seen.has(k))) continue;
+      keys.forEach((k) => seen.add(k));
+      deduped.push(r);
+    }
+    setRows(deduped);
   };
 
   useEffect(() => {
