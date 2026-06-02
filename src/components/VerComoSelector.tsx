@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { Eye, Search, User2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +13,12 @@ type Profile = {
   cnpj: string | null;
   empresa_nome: string | null;
 };
+
+type ProfileRow = Omit<Profile, "empresa_nome"> & {
+  empresas?: { nome: string | null } | null;
+};
+
+type RingStyle = CSSProperties & { "--tw-ring-color": string };
 
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
@@ -72,7 +79,7 @@ export function VerComoSelector() {
       .order("nome", { ascending: true })
       .limit(2000)
       .then(({ data }) => {
-        const mapped: Profile[] = ((data as any[]) ?? []).map((p) => ({
+        const mapped: Profile[] = ((data as ProfileRow[]) ?? []).map((p) => ({
           id: p.id,
           nome: p.nome,
           email: p.email,
