@@ -28,26 +28,32 @@ export function Sidebar() {
 
   const NavContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-border/60 p-6">
-        {empresa?.logo_url ? (
-          <img src={empresa.logo_url} alt={empresa.nome} className="h-10 w-auto" />
-        ) : (
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-lg font-titulo text-lg text-white"
-            style={{ background: "var(--brand-primary)" }}
-          >
-            2M
+      <div
+        className="relative overflow-hidden border-b border-border/60 px-6 py-7"
+        style={{ background: "var(--brand-gradient)" }}
+      >
+        <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-8 h-28 w-28 rounded-full bg-white/5 blur-2xl" />
+        <div className="relative flex items-center gap-3">
+          {empresa?.logo_url ? (
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/95 p-1.5 shadow-md">
+              <img src={empresa.logo_url} alt={empresa.nome} className="h-full w-auto object-contain" />
+            </div>
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 font-titulo text-xl text-white backdrop-blur">
+              2M
+            </div>
+          )}
+          <div className="min-w-0">
+            <div className="truncate font-titulo text-lg leading-tight text-white">
+              {empresa?.nome ?? "Portal 2M"}
+            </div>
+            <div className="text-xs text-white/70">Portal do Cliente</div>
           </div>
-        )}
-        <div>
-          <div className="font-titulo text-lg leading-none" style={{ color: "var(--brand-navy)" }}>
-            {empresa?.nome ?? "Portal 2M"}
-          </div>
-          <div className="text-xs text-muted-foreground">Portal do Cliente</div>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 p-3">
         {items.map((it) => {
           const active = path === it.to;
           return (
@@ -56,14 +62,14 @@ export function Sidebar() {
               to={it.to}
               onClick={() => setOpen(false)}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                 active
                   ? "text-white shadow-sm"
                   : "text-foreground/70 hover:bg-accent hover:text-foreground"
               )}
-              style={active ? { background: "var(--brand-primary)" } : undefined}
+              style={active ? { background: "var(--brand-gradient)", boxShadow: "var(--brand-glow)" } : undefined}
             >
-              <it.icon className="h-4 w-4" />
+              <it.icon className={cn("h-4 w-4 transition-transform", !active && "group-hover:scale-110")} />
               {it.label}
             </Link>
           );
@@ -73,12 +79,12 @@ export function Sidebar() {
             to={isAdmin ? "/admin" : "/admin/documentacao"}
             onClick={() => setOpen(false)}
             className={cn(
-              "mt-4 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              "mt-4 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
               path.startsWith("/admin")
-                ? "text-white"
+                ? "text-white shadow-sm"
                 : "text-foreground/70 hover:bg-accent hover:text-foreground"
             )}
-            style={path.startsWith("/admin") ? { background: "var(--brand-navy)" } : undefined}
+            style={path.startsWith("/admin") ? { background: "var(--brand-navy)", boxShadow: "var(--brand-glow)" } : undefined}
           >
             <Shield className="h-4 w-4" />
             {isAdmin ? "Admin" : "Documentos dos clientes"}
@@ -86,10 +92,18 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="border-t border-border/60 p-4">
-        <div className="mb-3 px-3">
-          <div className="truncate text-sm font-medium">{profile?.nome ?? "—"}</div>
-          <div className="truncate text-xs text-muted-foreground">{profile?.email}</div>
+      <div className="border-t border-border/60 p-3">
+        <div className="mb-2 flex items-center gap-3 rounded-lg px-2 py-2">
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+            style={{ background: "var(--brand-gradient)" }}
+          >
+            {(profile?.nome?.[0] ?? profile?.email?.[0] ?? "?").toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{profile?.nome ?? "—"}</div>
+            <div className="truncate text-xs text-muted-foreground">{profile?.email}</div>
+          </div>
         </div>
         <button
           onClick={handleLogout}
