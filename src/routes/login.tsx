@@ -81,18 +81,18 @@ function LoginPage() {
     <div className="grid min-h-screen md:grid-cols-2">
       {/* Painel esquerdo */}
       <div
-        className="relative hidden flex-col items-center justify-center px-12 py-16 text-white md:flex"
-        style={{ background: "var(--brand-primary)" }}
+        className="relative hidden flex-col items-center justify-center overflow-hidden px-12 py-16 text-white md:flex"
+        style={{ background: "var(--brand-gradient)" }}
       >
-        <div className="flex flex-col items-center text-center">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative flex flex-col items-center text-center">
           {empresa?.logo_url ? (
-            <img
-              src={empresa.logo_url}
-              alt={empresa.nome}
-              className="h-24 w-auto object-contain"
-            />
+            <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-white/95 p-3 shadow-xl">
+              <img src={empresa.logo_url} alt={empresa.nome} className="h-full w-auto object-contain" />
+            </div>
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-white/15 text-3xl font-semibold">
+            <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-white/15 text-4xl font-semibold backdrop-blur ring-1 ring-white/20">
               {empresa?.nome?.[0] ?? "2"}
             </div>
           )}
@@ -103,7 +103,7 @@ function LoginPage() {
             {empresa?.nome ?? "Portal 2M"}
           </h1>
           <p
-            className="mt-4 text-4xl leading-tight text-white/95"
+            className="mt-3 text-4xl leading-tight text-white/95"
             style={{ fontFamily: "var(--brand-font-decorativa)" }}
           >
             Bem-vindo à sua central
@@ -115,11 +115,11 @@ function LoginPage() {
       </div>
 
       {/* Lado direito */}
-      <div
-        className="flex items-center justify-center p-6 md:p-12"
-        style={{ background: "var(--brand-bg)" }}
-      >
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl md:p-12">
+      <div className="flex items-center justify-center p-6 md:p-12">
+        <div
+          className="w-full max-w-md rounded-3xl bg-white p-8 md:p-12"
+          style={{ boxShadow: "var(--shadow-elegant)" }}
+        >
           <h2
             className="text-2xl"
             style={{ color: "var(--brand-navy)", fontFamily: "var(--brand-font-titulo)" }}
