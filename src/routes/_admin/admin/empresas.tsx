@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { maskCnpj } from "@/lib/masks";
+
 
 export const Route = createFileRoute("/_admin/admin/empresas")({
   component: EmpresasAdmin,
