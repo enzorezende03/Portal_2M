@@ -13,6 +13,8 @@ export async function buildSsoUrl(baseUrl: string): Promise<string> {
       "https://uhhsvijsoyqkgimeokau.supabase.co/functions/v1/sso",
     "distribuilucros.lovable.app":
       "https://cjgkckhnghqzrmypnuni.supabase.co/functions/v1/sso",
+    "central-irpf.lovable.app":
+      "https://qsjpkwojcvxsjsszprrt.supabase.co/functions/v1/sso",
   };
   const endpoint = ssoEndpoints[url.host];
   if (!endpoint) return baseUrl; // app sem SSO configurado
