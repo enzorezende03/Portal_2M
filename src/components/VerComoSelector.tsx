@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Eye, Search } from "lucide-react";
+import { Eye, Search, User2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { startImpersonation } from "@/lib/impersonation";
@@ -9,7 +9,25 @@ type Profile = {
   nome: string | null;
   email: string | null;
   cnpj: string | null;
+  empresa_nome: string | null;
 };
+
+function getDisplayName(p: Profile): string {
+  const nome = p.nome?.trim();
+  if (nome) return nome;
+  const razao = p.empresa_nome?.trim();
+  if (razao) return razao;
+  const emailUser = p.email?.split("@")[0];
+  if (emailUser) return emailUser;
+  return "(sem nome)";
+}
+
+function getInitials(name: string): string {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 export function VerComoSelector() {
   const [open, setOpen] = useState(false);
@@ -24,11 +42,18 @@ export function VerComoSelector() {
     setLoading(true);
     supabase
       .from("profiles")
-      .select("id,nome,email,cnpj")
+      .select("id,nome,email,cnpj,empresas(nome)")
       .order("nome", { ascending: true })
       .limit(2000)
       .then(({ data }) => {
-        setProfiles((data as Profile[]) ?? []);
+        const mapped: Profile[] = ((data as any[]) ?? []).map((p) => ({
+          id: p.id,
+          nome: p.nome,
+          email: p.email,
+          cnpj: p.cnpj,
+          empresa_nome: p.empresas?.nome ?? null,
+        }));
+        setProfiles(mapped);
         setLoading(false);
       });
   }, [open, profiles.length]);
@@ -44,10 +69,15 @@ export function VerComoSelector() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return profiles.slice(0, 50);
-    return profiles
+    const sorted = [...profiles].sort((a, b) =>
+      getDisplayName(a).localeCompare(getDisplayName(b), "pt-BR"),
+    );
+    if (!term) return sorted.slice(0, 50);
+    return sorted
       .filter((p) =>
-        [p.nome, p.email, p.cnpj].some((v) => String(v ?? "").toLowerCase().includes(term)),
+        [p.nome, p.email, p.cnpj, p.empresa_nome].some((v) =>
+          String(v ?? "").toLowerCase().includes(term),
+        ),
       )
       .slice(0, 50);
   }, [profiles, q]);
@@ -55,7 +85,7 @@ export function VerComoSelector() {
   const enter = async (p: Profile) => {
     setStarting(true);
     try {
-      await startImpersonation(p.id, p.nome);
+      await startImpersonation(p.id, getDisplayName(p));
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao entrar como este usuário.");
       setStarting(false);
@@ -71,39 +101,67 @@ export function VerComoSelector() {
         <Eye className="h-4 w-4" /> Ver como cliente
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-xl border border-border bg-card p-3 shadow-2xl">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              autoFocus
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar por nome, email ou CNPJ…"
-              className="w-full rounded-lg border border-border bg-card py-2 pl-8 pr-2 text-sm outline-none focus:ring-2"
-              style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
-            />
+        <div className="absolute right-0 z-50 mt-2 w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+          <div className="border-b border-border bg-muted/30 p-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                autoFocus
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Buscar por nome, razão social, email ou CNPJ…"
+                className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:ring-2"
+                style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
+              />
+            </div>
+            <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
+              <span>{loading ? "Carregando…" : `${filtered.length} resultado(s)`}</span>
+              <span>Mostrando até 50</span>
+            </div>
           </div>
-          <div className="mt-2 max-h-72 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto p-1.5">
             {loading && (
-              <div className="px-2 py-6 text-center text-xs text-muted-foreground">Carregando…</div>
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                Carregando clientes…
+              </div>
             )}
             {!loading && filtered.length === 0 && (
-              <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-                Nenhum usuário encontrado.
+              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                Nenhum cliente encontrado.
               </div>
             )}
             {!loading &&
-              filtered.map((p) => (
-                <button
-                  key={p.id}
-                  disabled={starting}
-                  onClick={() => enter(p)}
-                  className="flex w-full flex-col items-start gap-0.5 rounded-md px-2 py-2 text-left text-sm hover:bg-accent disabled:opacity-50"
-                >
-                  <span className="font-medium">{p.nome ?? "(sem nome)"}</span>
-                  <span className="text-xs text-muted-foreground">{p.email ?? "—"}</span>
-                </button>
-              ))}
+              filtered.map((p) => {
+                const display = getDisplayName(p);
+                const showRazao = !!p.empresa_nome && p.empresa_nome !== display;
+                return (
+                  <button
+                    key={p.id}
+                    disabled={starting}
+                    onClick={() => enter(p)}
+                    className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-accent disabled:opacity-50"
+                  >
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                      style={{ background: "var(--brand-gradient)" }}
+                    >
+                      {getInitials(display) || <User2 className="h-4 w-4" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {display}
+                      </div>
+                      <div className="flex items-center gap-2 truncate text-[11px] text-muted-foreground">
+                        {showRazao && (
+                          <span className="truncate">{p.empresa_nome}</span>
+                        )}
+                        {showRazao && p.email && <span>•</span>}
+                        {p.email && <span className="truncate">{p.email}</span>}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
           </div>
         </div>
       )}
