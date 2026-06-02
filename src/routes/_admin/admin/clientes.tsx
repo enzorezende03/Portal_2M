@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { createClienteUser } from "@/lib/admin-users.functions";
 import { toast } from "sonner";
-import { Plus, X, Pencil } from "lucide-react";
+import { Plus, X, Pencil, Eye } from "lucide-react";
+import { startImpersonation } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/_admin/admin/clientes")({
   component: ClientesPage,
@@ -130,7 +131,7 @@ function ClientesPage() {
               <th className="px-4 py-3 font-medium">Empresa</th>
               <th className="px-4 py-3 font-medium">Telefone</th>
               <th className="px-4 py-3 font-medium">Cargo</th>
-              <th className="px-4 py-3 font-medium w-12"></th>
+              <th className="px-4 py-3 font-medium w-24"></th>
             </tr>
           </thead>
           <tbody>
@@ -143,13 +144,30 @@ function ClientesPage() {
                 <td className="px-4 py-3">{r.telefone ?? "—"}</td>
                 <td className="px-4 py-3">{r.cargo ?? "—"}</td>
                 <td className="px-4 py-3">
-                  <button
-                    onClick={() => setEditing(r)}
-                    className="inline-flex items-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-                    title="Editar"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {r.source === "profile" && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            await startImpersonation(r.id, r.nome);
+                          } catch (e: any) {
+                            toast.error(e?.message ?? "Não foi possível entrar como este usuário.");
+                          }
+                        }}
+                        className="inline-flex items-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        title="Ver como este usuário"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setEditing(r)}
+                      className="inline-flex items-center rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      title="Editar"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
