@@ -70,7 +70,7 @@ export const completeFirstLoginProfile = createServerFn({ method: "POST" })
       if (conflict) throw new Error("Este CNPJ já está em uso");
     }
 
-    const updates: Record<string, unknown> = {};
+    const updates: { email?: string; cnpj?: string } = {};
     if (needsEmail && newEmail) updates.email = newEmail;
     if (needsCnpj && newCnpjDigits) updates.cnpj = newCnpjDigits;
 
