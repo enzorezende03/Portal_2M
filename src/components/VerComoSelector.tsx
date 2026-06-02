@@ -167,10 +167,51 @@ export function VerComoSelector() {
                   autoFocus
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Buscar por nome, razão social, email ou CNPJ…"
+                  placeholder={
+                    filter === "cnpj"
+                      ? "Buscar por CNPJ…"
+                      : filter === "email"
+                        ? "Buscar por email…"
+                        : "Buscar por nome ou razão social…"
+                  }
                   className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2"
                   style={{ "--tw-ring-color": "var(--brand-primary)" } as RingStyle}
                 />
+              </div>
+              <div className="mt-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setFilter("nome")}
+                  className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                    filter === "nome"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                >
+                  Nome / Razão Social
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilter("email")}
+                  className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                    filter === "email"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                >
+                  Email
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilter("cnpj")}
+                  className={`rounded-md px-2 py-1 text-[11px] font-medium transition-colors ${
+                    filter === "cnpj"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                >
+                  CNPJ
+                </button>
               </div>
               <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
                 <span>{loading ? "Carregando…" : `${filtered.length} resultado(s)`}</span>
