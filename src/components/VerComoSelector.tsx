@@ -299,7 +299,9 @@ export function VerComoSelector() {
                           {display}
                         </div>
                         <div className="flex items-center gap-2 truncate text-[11px] text-muted-foreground">
-                          {showRazao && <span className="truncate">{p.empresa_nome}</span>}
+                          {showRazao && (
+                            <span className="truncate">{formatRazaoSocial(p.empresa_nome!)}</span>
+                          )}
                           {showRazao && (p.email || showCnpj) && <span>•</span>}
                           {showCnpj && <span className="shrink-0">{p.cnpj}</span>}
                           {showCnpj && p.email && <span>•</span>}
