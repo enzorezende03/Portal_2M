@@ -6,6 +6,8 @@ import { createClienteUser } from "@/lib/admin-users.functions";
 import { toast } from "sonner";
 import { Plus, X, Pencil, Eye } from "lucide-react";
 import { startImpersonation } from "@/lib/impersonation";
+import { maskCnpj, maskTelefone } from "@/lib/masks";
+
 
 export const Route = createFileRoute("/_admin/admin/clientes")({
   component: ClientesPage,
