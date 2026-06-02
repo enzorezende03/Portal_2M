@@ -20,6 +20,9 @@ type ProfileRow = Omit<Profile, "empresa_nome"> & {
 
 type RingStyle = CSSProperties & { "--tw-ring-color": string };
 
+type FilterType = "nome" | "email" | "cnpj";
+
+
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
   if (nome) return nome;
