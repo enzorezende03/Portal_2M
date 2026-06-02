@@ -124,12 +124,22 @@ function ImportClientesPage() {
       </h2>
 
       <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
-        <p className="text-sm text-muted-foreground">
-          Suba 1 ou mais CSVs. O sistema detecta colunas <code>email</code>/<code>email_responsavel</code>{" "}
-          e <code>nome</code>/<code>full_name</code>/<code>razao_social</code>/<code>company_name</code>,
-          deduplica por email e cria cada usuário com senha <strong>2m_Brand</strong> + troca obrigatória
-          no 1º acesso.
-        </p>
+        <h3 className="font-titulo text-lg" style={{ color: "var(--brand-navy)" }}>
+          Como funciona
+        </h3>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <li>• Envie um ou mais arquivos CSV com os clientes.</li>
+          <li>
+            • Identificamos automaticamente as colunas de <strong>e-mail</strong> e{" "}
+            <strong>nome</strong> (aceita variações como <em>email_responsavel</em>,{" "}
+            <em>razao_social</em> e <em>company_name</em>).
+          </li>
+          <li>• E-mails duplicados são ignorados automaticamente.</li>
+          <li>
+            • Cada cliente é criado com a senha padrão <strong>2m_Brand</strong> e
+            precisa redefini-la no primeiro acesso.
+          </li>
+        </ul>
         <input
           type="file"
           accept=".csv,text/csv"
