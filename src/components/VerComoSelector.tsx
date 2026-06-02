@@ -117,18 +117,30 @@ export function VerComoSelector() {
     );
     if (!term) return sorted.slice(0, 50);
 
+    if (filter === "cnpj") {
+      if (!digits) return [];
+      const cnpjMatches = sorted.filter((p) => onlyDigits(p.cnpj).includes(digits));
+      const startsWith = cnpjMatches.filter((p) => onlyDigits(p.cnpj).startsWith(digits));
+      const containsOnly = cnpjMatches.filter((p) => !startsWith.some((s) => s.id === p.id));
+      return [...startsWith, ...containsOnly].slice(0, 50);
+    }
+
+    if (filter === "email") {
+      const emailMatches = sorted.filter((p) => normalizeSearch(p.email).startsWith(term));
+      return emailMatches.slice(0, 50);
+    }
+
+    // filter === "nome"
     if (digits && !hasLetters) {
       const cnpjMatches = sorted.filter((p) => onlyDigits(p.cnpj).includes(digits));
       const startsWith = cnpjMatches.filter((p) => onlyDigits(p.cnpj).startsWith(digits));
       const containsOnly = cnpjMatches.filter((p) => !startsWith.some((s) => s.id === p.id));
-
       return [...startsWith, ...containsOnly].slice(0, 50);
     }
 
     const startsWith = sorted.filter((p) => normalizeSearch(getDisplayName(p)).startsWith(term));
-
     return startsWith.slice(0, 50);
-  }, [profiles, q]);
+  }, [profiles, q, filter]);
 
   const enter = async (p: Profile) => {
     setStarting(true);
