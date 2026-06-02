@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { Eye, Search, User2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,6 +13,12 @@ type Profile = {
   cnpj: string | null;
   empresa_nome: string | null;
 };
+
+type ProfileRow = Omit<Profile, "empresa_nome"> & {
+  empresas?: { nome: string | null } | null;
+};
+
+type RingStyle = CSSProperties & { "--tw-ring-color": string };
 
 function getDisplayName(p: Profile): string {
   const nome = p.nome?.trim();
@@ -28,6 +35,14 @@ function getInitials(name: string): string {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function normalizeSearch(value: string | null | undefined): string {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 export function VerComoSelector() {
@@ -64,7 +79,7 @@ export function VerComoSelector() {
       .order("nome", { ascending: true })
       .limit(2000)
       .then(({ data }) => {
-        const mapped: Profile[] = ((data as any[]) ?? []).map((p) => ({
+        const mapped: Profile[] = ((data as ProfileRow[]) ?? []).map((p) => ({
           id: p.id,
           nome: p.nome,
           email: p.email,
@@ -86,113 +101,98 @@ export function VerComoSelector() {
   }, [open]);
 
   const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
+    const term = normalizeSearch(q);
     const sorted = [...profiles].sort((a, b) =>
       getDisplayName(a).localeCompare(getDisplayName(b), "pt-BR"),
     );
     if (!term) return sorted.slice(0, 50);
 
-    const matches = sorted.filter((p) =>
-      [p.nome, p.email, p.cnpj, p.empresa_nome].some((v) =>
-        String(v ?? "").toLowerCase().includes(term),
-      ),
-    );
+    const startsWith = sorted.filter((p) => normalizeSearch(getDisplayName(p)).startsWith(term));
 
-    // Prioriza nomes que COMEÇAM com o termo digitado
-    const startsWith = matches.filter((p) =>
-      [p.nome, p.email, p.empresa_nome].some((v) =>
-        String(v ?? "").toLowerCase().startsWith(term),
-      ),
-    );
-    const containsOnly = matches.filter(
-      (p) => !startsWith.some((s) => s.id === p.id),
-    );
-
-    return [...startsWith, ...containsOnly].slice(0, 50);
+    return startsWith.slice(0, 50);
   }, [profiles, q]);
 
   const enter = async (p: Profile) => {
     setStarting(true);
     try {
       await startImpersonation(p.id, getDisplayName(p));
-    } catch (e: any) {
-      toast.error(e?.message ?? "Falha ao entrar como este usuário.");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Falha ao entrar como este usuário.");
       setStarting(false);
     }
   };
 
-  const dropdown = open && pos && typeof document !== "undefined"
-    ? createPortal(
-        <div
-          ref={ref}
-          className="fixed z-[100] w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
-          style={{ top: pos.top, right: pos.right }}
-        >
-          <div className="border-b border-border bg-muted/30 p-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                autoFocus
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Buscar por nome, razão social, email ou CNPJ…"
-                className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2"
-                style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
-              />
-            </div>
-            <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
-              <span>{loading ? "Carregando…" : `${filtered.length} resultado(s)`}</span>
-              <span>Mostrando até 50</span>
-            </div>
-          </div>
-          <div className="max-h-80 overflow-y-auto p-1.5">
-            {loading && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
-                Carregando clientes…
+  const dropdown =
+    open && pos && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            ref={ref}
+            className="fixed z-[100] w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            style={{ top: pos.top, right: pos.right }}
+          >
+            <div className="border-b border-border bg-muted/30 p-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  autoFocus
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Buscar por nome, razão social, email ou CNPJ…"
+                  className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2"
+                  style={{ "--tw-ring-color": "var(--brand-primary)" } as RingStyle}
+                />
               </div>
-            )}
-            {!loading && filtered.length === 0 && (
-              <div className="px-3 py-8 text-center text-xs text-muted-foreground">
-                Nenhum cliente encontrado.
+              <div className="mt-2 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
+                <span>{loading ? "Carregando…" : `${filtered.length} resultado(s)`}</span>
+                <span>Mostrando até 50</span>
               </div>
-            )}
-            {!loading &&
-              filtered.map((p) => {
-                const display = getDisplayName(p);
-                const showRazao = !!p.empresa_nome && p.empresa_nome !== display;
-                return (
-                  <button
-                    key={p.id}
-                    disabled={starting}
-                    onClick={() => enter(p)}
-                    className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-accent disabled:opacity-50"
-                  >
-                    <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-                      style={{ background: "var(--brand-gradient)" }}
+            </div>
+            <div className="max-h-80 overflow-y-auto p-1.5">
+              {loading && (
+                <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                  Carregando clientes…
+                </div>
+              )}
+              {!loading && filtered.length === 0 && (
+                <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                  Nenhum cliente encontrado.
+                </div>
+              )}
+              {!loading &&
+                filtered.map((p) => {
+                  const display = getDisplayName(p);
+                  const showRazao = !!p.empresa_nome && p.empresa_nome !== display;
+                  return (
+                    <button
+                      key={p.id}
+                      disabled={starting}
+                      onClick={() => enter(p)}
+                      className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-accent disabled:opacity-50"
                     >
-                      {getInitials(display) || <User2 className="h-4 w-4" />}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {display}
+                      <div
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+                        style={{ background: "var(--brand-gradient)" }}
+                      >
+                        {getInitials(display) || <User2 className="h-4 w-4" />}
                       </div>
-                      <div className="flex items-center gap-2 truncate text-[11px] text-muted-foreground">
-                        {showRazao && (
-                          <span className="truncate">{p.empresa_nome}</span>
-                        )}
-                        {showRazao && p.email && <span>•</span>}
-                        {p.email && <span className="truncate">{p.email}</span>}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-foreground">
+                          {display}
+                        </div>
+                        <div className="flex items-center gap-2 truncate text-[11px] text-muted-foreground">
+                          {showRazao && <span className="truncate">{p.empresa_nome}</span>}
+                          {showRazao && p.email && <span>•</span>}
+                          {p.email && <span className="truncate">{p.email}</span>}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
-          </div>
-        </div>,
-        document.body,
-      )
-    : null;
+                    </button>
+                  );
+                })}
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <div className="relative">
