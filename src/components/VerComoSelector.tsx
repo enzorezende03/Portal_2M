@@ -66,7 +66,7 @@ export function VerComoSelector() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent"
+        className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40 hover:shadow-xl"
       >
         <Eye className="h-4 w-4" /> Ver como cliente
       </button>
