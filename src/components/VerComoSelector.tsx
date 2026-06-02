@@ -30,6 +30,14 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+function normalizeSearch(value: string | null | undefined): string {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
 export function VerComoSelector() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -86,29 +94,17 @@ export function VerComoSelector() {
   }, [open]);
 
   const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
+    const term = normalizeSearch(q);
     const sorted = [...profiles].sort((a, b) =>
       getDisplayName(a).localeCompare(getDisplayName(b), "pt-BR"),
     );
     if (!term) return sorted.slice(0, 50);
 
-    const matches = sorted.filter((p) =>
-      [p.nome, p.email, p.cnpj, p.empresa_nome].some((v) =>
-        String(v ?? "").toLowerCase().includes(term),
-      ),
+    const startsWith = sorted.filter((p) =>
+      normalizeSearch(getDisplayName(p)).startsWith(term),
     );
 
-    // Prioriza nomes que COMEÇAM com o termo digitado
-    const startsWith = matches.filter((p) =>
-      [p.nome, p.email, p.empresa_nome].some((v) =>
-        String(v ?? "").toLowerCase().startsWith(term),
-      ),
-    );
-    const containsOnly = matches.filter(
-      (p) => !startsWith.some((s) => s.id === p.id),
-    );
-
-    return [...startsWith, ...containsOnly].slice(0, 50);
+    return startsWith.slice(0, 50);
   }, [profiles, q]);
 
   const enter = async (p: Profile) => {
