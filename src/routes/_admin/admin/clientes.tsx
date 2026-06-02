@@ -143,7 +143,7 @@ function ClientesPage() {
                 <td className="px-4 py-3">{r.email ?? "—"}</td>
                 <td className="px-4 py-3 font-mono text-xs">{formatCnpj(r.cnpj)}</td>
                 <td className="px-4 py-3">{empresaNome(r.empresa_id)}</td>
-                <td className="px-4 py-3">{r.telefone ?? "—"}</td>
+                <td className="px-4 py-3">{r.telefone ? maskTelefone(r.telefone) : "—"}</td>
                 <td className="px-4 py-3">{r.cargo ?? "—"}</td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
