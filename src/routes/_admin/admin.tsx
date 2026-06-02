@@ -26,19 +26,35 @@ function AdminLayout() {
   const { isAdmin } = useAuth();
   const visibleTabs = tabs.filter((t) => isAdmin || !t.adminOnly);
   return (
-    <div className="mx-auto max-w-6xl p-6 md:p-10">
-      <div className="mb-2 flex items-start justify-between gap-3">
-        <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
-          <span className="h-2 w-2 rounded-full" style={{ background: "var(--brand-navy)" }} />
-          {isAdmin ? "Painel administrativo" : "Painel do colaborador"}
+    <div className="mx-auto max-w-6xl space-y-8 p-6 md:p-10">
+      {/* Hero header */}
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{ background: "var(--brand-gradient)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-white/5 blur-3xl" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-white" />
+              {isAdmin ? "Painel administrativo" : "Painel do colaborador"}
+            </div>
+            <h1 className="mt-3 font-titulo text-4xl md:text-5xl leading-tight">
+              {isAdmin ? "Admin" : "Documentos dos clientes"}
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-white/80">
+              {isAdmin
+                ? "Gerencie clientes, ferramentas, treinamentos, avisos e integrações."
+                : "Visualize e gerencie a documentação enviada aos clientes."}
+            </p>
+          </div>
+          {isAdmin && <VerComoSelector />}
         </div>
-        {isAdmin && <VerComoSelector />}
       </div>
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>
-        {isAdmin ? "Admin" : "Documentos dos clientes"}
-      </h1>
 
-      <div className="mt-6 flex flex-wrap gap-2 border-b border-border pb-2">
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm">
         {visibleTabs.map((t) => {
           const active = t.exact ? path === t.to : path.startsWith(t.to);
           return (
@@ -46,10 +62,10 @@ function AdminLayout() {
               key={t.to}
               to={t.to}
               className={cn(
-                "inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors",
-                active ? "text-white" : "text-foreground/70 hover:bg-accent"
+                "inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium transition-all",
+                active ? "text-white shadow-sm" : "text-foreground/70 hover:bg-accent"
               )}
-              style={active ? { background: "var(--brand-navy)" } : undefined}
+              style={active ? { background: "var(--brand-gradient)", boxShadow: "var(--brand-glow)" } : undefined}
             >
               <t.icon className="h-4 w-4" /> {t.label}
             </Link>
@@ -57,7 +73,7 @@ function AdminLayout() {
         })}
       </div>
 
-      <div className="mt-8">
+      <div>
         <Outlet />
       </div>
     </div>
