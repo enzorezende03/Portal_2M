@@ -91,13 +91,24 @@ export function VerComoSelector() {
       getDisplayName(a).localeCompare(getDisplayName(b), "pt-BR"),
     );
     if (!term) return sorted.slice(0, 50);
-    return sorted
-      .filter((p) =>
-        [p.nome, p.email, p.cnpj, p.empresa_nome].some((v) =>
-          String(v ?? "").toLowerCase().includes(term),
-        ),
-      )
-      .slice(0, 50);
+
+    const matches = sorted.filter((p) =>
+      [p.nome, p.email, p.cnpj, p.empresa_nome].some((v) =>
+        String(v ?? "").toLowerCase().includes(term),
+      ),
+    );
+
+    // Prioriza nomes que COMEÇAM com o termo digitado
+    const startsWith = matches.filter((p) =>
+      [p.nome, p.email, p.empresa_nome].some((v) =>
+        String(v ?? "").toLowerCase().startsWith(term),
+      ),
+    );
+    const containsOnly = matches.filter(
+      (p) => !startsWith.some((s) => s.id === p.id),
+    );
+
+    return [...startsWith, ...containsOnly].slice(0, 50);
   }, [profiles, q]);
 
   const enter = async (p: Profile) => {
