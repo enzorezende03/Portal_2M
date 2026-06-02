@@ -56,7 +56,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.875rem;
 
   /* Defaults (2M Saúde) – substituídos em runtime pelo BrandProvider */
   --brand-primary: #229B8D;
@@ -67,6 +67,16 @@
   --brand-font-titulo: "Bellezza", serif;
   --brand-font-corpo: "Inter", sans-serif;
   --brand-font-decorativa: "Pinyon Script", cursive;
+
+  /* Camadas reutilizáveis derivadas da marca */
+  --brand-gradient: linear-gradient(135deg,
+    color-mix(in oklab, var(--brand-primary) 95%, white 5%) 0%,
+    color-mix(in oklab, var(--brand-navy) 88%, var(--brand-primary) 12%) 100%);
+  --brand-glow: 0 14px 40px -18px color-mix(in oklab, var(--brand-primary) 65%, transparent);
+  --shadow-elegant: 0 1px 2px color-mix(in oklab, var(--brand-navy) 6%, transparent),
+                    0 10px 28px -14px color-mix(in oklab, var(--brand-navy) 22%, transparent);
+  --shadow-soft: 0 1px 0 color-mix(in oklab, var(--brand-navy) 4%, transparent),
+                 0 1px 2px color-mix(in oklab, var(--brand-navy) 6%, transparent);
 
   /* shadcn tokens em oklch */
   --background: oklch(1 0 0);
@@ -85,7 +95,7 @@
   --accent-foreground: oklch(0.22 0.03 240);
   --destructive: oklch(0.6 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.92 0.01 240);
+  --border: oklch(0.93 0.008 240);
   --input: oklch(0.92 0.01 240);
   --ring: oklch(0.62 0.09 190);
   --sidebar: oklch(0.99 0.003 240);
@@ -103,17 +113,75 @@
     border-color: var(--color-border);
   }
   html, body {
-    background-color: var(--brand-bg);
     color: var(--brand-text);
     font-family: var(--brand-font-corpo);
+    background-color: var(--brand-bg);
+    background-image:
+      radial-gradient(1100px 600px at 100% -10%,
+        color-mix(in oklab, var(--brand-primary) 10%, transparent) 0%,
+        transparent 60%),
+      radial-gradient(900px 500px at -10% 110%,
+        color-mix(in oklab, var(--brand-navy) 9%, transparent) 0%,
+        transparent 55%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   h1, h2, h3, h4 {
     font-family: var(--brand-font-titulo);
     font-weight: 400;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.005em;
   }
 }
 
 @utility font-titulo { font-family: var(--brand-font-titulo); }
 @utility font-corpo { font-family: var(--brand-font-corpo); }
 @utility font-decorativa { font-family: var(--brand-font-decorativa); }
+
+/* Superfícies e utilitários reutilizáveis */
+@layer components {
+  .surface {
+    background: var(--card);
+    border: 1px solid color-mix(in oklab, var(--brand-navy) 8%, transparent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+  }
+  .surface-elevated {
+    background: var(--card);
+    border: 1px solid color-mix(in oklab, var(--brand-navy) 8%, transparent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-elegant);
+  }
+  .card-hover {
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elegant), var(--brand-glow);
+    border-color: color-mix(in oklab, var(--brand-primary) 35%, transparent);
+  }
+  .icon-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand-gradient);
+    color: #fff;
+    box-shadow: var(--brand-glow);
+    border-radius: calc(var(--radius) - 6px);
+  }
+  .btn-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: var(--brand-gradient);
+    color: #fff;
+    border-radius: calc(var(--radius) - 4px);
+    padding: .55rem 1rem;
+    font-weight: 500;
+    box-shadow: var(--brand-glow);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .btn-brand:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .btn-brand:active { transform: translateY(0); }
+}
+
