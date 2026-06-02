@@ -110,16 +110,13 @@ export function VerComoSelector() {
     }
   };
 
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40 hover:shadow-xl"
-      >
-        <Eye className="h-4 w-4" /> Ver como cliente
-      </button>
-      {open && (
-        <div className="absolute right-0 z-50 mt-2 w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+  const dropdown = open && pos && typeof document !== "undefined"
+    ? createPortal(
+        <div
+          ref={ref}
+          className="fixed z-[100] w-96 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+          style={{ top: pos.top, right: pos.right }}
+        >
           <div className="border-b border-border bg-muted/30 p-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -128,7 +125,7 @@ export function VerComoSelector() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar por nome, razão social, email ou CNPJ…"
-                className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:ring-2"
+                className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2"
                 style={{ ["--tw-ring-color" as any]: "var(--brand-primary)" }}
               />
             </div>
@@ -181,8 +178,21 @@ export function VerComoSelector() {
                 );
               })}
           </div>
-        </div>
-      )}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  return (
+    <div className="relative">
+      <button
+        ref={btnRef}
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40 hover:shadow-xl"
+      >
+        <Eye className="h-4 w-4" /> Ver como cliente
+      </button>
+      {dropdown}
     </div>
   );
 }
