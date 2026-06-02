@@ -45,12 +45,39 @@ function OnboardingPage() {
   const allDone = total > 0 && completed === total;
 
   return (
-    <div className="mx-auto max-w-3xl p-6 md:p-10">
-      <h1 className="font-titulo text-4xl" style={{ color: "var(--brand-navy)" }}>Onboarding</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Você completou {completed} de {total} etapas.</p>
+    <div className="mx-auto max-w-3xl space-y-8 p-6 md:p-10">
+      <div
+        className="relative overflow-hidden rounded-3xl p-8 md:p-10 text-white"
+        style={{ background: "var(--brand-gradient)", boxShadow: "var(--shadow-elegant)" }}
+      >
+        <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+            Etapas {completed}/{total}
+          </div>
+          <h1 className="mt-3 font-titulo text-4xl md:text-5xl leading-tight">Onboarding</h1>
+          <p className="mt-2 text-sm text-white/80">
+            Avance no seu ritmo — cada etapa concluída fica registrada automaticamente.
+          </p>
+          {total > 0 && (
+            <div className="mt-5 flex items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/20">
+                <div
+                  className="h-full rounded-full bg-white transition-all"
+                  style={{ width: `${Math.round((completed / total) * 100)}%` }}
+                />
+              </div>
+              <span className="text-xs font-semibold text-white/90">
+                {Math.round((completed / total) * 100)}%
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
 
       {allDone && (
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-border bg-card p-5 shadow-sm">
+        <div className="surface-elevated flex items-center gap-3 p-5">
           <Sparkles className="h-6 w-6" style={{ color: "var(--brand-primary)" }} />
           <div>
             <div className="font-titulo text-lg" style={{ color: "var(--brand-navy)" }}>Parabéns! Você concluiu todo o onboarding.</div>
@@ -59,7 +86,7 @@ function OnboardingPage() {
         </div>
       )}
 
-      <div className="mt-8 space-y-3">
+      <div className="space-y-3">
         {etapas.map((e, idx) => {
           const isOpen = open === e.id;
           const isDone = !!progresso[e.id]?.concluido;
