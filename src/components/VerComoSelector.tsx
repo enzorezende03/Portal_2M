@@ -5,6 +5,8 @@ import { Eye, Search, User2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { startImpersonation } from "@/lib/impersonation";
+import { maskCnpj } from "@/lib/masks";
+
 
 type Profile = {
   id: string;
@@ -324,7 +326,7 @@ export function VerComoSelector() {
                             <span className="truncate">{formatRazaoSocial(p.empresa_nome!)}</span>
                           )}
                           {showRazao && (p.email || showCnpj) && <span>•</span>}
-                          {showCnpj && <span className="shrink-0">{p.cnpj}</span>}
+                          {showCnpj && <span className="shrink-0">{maskCnpj(p.cnpj!)}</span>}
                           {showCnpj && p.email && <span>•</span>}
                           {p.email && <span className="truncate">{p.email}</span>}
                         </div>
