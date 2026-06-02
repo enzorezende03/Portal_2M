@@ -11,6 +11,7 @@ type Profile = {
   cargo: string | null;
   avatar_url: string | null;
   must_reset_password: boolean | null;
+  cnpj: string | null;
 };
 
 
