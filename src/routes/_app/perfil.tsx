@@ -153,9 +153,10 @@ function PerfilPage() {
       <div className="surface-elevated space-y-4 p-6">
         <Field label="Nome" value={nome} onChange={setNome} />
         <Field label="Email" value={email} onChange={setEmail} />
-        <Field label="CNPJ" value={cnpj} onChange={setCnpj} />
-        <Field label="Telefone" value={telefone} onChange={setTelefone} />
+        <Field label="CNPJ" value={cnpj} onChange={setCnpj} mask="cnpj" />
+        <Field label="Telefone" value={telefone} onChange={setTelefone} mask="telefone" />
         <Field label="Cargo" value={cargo} onChange={setCargo} />
+
         <button onClick={salvar} disabled={saving} className="btn-brand disabled:opacity-60">
           {saving ? "Salvando…" : "Salvar"}
         </button>
