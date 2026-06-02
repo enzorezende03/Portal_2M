@@ -113,7 +113,7 @@ function FerramentasAdmin() {
         </Button>
       </div>
 
-      <div className="rounded-lg border border-border bg-card shadow-sm">
+      <div className="surface">
         <Table>
           <TableHeader>
             <TableRow>

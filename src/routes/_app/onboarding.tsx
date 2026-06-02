@@ -64,7 +64,7 @@ function OnboardingPage() {
           const isOpen = open === e.id;
           const isDone = !!progresso[e.id]?.concluido;
           return (
-            <div key={e.id} className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+            <div key={e.id} className="overflow-hidden surface">
               <button onClick={() => setOpen(isOpen ? null : e.id)} className="flex w-full items-center gap-3 p-4 text-left">
                 {isDone ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <Circle className="h-5 w-5 text-muted-foreground" />}
                 <div className="flex-1">

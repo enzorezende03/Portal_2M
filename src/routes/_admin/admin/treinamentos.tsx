@@ -92,7 +92,7 @@ function TreinamentosAdmin() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm">
+      <div className="overflow-x-auto surface">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">
             <tr>

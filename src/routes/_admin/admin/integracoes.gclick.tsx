@@ -178,7 +178,7 @@ function GclickPage() {
       )}
 
       {ultimo?.pendencias?.length ? (
-        <div className="mb-6 rounded-xl border border-border bg-card shadow-sm">
+        <div className="mb-6 surface">
           <div className="border-b border-border px-4 py-3 text-sm font-medium">
             Pendências da última sincronização ({ultimo.pendencias.length})
           </div>
@@ -215,7 +215,7 @@ function HistoricoCompacto({ logs }: { logs: LogItem[] }) {
   const visiveis = expandido ? logs : logs.slice(0, 5);
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="surface overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-4 py-3 text-sm font-medium">
         <span>Histórico de sincronizações</span>
         {logs.length > 5 && (
