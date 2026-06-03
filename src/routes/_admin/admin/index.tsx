@@ -25,15 +25,34 @@ function AdminHome() {
 
   useEffect(() => {
     (async () => {
-      const [p, , f, t, a] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("clientes").select("id", { count: "exact", head: true }),
+      const [p, c, f, t, a] = await Promise.all([
+        supabase.from("profiles").select("email,cnpj").limit(5000),
+        supabase.from("clientes").select("email,cnpj").limit(5000),
         supabase.from("ferramentas").select("id", { count: "exact", head: true }),
         supabase.from("treinamentos").select("id", { count: "exact", head: true }),
         supabase.from("avisos").select("id", { count: "exact", head: true }).eq("ativo", true),
       ]);
+      // Mesma dedup da página de Clientes (unifica por CNPJ ou email)
+      const all = [...((p.data as any[]) ?? []), ...((c.data as any[]) ?? [])];
+      const seen = new Set<string>();
+      let total = 0;
+      for (const r of all) {
+        const cnpjKey = r.cnpj ? String(r.cnpj).replace(/\D/g, "") : "";
+        const emailKey = r.email ? String(r.email).toLowerCase() : "";
+        const keys = [
+          cnpjKey && `cnpj:${cnpjKey}`,
+          emailKey && `email:${emailKey}`,
+        ].filter(Boolean) as string[];
+        if (keys.length === 0) {
+          total++;
+          continue;
+        }
+        if (keys.some((k) => seen.has(k))) continue;
+        keys.forEach((k) => seen.add(k));
+        total++;
+      }
       setStats({
-        clientes: p.count ?? 0,
+        clientes: total,
         ferramentas: f.count ?? 0,
         treinamentos: t.count ?? 0,
         avisos: a.count ?? 0,
