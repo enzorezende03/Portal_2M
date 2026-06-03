@@ -41,19 +41,12 @@ function ClientesPage() {
   const [editing, setEditing] = useState<Row | null>(null);
 
   const load = async () => {
-    const [p, c] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id,nome,email,cnpj,empresa_id,telefone,cargo,created_at")
-        .order("created_at", { ascending: false })
-        .limit(2000),
-      supabase
-        .from("clientes")
-        .select("id,nome,email,cnpj,empresa_id,telefone,cargo")
-        .order("nome")
-        .limit(5000),
-    ]);
-    const profileRows: Row[] = ((p.data as any[]) ?? []).map((r) => ({
+    const { data } = await supabase
+      .from("profiles")
+      .select("id,nome,email,cnpj,empresa_id,telefone,cargo,created_at")
+      .order("created_at", { ascending: false })
+      .limit(5000);
+    const profileRows: Row[] = ((data as any[]) ?? []).map((r) => ({
       source: "profile",
       id: r.id,
       nome: r.nome,
@@ -63,36 +56,7 @@ function ClientesPage() {
       telefone: r.telefone,
       cargo: r.cargo,
     }));
-    const clienteRows: Row[] = ((c.data as any[]) ?? []).map((r) => ({
-      source: "cliente",
-      id: r.id,
-      nome: r.nome,
-      email: r.email,
-      cnpj: r.cnpj,
-      empresa_id: r.empresa_id,
-      telefone: r.telefone,
-      cargo: r.cargo,
-    }));
-    // Deduplicate: prefer profile over cliente when same CNPJ or same email
-    const all = [...profileRows, ...clienteRows];
-    const seen = new Set<string>();
-    const deduped: Row[] = [];
-    for (const r of all) {
-      const cnpjKey = r.cnpj ? r.cnpj.replace(/\D/g, "") : "";
-      const emailKey = r.email ? r.email.toLowerCase() : "";
-      const keys = [
-        cnpjKey && `cnpj:${cnpjKey}`,
-        emailKey && `email:${emailKey}`,
-      ].filter(Boolean) as string[];
-      if (keys.length === 0) {
-        deduped.push(r);
-        continue;
-      }
-      if (keys.some((k) => seen.has(k))) continue;
-      keys.forEach((k) => seen.add(k));
-      deduped.push(r);
-    }
-    setRows(deduped);
+    setRows(profileRows);
   };
 
   useEffect(() => {
