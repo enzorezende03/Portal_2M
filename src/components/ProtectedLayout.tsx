@@ -19,10 +19,9 @@ export function ProtectedLayout({ adminOnly = false }: { adminOnly?: boolean }) 
   const cnpjMissing =
     !profile?.cnpj || profile.cnpj.replace(/\D/g, "").length !== 14;
   const needsCompletion = !isAdmin && !isColaborador && (emailGeneric || cnpjMissing);
-  if (
-    (profile?.must_reset_password || needsCompletion) &&
-    location.pathname !== "/reset-password"
-  ) {
+  // Só força o fluxo de reset/completar cadastro quando faltam dados (email ou CNPJ).
+  // Quem já tem email e CNPJ cadastrados não é forçado, mesmo com must_reset_password.
+  if (needsCompletion && location.pathname !== "/reset-password") {
     return <Navigate to="/reset-password" />;
   }
   if (adminOnly && !isAdmin && !isColaborador) return <Navigate to="/" />;
