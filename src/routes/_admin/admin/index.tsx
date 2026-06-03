@@ -26,8 +26,12 @@ function AdminHome() {
   useEffect(() => {
     (async () => {
       const [p, c, f, t, a] = await Promise.all([
-        supabase.from("profiles").select("email,cnpj").limit(5000),
-        supabase.from("clientes").select("email,cnpj").limit(5000),
+        supabase
+          .from("profiles")
+          .select("email,cnpj")
+          .order("created_at", { ascending: false })
+          .limit(2000),
+        supabase.from("clientes").select("email,cnpj").order("nome").limit(5000),
         supabase.from("ferramentas").select("id", { count: "exact", head: true }),
         supabase.from("treinamentos").select("id", { count: "exact", head: true }),
         supabase.from("avisos").select("id", { count: "exact", head: true }).eq("ativo", true),
